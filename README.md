@@ -1,2 +1,3 @@
-# kekule91.github.io
-Pase de Laboratorio — TP Reacciones químicas
+# Pase de Laboratorio
+
+Sitio del curso: https://kekule91.github.io/
