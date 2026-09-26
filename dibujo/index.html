@@ -40,10 +40,22 @@
   .hint { color: var(--muted); font-size: 12px; }
   .hint code { background: #f1f3f6; padding: 0 3px; border-radius: 3px; }
   #props:empty::after { content: "Seleccioná un objeto para editarlo."; color: var(--muted); font-size: 12px; }
+  #props-toggle { display: none; }
+  #zoom-label { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+  @media (pointer: coarse) { button { padding: 8px 11px; } .tools button { padding: 7px 2px; } }
   @media (max-width: 900px) {
+    header { flex-wrap: nowrap; overflow-x: auto; padding: 6px 8px; }
+    header > * { flex: 0 0 auto; }
+    header h1 { font-size: 14px; }
     main { flex-direction: column; }
-    aside, aside.right { width: auto; border: 0; border-bottom: 1px solid var(--line); max-height: 30vh; }
-    .tools { grid-template-columns: repeat(6, 1fr); }
+    aside:not(.right) { width: auto; border: 0; border-bottom: 1px solid var(--line); padding: 6px; overflow-x: auto; overflow-y: hidden; display: flex; gap: 5px; flex: 0 0 auto; }
+    aside:not(.right) h2, aside:not(.right) .hint { display: none; }
+    .tools { display: flex; gap: 5px; }
+    .tools button { width: 64px; flex: 0 0 64px; }
+    aside.right { position: fixed; left: 0; right: 0; bottom: 0; width: auto; max-height: 55vh; border-left: 0; border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(0,0,0,.18); border-radius: 14px 14px 0 0; transform: translateY(105%); transition: transform .2s; z-index: 10; }
+    body.props-open aside.right { transform: none; }
+    #props-toggle { display: inline-block; }
+    #canvas { margin: 10px auto; }
   }
 </style>
 </head>
@@ -61,7 +73,9 @@
     <option value="400x300">400 × 300</option>
     <option value="1000x700">1000 × 700</option>
   </select>
+  <button id="zout" title="Alejar">−</button><span id="zoom-label">100%</span><button id="zin" title="Acercar">+</button><button id="zfit" title="Ajustar a la pantalla">Ajustar</button>
   <span class="sep"></span>
+  <button id="props-toggle">⚙ Propiedades</button>
   <button id="save">Guardar proyecto</button>
   <button id="open">Abrir</button>
   <input type="file" id="file" accept=".json,application/json" hidden />
@@ -78,11 +92,11 @@
     <div class="tools" id="t-lab"></div>
     <h2>Partículas</h2>
     <div class="tools" id="t-part"></div>
-    <p class="hint">Hacé clic en el lienzo para colocar. Arrastrá para mover; el cuadradito azul cambia el tamaño. <code>Esc</code> vuelve a seleccionar, <code>Supr</code> borra, <code>Ctrl+D</code> duplica.</p>
+    <p class="hint">Con lápiz: dibujá y mové. Con el dedo: desplazá y pellizcá para hacer zoom. Hacé clic en el lienzo para colocar. Arrastrá para mover; el cuadradito azul cambia el tamaño. <code>Esc</code> vuelve a seleccionar, <code>Supr</code> borra, <code>Ctrl+D</code> duplica.</p>
   </aside>
   <div id="stage"><svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg></div>
   <aside class="right">
-    <h2>Propiedades</h2>
+    <h2>Propiedades <button id="props-close" style="float:right;padding:0 8px" aria-label="Cerrar">✕</button></h2>
     <div id="props"></div>
     <h2>Caja de partículas</h2>
     <p class="hint">Seleccioná un rectángulo y rellenalo con partículas.</p>
@@ -149,7 +163,8 @@ let W = 800, H = 500;
 let objs = [];
 let sel = null;          // id seleccionado
 let tool = "select";
-let snap = true, bw = false;
+let snap = true, bw = false, zoom = 1;
+const coarse = matchMedia("(pointer: coarse)").matches;
 let nextId = 1;
 const undoStack = [], redoStack = [];
 
@@ -318,7 +333,8 @@ function bbox(o) {
 }
 
 function render() {
-  svg.setAttribute("width", W); svg.setAttribute("height", H);
+  svg.setAttribute("width", Math.round(W * zoom)); svg.setAttribute("height", Math.round(H * zoom)); $("zoom-label").textContent = Math.round(zoom * 100) + "%";
+  const hs = (coarse ? 18 : 10) / zoom;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = "";
   const defs = el("defs", {}, svg); arrowDefs(defs);
@@ -334,13 +350,13 @@ function render() {
     const ui = el("g", { class: "ui" }, svg);
     if (s.type === "line") {
       [[s.x1, s.y1, "p1"], [s.x2, s.y2, "p2"]].forEach(([x, y, h]) =>
-        el("circle", { cx: x, cy: y, r: 6, fill: "#fff", stroke: "#1f5fbf", "stroke-width": 2, "data-handle": h, style: "cursor:move" }, ui));
+        el("circle", { cx: x, cy: y, r: hs * 0.6, fill: "#fff", stroke: "#1f5fbf", "stroke-width": 2, "data-handle": h, style: "cursor:move" }, ui));
     } else {
       let b = bbox(s);
       if (!b) { const bb = layer.querySelector(`[data-id="${s.id}"]`).getBBox(); b = { x: bb.x, y: bb.y, w: bb.width, h: bb.height }; }
       el("rect", { x: b.x - 4, y: b.y - 4, width: b.w + 8, height: b.h + 8, fill: "none", stroke: "#1f5fbf", "stroke-dasharray": "4 3", "pointer-events": "none" }, ui);
       if (s.type !== "text")
-        el("rect", { x: b.x + b.w - 1, y: b.y + b.h - 1, width: 10, height: 10, fill: "#1f5fbf", "data-handle": "resize", style: "cursor:nwse-resize" }, ui);
+        el("rect", { x: b.x + b.w - hs / 3, y: b.y + b.h - hs / 3, width: hs, height: hs, fill: "#1f5fbf", "data-handle": "resize", style: "cursor:nwse-resize" }, ui);
     }
   }
 }
@@ -415,7 +431,51 @@ function pt(e) {
 }
 let drag = null;
 
+// Gestos: el lápiz (S Pen) o el mouse dibujan; el dedo desplaza y hace zoom con dos dedos.
+// Si nunca se usó un lápiz, un solo dedo también dibuja.
+const stage = $("stage");
+const touches = new Map();
+let penSeen = false, gesture = null;
+function setZoom(z, cx, cy) {
+  z = Math.min(4, Math.max(0.25, z));
+  const r = svg.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+  if (cx === undefined) { cx = sr.left + sr.width / 2; cy = sr.top + sr.height / 2; }
+  const ux = (cx - r.left) / zoom, uy = (cy - r.top) / zoom;
+  zoom = z; render();
+  const r2 = svg.getBoundingClientRect();
+  stage.scrollLeft += (r2.left + ux * zoom) - cx;
+  stage.scrollTop += (r2.top + uy * zoom) - cy;
+}
+function fitZoom() {
+  const sr = stage.getBoundingClientRect();
+  zoom = Math.min(2, Math.max(0.25, Math.min((sr.width - 20) / W, (sr.height - 20) / H)));
+  render();
+}
+function cancelDrag() {
+  if (!drag) return;
+  if (drag.committed !== false) { const s = undoStack.pop(); if (s) { const d = JSON.parse(s); objs = d.objs; } }
+  drag = null; if (!byId(sel)) sel = null; render(); renderProps();
+}
 svg.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "pen") penSeen = true;
+  if (e.pointerType === "touch") {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2) {
+      cancelDrag();
+      const [a, b] = [...touches.values()];
+      gesture = { mode: "pinch", d: Math.hypot(a.x - b.x, a.y - b.y), z: zoom };
+      return;
+    }
+    if (touches.size > 2) return;
+    const onObj = e.target.closest("[data-id]") || e.target.getAttribute("data-handle");
+    if (penSeen ? !(tool === "select" && onObj) : (tool === "select" && !onObj)) {
+      gesture = { mode: "pan", x: e.clientX, y: e.clientY, sl: stage.scrollLeft, st: stage.scrollTop, moved: false };
+      return;
+    }
+  }
+  startPointer(e);
+});
+function startPointer(e) {
   const p = pt(e);
   svg.setPointerCapture(e.pointerId);
   const handle = e.target.getAttribute("data-handle");
@@ -442,6 +502,7 @@ svg.addEventListener("pointerdown", (e) => {
   } else if (tool === "text") {
     o = create("text", snapV(p.x), snapV(p.y));
     sel = o.id; setTool("select"); render(); renderProps();
+    document.body.classList.add("props-open");
     setTimeout(() => { const ta = $("p-text"); if (ta) { ta.focus(); ta.select(); } }, 0);
     autosave(); return;
   } else if (tool.startsWith("lab:")) {
@@ -454,9 +515,23 @@ svg.addEventListener("pointerdown", (e) => {
     o = create("particle", p.x, p.y, { kind: tool.slice(5), over: last ? { fill: last.fill, r: last.r, label: last.label } : {} });
   }
   sel = o.id; render(); renderProps(); autosave();
-});
+}
 
 svg.addEventListener("pointermove", (e) => {
+  if (e.pointerType === "touch" && touches.has(e.pointerId)) {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (gesture && gesture.mode === "pinch" && touches.size >= 2) {
+      const [a, b] = [...touches.values()];
+      setZoom(gesture.z * Math.hypot(a.x - b.x, a.y - b.y) / gesture.d, (a.x + b.x) / 2, (a.y + b.y) / 2);
+      return;
+    }
+    if (gesture && gesture.mode === "pan") {
+      if (Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) > 6) gesture.moved = true;
+      stage.scrollLeft = gesture.sl - (e.clientX - gesture.x);
+      stage.scrollTop = gesture.st - (e.clientY - gesture.y);
+      return;
+    }
+  }
   if (!drag) return;
   const p = pt(e), o = drag.o, dx = p.x - drag.start.x, dy = p.y - drag.start.y;
   if (drag.mode === "move") {
@@ -491,7 +566,20 @@ svg.addEventListener("pointermove", (e) => {
   render();
 });
 
-svg.addEventListener("pointerup", () => {
+function endTouch(e) {
+  if (e.pointerType !== "touch") return false;
+  touches.delete(e.pointerId);
+  if (gesture) {
+    // un toque corto sobre el fondo deselecciona
+    if (gesture.mode === "pan" && !gesture.moved && tool === "select") { sel = null; render(); renderProps(); }
+    if (touches.size === 0) gesture = null;
+    return true;
+  }
+  return false;
+}
+svg.addEventListener("pointercancel", (e) => { endTouch(e); cancelDrag(); });
+svg.addEventListener("pointerup", (e) => {
+  if (endTouch(e)) return;
   if (!drag) return;
   const o = drag.o;
   if (drag.mode === "draw" && (o.w < 5 || o.h < 5)) { o.w = drag.box ? 200 : 120; o.h = drag.box ? 140 : 80; }
@@ -657,6 +745,11 @@ function exportSVGString() {
   return { str: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(clone), w, h };
 }
 function download(blob, name) {
+  if (window.AndroidBridge) {
+    const fr = new FileReader();
+    fr.onload = () => window.AndroidBridge.saveFile(name, blob.type || "application/octet-stream", String(fr.result).split(",")[1]);
+    fr.readAsDataURL(blob); return;
+  }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -683,10 +776,15 @@ $("file").onchange = async (e) => {
   e.target.value = "";
 };
 $("clear").onclick = () => { if (objs.length && !confirm("¿Empezar un dibujo nuevo? (Podés deshacer con Ctrl+Z)")) return; commit(); objs = []; sel = null; render(); renderProps(); autosave(); };
+$("zin").onclick = () => setZoom(zoom * 1.25);
+$("zout").onclick = () => setZoom(zoom / 1.25);
+$("zfit").onclick = fitZoom;
+$("props-toggle").onclick = () => document.body.classList.toggle("props-open");
+$("props-close").onclick = () => document.body.classList.remove("props-open");
 $("undo").onclick = undo; $("redo").onclick = redo;
 $("bw").onclick = () => { bw = !bw; $("bw").classList.toggle("on", bw); render(); };
 $("grid").onclick = () => { snap = !snap; $("grid").classList.toggle("on", snap); render(); };
-$("size").onchange = () => { commit(); [W, H] = $("size").value.split("x").map(Number); render(); autosave(); };
+$("size").onchange = () => { commit(); [W, H] = $("size").value.split("x").map(Number); fitZoom(); autosave(); };
 
 // ---------- Teclado ----------
 document.addEventListener("keydown", (e) => {
@@ -721,6 +819,7 @@ if (!objs.length) {
   const tt = create("text", 500, 350, { over: { text: "Modelo de partículas", fs: 18, anchor: "middle" } });
 }
 render(); renderProps();
+if (innerWidth < 900) fitZoom();
 </script>
 </body>
 </html>
