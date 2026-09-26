@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dibujos de Química</title>
+<meta name="description" content="Editor para dibujar material de laboratorio, modelos de partículas y diagramas de química para pruebas y actividades." />
+<style>
+  :root {
+    --bg: #eef1f5; --panel: #ffffff; --ink: #1d2733; --muted: #66727f;
+    --line: #d5dbe3; --accent: #1f5fbf; --accent-soft: #e3ecfa;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0 12px 0 0; }
+  button, select, input { font: inherit; color: inherit; }
+  button { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 9px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .sep { width: 1px; height: 24px; background: var(--line); margin: 0 4px; }
+  main { flex: 1; display: flex; min-height: 0; }
+  aside { width: 220px; background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 10px; }
+  aside.right { border-right: 0; border-left: 1px solid var(--line); width: 240px; }
+  aside h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 12px 0 6px; }
+  aside h2:first-child { margin-top: 0; }
+  .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .tools button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px; font-size: 11px; }
+  .tools svg { width: 30px; height: 30px; }
+  #stage { flex: 1; overflow: auto; position: relative; }
+  #canvas { display: block; background: #fff; margin: 20px auto; box-shadow: 0 1px 4px rgba(0,0,0,.15); touch-action: none; user-select: none; }
+  .row { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+  .row label { flex: 0 0 80px; color: var(--muted); font-size: 12px; }
+  .row input[type=text], .row input[type=number], .row select, .row textarea { flex: 1; min-width: 0; padding: 4px 6px; border: 1px solid var(--line); border-radius: 5px; }
+  .row input[type=color] { width: 36px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 5px; }
+  .row input[type=range] { flex: 1; }
+  .btns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .hint { color: var(--muted); font-size: 12px; }
+  .hint code { background: #f1f3f6; padding: 0 3px; border-radius: 3px; }
+  #props:empty::after { content: "Seleccioná un objeto para editarlo."; color: var(--muted); font-size: 12px; }
+  @media (max-width: 900px) {
+    main { flex-direction: column; }
+    aside, aside.right { width: auto; border: 0; border-bottom: 1px solid var(--line); max-height: 30vh; }
+    .tools { grid-template-columns: repeat(6, 1fr); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Dibujos de Química</h1>
+  <button id="undo" title="Deshacer (Ctrl+Z)">↶</button>
+  <button id="redo" title="Rehacer (Ctrl+Y)">↷</button>
+  <span class="sep"></span>
+  <button id="bw" title="Vista blanco y negro para fotocopias">B&amp;N</button>
+  <button id="grid" class="on" title="Ajustar a cuadrícula">Cuadrícula</button>
+  <select id="size" title="Tamaño del lienzo">
+    <option value="800x500">800 × 500</option>
+    <option value="600x400">600 × 400</option>
+    <option value="400x300">400 × 300</option>
+    <option value="1000x700">1000 × 700</option>
+  </select>
+  <span class="sep"></span>
+  <button id="save">Guardar proyecto</button>
+  <button id="open">Abrir</button>
+  <input type="file" id="file" accept=".json,application/json" hidden />
+  <button id="clear">Nuevo</button>
+  <span class="sep"></span>
+  <button id="png" class="primary">Exportar PNG</button>
+  <button id="svg" class="primary">Exportar SVG</button>
+</header>
+<main>
+  <aside>
+    <h2>Básicos</h2>
+    <div class="tools" id="t-basic"></div>
+    <h2>Laboratorio</h2>
+    <div class="tools" id="t-lab"></div>
+    <h2>Partículas</h2>
+    <div class="tools" id="t-part"></div>
+    <p class="hint">Hacé clic en el lienzo para colocar. Arrastrá para mover; el cuadradito azul cambia el tamaño. <code>Esc</code> vuelve a seleccionar, <code>Supr</code> borra, <code>Ctrl+D</code> duplica.</p>
+  </aside>
+  <div id="stage"><svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <aside class="right">
+    <h2>Propiedades</h2>
+    <div id="props"></div>
+    <h2>Caja de partículas</h2>
+    <p class="hint">Seleccioná un rectángulo y rellenalo con partículas.</p>
+    <div class="row"><label>Cantidad</label><input type="number" id="fill-n" value="16" min="1" max="200" /></div>
+    <div class="row"><label>Tipo</label><select id="fill-kind"><option value="atom">Átomo</option><option value="di">Diatómica</option><option value="tri">Triatómica</option></select></div>
+    <div class="row"><label>Color</label><input type="color" id="fill-color" value="#3b7dd8" /><label style="flex:0 0 auto">Radio</label><input type="number" id="fill-r" value="9" min="3" max="40" style="width:55px" /></div>
+    <div class="btns">
+      <button data-fill="solid">Sólido</button>
+      <button data-fill="liquid">Líquido</button>
+      <button data-fill="gas">Gas</button>
+    </div>
+    <h2>Texto químico</h2>
+    <p class="hint">En los textos: <code>H_2O</code> → subíndice, <code>Na^+</code> → superíndice, <code>SO_4^{2-}</code> con llaves para varios caracteres. <code>-></code> se convierte en →, <code><=></code> en ⇌.</p>
+  </aside>
+</main>
+<script>
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("canvas");
+const $ = (id) => document.getElementById(id);
+
+// ---------- Formas de material de laboratorio (caja 100×100) ----------
+const LAB = {
+  beaker: { name: "Vaso", w: 80, h: 90,
+    outline: "M8 4 L14 10 L14 96 L86 96 L86 10 L92 4",
+    body: "M14 10 L14 96 L86 96 L86 10 Z",
+    marks: "M14 30 H26 M14 50 H30 M14 70 H26" },
+  erlen: { name: "Erlenmeyer", w: 80, h: 100,
+    outline: "M38 3 L38 36 L8 90 Q6 96 13 96 L87 96 Q94 96 92 90 L62 36 L62 3",
+    body: "M38 3 L38 36 L8 90 Q6 96 13 96 L87 96 Q94 96 92 90 L62 36 L62 3 Z",
+    marks: "M30 70 H40 M24 80 H36" },
+  flask: { name: "Balón", w: 80, h: 100,
+    outline: "M42 3 L42 38 A30 30 0 1 0 58 38 L58 3",
+    body: "M42 3 L42 38 A30 30 0 1 0 58 38 L58 3 Z" },
+  tube: { name: "Tubo de ensayo", w: 26, h: 100,
+    outline: "M22 3 L22 82 A28 14 0 0 0 78 82 L78 3",
+    body: "M22 3 L22 82 A28 14 0 0 0 78 82 L78 3 Z" },
+  cylinder: { name: "Probeta", w: 34, h: 110,
+    outline: "M28 3 L28 90 L10 90 L10 97 L90 97 L90 90 L72 90 L72 3",
+    body: "M28 3 L28 90 L72 90 L72 3 Z",
+    marks: "M28 15 H44 M28 25 H38 M28 35 H44 M28 45 H38 M28 55 H44 M28 65 H38 M28 75 H44" },
+  funnel: { name: "Embudo", w: 70, h: 80,
+    outline: "M4 6 L96 6 L56 52 L56 96 M44 96 L44 52 L4 6",
+    body: "M4 6 L96 6 L56 52 L56 96 L44 96 L44 52 Z" },
+  burner: { name: "Mechero", w: 50, h: 90, noLiquid: true,
+    outline: "M40 45 L40 88 M60 45 L60 88 M40 45 H60 M15 88 H85 L85 96 H15 Z",
+    flame: "M50 4 C36 20 38 34 42 42 L58 42 C62 34 64 20 50 4 Z M50 18 C45 26 46 34 48 40 L52 40 C54 34 55 26 50 18 Z" },
+  thermo: { name: "Termómetro", w: 18, h: 110,
+    outline: "M40 4 A10 10 0 0 1 60 4 L60 84 A16 16 0 1 1 40 84 Z",
+    body: "M44 6 L56 6 L56 86 A12 12 0 1 1 44 86 Z",
+    marks: "M60 20 H70 M60 32 H66 M60 44 H70 M60 56 H66 M60 68 H70" },
+  tripod: { name: "Trípode", w: 90, h: 70, noLiquid: true,
+    outline: "M6 8 H94 M4 14 H96 M18 14 L8 96 M50 14 L50 96 M82 14 L92 96",
+    grid: "M10 8 V14 M20 8 V14 M30 8 V14 M40 8 V14 M50 8 V14 M60 8 V14 M70 8 V14 M80 8 V14 M90 8 V14" },
+};
+
+const PARTS = {
+  atom: { name: "Átomo" }, di: { name: "Diatómica" }, tri: { name: "Triatómica" },
+  box: { name: "Recipiente" },
+};
+
+// ---------- Estado ----------
+let W = 800, H = 500;
+let objs = [];
+let sel = null;          // id seleccionado
+let tool = "select";
+let snap = true, bw = false;
+let nextId = 1;
+const undoStack = [], redoStack = [];
+
+const DEFAULTS = { stroke: "#1d2733", fill: "none", sw: 2 };
+
+function uid() { return nextId++; }
+function snapV(v) { return snap ? Math.round(v / 10) * 10 : Math.round(v); }
+function byId(id) { return objs.find(o => o.id === id); }
+
+function commit() {
+  undoStack.push(JSON.stringify({ objs, W, H }));
+  if (undoStack.length > 100) undoStack.shift();
+  redoStack.length = 0;
+}
+function restore(s) {
+  const d = JSON.parse(s); objs = d.objs; W = d.W; H = d.H;
+  nextId = objs.reduce((m, o) => Math.max(m, o.id), 0) + 1;
+  if (!byId(sel)) sel = null;
+  $("size").value = W + "x" + H;
+  render(); renderProps(); autosave();
+}
+function undo() { if (!undoStack.length) return; redoStack.push(JSON.stringify({ objs, W, H })); restore(undoStack.pop()); }
+function redo() { if (!redoStack.length) return; undoStack.push(JSON.stringify({ objs, W, H })); restore(redoStack.pop()); }
+
+function autosave() { try { localStorage.setItem("quimdibujo", JSON.stringify({ objs, W, H })); } catch (e) {} }
+
+// ---------- Colores / B&N ----------
+function gray(hex) {
+  if (!hex || hex === "none") return hex;
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex); if (!m) return hex;
+  const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  let l = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+  const v = l.toString(16).padStart(2, "0");
+  return "#" + v + v + v;
+}
+const C = (c) => bw ? gray(c) : c;
+// Trazos siempre negros en B&N para buena fotocopia
+const S = (c) => bw ? (c === "none" ? c : "#000000") : c;
+
+// ---------- Texto químico ----------
+function chemTokens(str) {
+  str = str.replace(/<=>/g, "⇌").replace(/->/g, "→").replace(/<-/g, "←");
+  const out = []; let i = 0, buf = "";
+  const flush = () => { if (buf) out.push({ t: buf, m: 0 }); buf = ""; };
+  while (i < str.length) {
+    const ch = str[i];
+    if ((ch === "_" || ch === "^") && i + 1 < str.length) {
+      flush();
+      let t; i++;
+      if (str[i] === "{") { const j = str.indexOf("}", i); t = str.slice(i + 1, j < 0 ? undefined : j); i = j < 0 ? str.length : j + 1; }
+      else if (ch === "_") { const m = /^[0-9]+/.exec(str.slice(i)); t = m ? m[0] : str[i]; i += t.length; }
+      else { const m = /^[0-9]*[+\-]|^[0-9]+/.exec(str.slice(i)); t = m ? m[0] : str[i]; i += t.length; }
+      out.push({ t, m: ch === "_" ? -1 : 1 });
+    } else { buf += ch; i++; }
+  }
+  flush(); return out;
+}
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) if (attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function chemText(g, o) {
+  const lines = String(o.text).split("\n");
+  const t = el("text", { x: o.x, y: o.y, "font-size": o.fs, fill: S(o.stroke), "font-family": "Arial, Helvetica, sans-serif", "font-weight": o.bold ? "bold" : null, "text-anchor": o.anchor || "start" }, g);
+  lines.forEach((line, li) => {
+    const toks = chemTokens(line); let first = true, prev = 0;
+    if (!toks.length) toks.push({ t: " ", m: 0 });
+    toks.forEach(tok => {
+      const a = {};
+      if (first) { a.x = o.x; a.dy = li === 0 ? 0 : o.fs * 1.25; }
+      let target = tok.m === -1 ? o.fs * 0.3 : tok.m === 1 ? -o.fs * 0.4 : 0;
+      let cur = prev === -1 ? o.fs * 0.3 : prev === 1 ? -o.fs * 0.4 : 0;
+      a.dy = (a.dy || 0) + (target - cur);
+      if (tok.m) a["font-size"] = o.fs * 0.65;
+      const ts = el("tspan", a, t); ts.textContent = tok.t;
+      prev = tok.m; first = false;
+    });
+  });
+  return t;
+}
+
+// ---------- Render ----------
+function arrowDefs(defs) {
+  const mk = (id, path) => {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse", markerUnits: "strokeWidth" }, defs);
+    el("path", { d: path, fill: "context-stroke" }, m);
+  };
+  mk("ah", "M0 0 L10 5 L0 10 Z");
+}
+
+function drawParticle(g, cx, cy, r, kind, color, label, stroke) {
+  const pieces = kind === "di" ? [[-r * 0.7, 0], [r * 0.7, 0]]
+    : kind === "tri" ? [[0, -r * 0.2], [-r * 1.05, r * 0.6], [r * 1.05, r * 0.6]] : [[0, 0]];
+  pieces.forEach(([dx, dy], i) => {
+    const rr = kind === "tri" && i > 0 ? r * 0.7 : r;
+    el("circle", { cx: cx + dx, cy: cy + dy, r: rr, fill: C(kind === "tri" && i > 0 ? "#f2f2f2" : color), stroke: S(stroke), "stroke-width": 1.2 }, g);
+  });
+  if (label) {
+    const t = el("text", { x: cx, y: cy + r * 0.38, "font-size": r * 1.05, "text-anchor": "middle", fill: bw ? "#000" : "#fff", "font-family": "Arial, sans-serif", "font-weight": "bold", "pointer-events": "none" }, g);
+    t.textContent = label;
+  }
+}
+
+function drawObj(o, root) {
+  const g = el("g", { "data-id": o.id }, root);
+  const st = S(o.stroke), sw = o.sw;
+  const dash = o.dash ? `${sw * 3} ${sw * 2}` : null;
+  switch (o.type) {
+    case "rect":
+      el("rect", { x: o.x, y: o.y, width: o.w, height: o.h, rx: o.rx || 0, fill: C(o.fill), "pointer-events": "all", stroke: st, "stroke-width": sw, "stroke-dasharray": dash }, g); break;
+    case "ellipse":
+      el("ellipse", { cx: o.x + o.w / 2, cy: o.y + o.h / 2, rx: o.w / 2, ry: o.h / 2, fill: C(o.fill), "pointer-events": "all", stroke: st, "stroke-width": sw, "stroke-dasharray": dash }, g); break;
+    case "line": {
+      if (o.head === "eq") {
+        // flechas de equilibrio (arpones)
+        const dx = o.x2 - o.x1, dy = o.y2 - o.y1, L = Math.hypot(dx, dy) || 1;
+        const ux = dx / L, uy = dy / L, nx = -uy * 4, ny = ux * 4, hl = 9;
+        el("path", { d: `M${o.x1 - nx} ${o.y1 - ny} L${o.x2 - nx} ${o.y2 - ny} l${-ux * hl - nx * 1.6} ${-uy * hl - ny * 1.6}`, fill: "none", stroke: st, "stroke-width": sw }, g);
+        el("path", { d: `M${o.x2 + nx} ${o.y2 + ny} L${o.x1 + nx} ${o.y1 + ny} l${ux * hl + nx * 1.6} ${uy * hl + ny * 1.6}`, fill: "none", stroke: st, "stroke-width": sw }, g);
+      } else {
+        el("line", { x1: o.x1, y1: o.y1, x2: o.x2, y2: o.y2, stroke: st, "stroke-width": sw, "stroke-dasharray": dash, "stroke-linecap": "round",
+          "marker-end": o.head === "end" || o.head === "both" ? "url(#ah)" : null,
+          "marker-start": o.head === "both" ? "url(#ah)" : null }, g);
+      }
+      // zona de clic más gruesa
+      el("line", { x1: o.x1, y1: o.y1, x2: o.x2, y2: o.y2, stroke: "transparent", "stroke-width": 12, class: "hit" }, g);
+      break;
+    }
+    case "text":
+      chemText(g, o); break;
+    case "lab": {
+      const L = LAB[o.shape];
+      const inner = el("g", { transform: `translate(${o.x} ${o.y}) scale(${o.w / 100} ${o.h / 100})` }, g);
+      const common = { fill: "none", stroke: st, "stroke-width": sw, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round", "stroke-linecap": "round" };
+      if (L.body) el("path", { d: L.body, fill: C(o.fill === "none" ? "#ffffff" : o.fill), stroke: "none", opacity: o.fill === "none" ? 0 : 0.35 }, inner);
+      if (L.body && !L.noLiquid && o.level > 0) {
+        const cid = "clip" + o.id;
+        const cp = el("clipPath", { id: cid }, inner);
+        el("path", { d: L.body }, cp);
+        const top = 100 - o.level;
+        el("rect", { x: 0, y: top, width: 100, height: 100, fill: C(o.liquid), "clip-path": `url(#${cid})`, opacity: bw ? 1 : 0.75 }, inner);
+        el("line", { x1: 0, y1: top, x2: 100, y2: top, stroke: st, "stroke-width": 1, "vector-effect": "non-scaling-stroke", "clip-path": `url(#${cid})` }, inner);
+      }
+      if (L.flame) el("path", { d: L.flame, fill: C(o.liquid || "#f39c12"), stroke: st, "stroke-width": 1, "vector-effect": "non-scaling-stroke" }, inner);
+      el("path", { d: L.outline, ...common }, inner);
+      if (L.marks) el("path", { d: L.marks, ...common, "stroke-width": Math.max(1, sw * 0.6) }, inner);
+      if (L.grid) el("path", { d: L.grid, ...common, "stroke-width": 1 }, inner);
+      el("rect", { x: 0, y: 0, width: 100, height: 100, fill: "transparent" }, inner);
+      break;
+    }
+    case "particle":
+      drawParticle(g, o.x, o.y, o.r, o.kind, o.fill, o.label, o.stroke); break;
+  }
+  return g;
+}
+
+function bbox(o) {
+  switch (o.type) {
+    case "line": return { x: Math.min(o.x1, o.x2), y: Math.min(o.y1, o.y2), w: Math.abs(o.x2 - o.x1), h: Math.abs(o.y2 - o.y1) };
+    case "particle": { const k = o.kind === "di" ? 1.7 : o.kind === "tri" ? 1.9 : 1; return { x: o.x - o.r * k, y: o.y - o.r * 1.4, w: o.r * 2 * k, h: o.r * 2.8 }; }
+    case "text": return null; // se mide del DOM
+    default: return { x: o.x, y: o.y, w: o.w, h: o.h };
+  }
+}
+
+function render() {
+  svg.setAttribute("width", W); svg.setAttribute("height", H);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = "";
+  const defs = el("defs", {}, svg); arrowDefs(defs);
+  if (snap) {
+    const p = el("pattern", { id: "gridp", width: 10, height: 10, patternUnits: "userSpaceOnUse" }, defs);
+    el("path", { d: "M10 0 H0 V10", fill: "none", stroke: "#eef0f3", "stroke-width": 1 }, p);
+    el("rect", { width: W, height: H, fill: "url(#gridp)", class: "ui" }, svg);
+  }
+  const layer = el("g", { id: "content" }, svg);
+  objs.forEach(o => drawObj(o, layer));
+  const s = byId(sel);
+  if (s) {
+    const ui = el("g", { class: "ui" }, svg);
+    if (s.type === "line") {
+      [[s.x1, s.y1, "p1"], [s.x2, s.y2, "p2"]].forEach(([x, y, h]) =>
+        el("circle", { cx: x, cy: y, r: 6, fill: "#fff", stroke: "#1f5fbf", "stroke-width": 2, "data-handle": h, style: "cursor:move" }, ui));
+    } else {
+      let b = bbox(s);
+      if (!b) { const bb = layer.querySelector(`[data-id="${s.id}"]`).getBBox(); b = { x: bb.x, y: bb.y, w: bb.width, h: bb.height }; }
+      el("rect", { x: b.x - 4, y: b.y - 4, width: b.w + 8, height: b.h + 8, fill: "none", stroke: "#1f5fbf", "stroke-dasharray": "4 3", "pointer-events": "none" }, ui);
+      if (s.type !== "text")
+        el("rect", { x: b.x + b.w - 1, y: b.y + b.h - 1, width: 10, height: 10, fill: "#1f5fbf", "data-handle": "resize", style: "cursor:nwse-resize" }, ui);
+    }
+  }
+}
+
+// ---------- Creación ----------
+function create(type, x, y, extra = {}) {
+  const base = { id: uid(), type, stroke: DEFAULTS.stroke, sw: DEFAULTS.sw, fill: "none" };
+  let o;
+  if (type === "text") o = { ...base, x, y, text: "Texto", fs: 20 };
+  else if (type === "rect" || type === "ellipse") o = { ...base, x, y, w: 0, h: 0 };
+  else if (type === "line") o = { ...base, x1: x, y1: y, x2: x, y2: y, head: extra.head || "none" };
+  else if (type === "lab") {
+    const L = LAB[extra.shape];
+    o = { ...base, shape: extra.shape, x: snapV(x - L.w / 2), y: snapV(y - L.h / 2), w: L.w, h: L.h, level: L.noLiquid || !L.body ? 0 : (extra.shape === "thermo" ? 50 : 40),
+      liquid: extra.shape === "thermo" ? "#d63031" : extra.shape === "burner" ? "#f39c12" : "#6fb3e8" };
+  }
+  else if (type === "particle") o = { ...base, stroke: "#1d2733", x: snapV(x), y: snapV(y), r: 12, kind: extra.kind, fill: "#3b7dd8", label: "" };
+  Object.assign(o, extra.over || {});
+  objs.push(o);
+  return o;
+}
+
+// ---------- Herramientas ----------
+const ICON = {
+  select: '<path d="M8 4 L8 24 L13 19 L17 27 L20 25 L16 18 L23 18 Z" fill="#1d2733"/>',
+  rect: '<rect x="5" y="8" width="20" height="15" fill="none" stroke="#1d2733" stroke-width="2"/>',
+  ellipse: '<ellipse cx="15" cy="15" rx="11" ry="8" fill="none" stroke="#1d2733" stroke-width="2"/>',
+  line: '<line x1="5" y1="24" x2="25" y2="6" stroke="#1d2733" stroke-width="2"/>',
+  arrow: '<line x1="4" y1="15" x2="22" y2="15" stroke="#1d2733" stroke-width="2"/><path d="M20 10 L27 15 L20 20 Z" fill="#1d2733"/>',
+  eq: '<path d="M4 12 H26 l-6 -4 M26 18 H4 l6 4" fill="none" stroke="#1d2733" stroke-width="2"/>',
+  text: '<text x="15" y="21" font-size="15" text-anchor="middle" font-family="Arial" font-weight="bold">H₂O</text>',
+};
+function labIcon(k) {
+  const L = LAB[k];
+  return `<g transform="translate(3 3) scale(.24)"><path d="${L.outline}" fill="none" stroke="#1d2733" stroke-width="6" stroke-linejoin="round"/>${L.flame ? `<path d="${L.flame}" fill="#f39c12"/>` : ""}</g>`;
+}
+function partIcon(k) {
+  if (k === "box") return '<rect x="4" y="5" width="22" height="20" fill="none" stroke="#1d2733" stroke-width="2"/><circle cx="10" cy="19" r="3" fill="#3b7dd8"/><circle cx="17" cy="19" r="3" fill="#3b7dd8"/><circle cx="14" cy="13" r="3" fill="#3b7dd8"/>';
+  if (k === "atom") return '<circle cx="15" cy="15" r="9" fill="#3b7dd8" stroke="#1d2733"/>';
+  if (k === "di") return '<circle cx="11" cy="15" r="7" fill="#d63031" stroke="#1d2733"/><circle cx="19" cy="15" r="7" fill="#d63031" stroke="#1d2733"/>';
+  return '<circle cx="8" cy="19" r="5" fill="#f2f2f2" stroke="#1d2733"/><circle cx="22" cy="19" r="5" fill="#f2f2f2" stroke="#1d2733"/><circle cx="15" cy="14" r="7" fill="#d63031" stroke="#1d2733"/>';
+}
+const TOOLS = [];
+function addTool(container, id, label, icon) {
+  const b = document.createElement("button");
+  b.dataset.tool = id; b.title = label;
+  b.innerHTML = `<svg viewBox="0 0 30 30">${icon}</svg><span>${label}</span>`;
+  b.onclick = () => setTool(id);
+  $(container).appendChild(b); TOOLS.push(b);
+}
+addTool("t-basic", "select", "Seleccionar", ICON.select);
+addTool("t-basic", "text", "Texto", ICON.text);
+addTool("t-basic", "rect", "Rectángulo", ICON.rect);
+addTool("t-basic", "ellipse", "Elipse", ICON.ellipse);
+addTool("t-basic", "line", "Línea", ICON.line);
+addTool("t-basic", "arrow", "Flecha", ICON.arrow);
+addTool("t-basic", "eq", "Equilibrio", ICON.eq);
+for (const k in LAB) addTool("t-lab", "lab:" + k, LAB[k].name, labIcon(k));
+for (const k in PARTS) addTool("t-part", "part:" + k, PARTS[k].name, partIcon(k));
+
+function setTool(t) {
+  tool = t;
+  TOOLS.forEach(b => b.classList.toggle("on", b.dataset.tool === t));
+  svg.style.cursor = t === "select" ? "default" : "crosshair";
+}
+setTool("select");
+
+// ---------- Interacción con el puntero ----------
+function pt(e) {
+  const r = svg.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
+}
+let drag = null;
+
+svg.addEventListener("pointerdown", (e) => {
+  const p = pt(e);
+  svg.setPointerCapture(e.pointerId);
+  const handle = e.target.getAttribute("data-handle");
+  if (handle && sel) { commit(); drag = { mode: handle, o: byId(sel), start: p, orig: { ...byId(sel) } }; return; }
+
+  if (tool === "select") {
+    const g = e.target.closest("[data-id]");
+    if (g) {
+      sel = +g.getAttribute("data-id");
+      commit();
+      drag = { mode: "move", o: byId(sel), start: p, orig: { ...byId(sel) }, moved: false };
+    } else sel = null;
+    render(); renderProps(); return;
+  }
+  commit();
+  let o;
+  if (tool === "rect" || tool === "ellipse") {
+    o = create(tool, snapV(p.x), snapV(p.y));
+    if (tool === "rect" && e.shiftKey) o.rx = 0;
+    drag = { mode: "draw", o, start: { x: o.x, y: o.y } };
+  } else if (tool === "line" || tool === "arrow" || tool === "eq") {
+    o = create("line", snapV(p.x), snapV(p.y), { head: tool === "arrow" ? "end" : tool === "eq" ? "eq" : "none" });
+    drag = { mode: "p2", o, start: p, orig: { ...o } };
+  } else if (tool === "text") {
+    o = create("text", snapV(p.x), snapV(p.y));
+    sel = o.id; setTool("select"); render(); renderProps();
+    setTimeout(() => { const ta = $("p-text"); if (ta) { ta.focus(); ta.select(); } }, 0);
+    autosave(); return;
+  } else if (tool.startsWith("lab:")) {
+    o = create("lab", p.x, p.y, { shape: tool.slice(4) });
+  } else if (tool === "part:box") {
+    o = create("rect", snapV(p.x), snapV(p.y));
+    drag = { mode: "draw", o, start: { x: o.x, y: o.y }, box: true };
+  } else if (tool.startsWith("part:")) {
+    const last = [...objs].reverse().find(x => x.type === "particle" && x.kind === tool.slice(5));
+    o = create("particle", p.x, p.y, { kind: tool.slice(5), over: last ? { fill: last.fill, r: last.r, label: last.label } : {} });
+  }
+  sel = o.id; render(); renderProps(); autosave();
+});
+
+svg.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const p = pt(e), o = drag.o, dx = p.x - drag.start.x, dy = p.y - drag.start.y;
+  if (drag.mode === "move") {
+    drag.moved = true;
+    if (o.type === "line") {
+      const sx = snapV(drag.orig.x1 + dx) - drag.orig.x1, sy = snapV(drag.orig.y1 + dy) - drag.orig.y1;
+      o.x1 = drag.orig.x1 + sx; o.y1 = drag.orig.y1 + sy; o.x2 = drag.orig.x2 + sx; o.y2 = drag.orig.y2 + sy;
+    } else { o.x = snapV(drag.orig.x + dx); o.y = snapV(drag.orig.y + dy); }
+  } else if (drag.mode === "draw") {
+    const x2 = snapV(p.x), y2 = snapV(p.y);
+    o.x = Math.min(drag.start.x, x2); o.y = Math.min(drag.start.y, y2);
+    o.w = Math.abs(x2 - drag.start.x); o.h = Math.abs(y2 - drag.start.y);
+    if (e.shiftKey) { const m = Math.max(o.w, o.h); o.w = o.h = m; }
+  } else if (drag.mode === "p1" || drag.mode === "p2") {
+    let x = snapV(p.x), y = snapV(p.y);
+    const k = drag.mode === "p1" ? ["x1", "y1", "x2", "y2"] : ["x2", "y2", "x1", "y1"];
+    if (e.shiftKey) { // ángulos de 45°
+      const ox = o[k[2]], oy = o[k[3]], a = Math.round(Math.atan2(y - oy, x - ox) / (Math.PI / 4)) * Math.PI / 4, L = Math.hypot(x - ox, y - oy);
+      x = Math.round(ox + Math.cos(a) * L); y = Math.round(oy + Math.sin(a) * L);
+    }
+    o[k[0]] = x; o[k[1]] = y;
+  } else if (drag.mode === "resize") {
+    if (o.type === "particle") { o.r = Math.max(3, Math.round(drag.orig.r + (dx + dy) / 4)); }
+    else {
+      let w = Math.max(10, snapV(drag.orig.w + dx)), h = Math.max(10, snapV(drag.orig.h + dy));
+      if (e.shiftKey || o.type === "lab") { // proporcional (Shift en rect/elipse; siempre en laboratorio salvo Alt)
+        if (!(o.type === "lab" && e.altKey)) { const s = Math.max(w / drag.orig.w, h / drag.orig.h); w = Math.round(drag.orig.w * s); h = Math.round(drag.orig.h * s); }
+      }
+      o.w = w; o.h = h;
+    }
+  }
+  render();
+});
+
+svg.addEventListener("pointerup", () => {
+  if (!drag) return;
+  const o = drag.o;
+  if (drag.mode === "draw" && (o.w < 5 || o.h < 5)) { o.w = drag.box ? 200 : 120; o.h = drag.box ? 140 : 80; }
+  if (drag.mode === "p2" && Math.hypot(o.x2 - o.x1, o.y2 - o.y1) < 5) { o.x2 = o.x1 + 100; }
+  if (drag.mode === "move" && !drag.moved) undoStack.pop();
+  if (drag.mode === "draw" || drag.mode === "p2") { /* se queda en la herramienta para seguir dibujando */ }
+  drag = null; render(); renderProps(); autosave();
+});
+
+// ---------- Panel de propiedades ----------
+function renderProps() {
+  const box = $("props"); box.innerHTML = "";
+  const o = byId(sel); if (!o) return;
+  const row = (label, input) => { const d = document.createElement("div"); d.className = "row"; d.innerHTML = `<label>${label}</label>`; d.appendChild(input); box.appendChild(d); return input; };
+  const inp = (type, key, attrs = {}) => {
+    const i = document.createElement(type === "textarea" ? "textarea" : "input");
+    if (type !== "textarea") i.type = type;
+    Object.assign(i, attrs); i.value = o[key] ?? "";
+    let committed = false;
+    i.addEventListener("input", () => {
+      if (!committed) { commit(); committed = true; }
+      o[key] = (type === "number" || type === "range") ? +i.value : i.value;
+      render(); autosave();
+    });
+    i.addEventListener("change", () => { committed = false; });
+    return i;
+  };
+  const sel_ = (key, opts) => {
+    const s = document.createElement("select");
+    opts.forEach(([v, t]) => { const op = document.createElement("option"); op.value = v; op.textContent = t; s.appendChild(op); });
+    s.value = o[key] ?? opts[0][0];
+    s.onchange = () => { commit(); o[key] = s.value; render(); autosave(); };
+    return s;
+  };
+  const chk = (key) => { const c = document.createElement("input"); c.type = "checkbox"; c.checked = !!o[key]; c.onchange = () => { commit(); o[key] = c.checked; render(); autosave(); }; return c; };
+  const fillRow = (label, key) => {
+    const d = document.createElement("div"); d.className = "row"; d.innerHTML = `<label>${label}</label>`;
+    const c = inp("color", key); if (o[key] === "none") c.value = "#ffffff";
+    const none = document.createElement("button"); none.textContent = "Sin relleno"; none.style.fontSize = "11px";
+    none.onclick = () => { commit(); o[key] = "none"; render(); autosave(); };
+    d.append(c, none); box.appendChild(d);
+  };
+
+  const names = { rect: "Rectángulo", ellipse: "Elipse", line: "Línea / flecha", text: "Texto", particle: "Partícula", lab: o.shape && LAB[o.shape].name };
+  const h = document.createElement("div"); h.innerHTML = `<strong>${names[o.type]}</strong>`; box.appendChild(h);
+
+  if (o.type === "text") {
+    row("Texto", inp("textarea", "text", { rows: 3, id: "p-text" }));
+    row("Tamaño", inp("number", "fs", { min: 8, max: 120 }));
+    row("Negrita", chk("bold"));
+    row("Color", inp("color", "stroke"));
+  } else if (o.type === "particle") {
+    row("Tipo", sel_("kind", [["atom", "Átomo"], ["di", "Diatómica"], ["tri", "Triatómica"]]));
+    row("Color", inp("color", "fill"));
+    row("Radio", inp("number", "r", { min: 3, max: 80 }));
+    row("Letra", inp("text", "label", { maxLength: 3, placeholder: "ej: O, Na" }));
+  } else {
+    row("Trazo", inp("color", "stroke"));
+    row("Grosor", inp("range", "sw", { min: 1, max: 8, step: 0.5 }));
+    if (o.type !== "lab") row("Punteado", chk("dash"));
+    if (o.type === "line") row("Punta", sel_("head", [["none", "Sin punta"], ["end", "Flecha →"], ["both", "Doble ↔"], ["eq", "Equilibrio ⇌"]]));
+    if (o.type === "rect" || o.type === "ellipse") fillRow("Relleno", "fill");
+    if (o.type === "rect") row("Esquinas", inp("range", "rx", { min: 0, max: 40 }));
+    if (o.type === "lab") {
+      const L = LAB[o.shape];
+      if (L.body && !L.noLiquid) {
+        row("Nivel %", inp("range", "level", { min: 0, max: 100 }));
+        row(o.shape === "thermo" ? "Color" : "Líquido", inp("color", "liquid"));
+      }
+      if (L.flame) row("Llama", inp("color", "liquid"));
+      if (!L.noLiquid && L.body) fillRow("Vidrio", "fill");
+      const hint = document.createElement("p"); hint.className = "hint"; hint.textContent = "El tamaño es proporcional; mantené Alt para deformar."; box.appendChild(hint);
+    }
+  }
+  const btns = document.createElement("div"); btns.className = "btns";
+  const b = (t, f) => { const x = document.createElement("button"); x.textContent = t; x.onclick = f; btns.appendChild(x); };
+  b("Duplicar", duplicate);
+  b("Al frente", () => { commit(); objs = objs.filter(x => x !== o); objs.push(o); render(); autosave(); });
+  b("Al fondo", () => { commit(); objs = objs.filter(x => x !== o); objs.unshift(o); render(); autosave(); });
+  b("Borrar", del);
+  box.appendChild(btns);
+}
+
+function duplicate() {
+  const o = byId(sel); if (!o) return;
+  commit();
+  const c = JSON.parse(JSON.stringify(o)); c.id = uid();
+  if (c.type === "line") { c.x1 += 20; c.y1 += 20; c.x2 += 20; c.y2 += 20; } else { c.x += 20; c.y += 20; }
+  objs.push(c); sel = c.id; render(); renderProps(); autosave();
+}
+function del() {
+  if (!sel) return; commit();
+  objs = objs.filter(x => x.id !== sel); sel = null; render(); renderProps(); autosave();
+}
+
+// ---------- Relleno de partículas ----------
+document.querySelectorAll("[data-fill]").forEach(btn => btn.onclick = () => {
+  const box = byId(sel);
+  if (!box || box.type !== "rect") { alert("Primero seleccioná un rectángulo (o dibujá un Recipiente)."); return; }
+  const n = Math.max(1, Math.min(200, +$("fill-n").value || 16));
+  const r = +$("fill-r").value || 9, kind = $("fill-kind").value, color = $("fill-color").value;
+  const mode = btn.dataset.fill;
+  const pad = r * (kind === "atom" ? 1.1 : 2) + box.sw;
+  const x0 = box.x + pad, x1 = box.x + box.w - pad, y1 = box.y + box.h - pad;
+  const cellW = r * (kind === "atom" ? 2.05 : kind === "di" ? 3.5 : 4), cellH = r * (kind === "atom" ? 2.05 : 2.9);
+  const pts = [];
+  if (mode === "solid") {
+    const cols = Math.max(1, Math.floor((x1 - x0) / cellW) + 1);
+    const usedCols = Math.min(cols, Math.ceil(Math.sqrt(n * 1.5)));
+    const startX = box.x + box.w / 2 - (usedCols - 1) * cellW / 2;
+    for (let i = 0; i < n; i++) { const c = i % usedCols, rw = Math.floor(i / usedCols); pts.push([startX + c * cellW, y1 - rw * cellH]); }
+  } else if (mode === "liquid") {
+    const cols = Math.max(1, Math.floor((x1 - x0) / (cellW * 1.05)) + 1);
+    for (let i = 0; i < n; i++) {
+      const c = i % cols, rw = Math.floor(i / cols);
+      pts.push([x0 + c * (x1 - x0) / Math.max(1, cols - 1) + (Math.random() - 0.5) * r * 0.5, y1 - rw * cellH * 1.05 + (Math.random() - 0.5) * r * 0.4]);
+    }
+  } else {
+    let tries = 0;
+    const y0 = box.y + pad;
+    while (pts.length < n && tries < 5000) {
+      tries++;
+      const x = x0 + Math.random() * (x1 - x0), y = y0 + Math.random() * (y1 - y0);
+      if (pts.every(([a, b]) => Math.hypot(a - x, b - y) > cellW * 1.3)) pts.push([x, y]);
+    }
+  }
+  commit();
+  const rot = mode === "solid" ? 0 : 1;
+  pts.forEach(([x, y]) => {
+    if (y < box.y + pad * 0.5) return;
+    objs.push({ id: uid(), type: "particle", x: Math.round(x), y: Math.round(y), r, kind, fill: color, label: "", stroke: "#1d2733", sw: 1 });
+  });
+  render(); autosave();
+});
+
+// ---------- Exportar ----------
+function exportSVGString() {
+  const prevSel = sel; sel = null; render();
+  const clone = svg.cloneNode(true);
+  clone.querySelectorAll(".ui, .hit").forEach(n => n.remove());
+  // recortar al contenido
+  const bb = svg.querySelector("#content").getBBox();
+  const pad = 12;
+  let x = Math.floor(bb.x - pad), y = Math.floor(bb.y - pad), w = Math.ceil(bb.width + pad * 2), h = Math.ceil(bb.height + pad * 2);
+  if (!objs.length) { x = 0; y = 0; w = W; h = H; }
+  clone.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
+  clone.setAttribute("width", w); clone.setAttribute("height", h);
+  clone.removeAttribute("style"); clone.removeAttribute("id");
+  const bg = document.createElementNS(NS, "rect");
+  Object.entries({ x, y, width: w, height: h, fill: "#ffffff" }).forEach(([k, v]) => bg.setAttribute(k, v));
+  clone.insertBefore(bg, clone.querySelector("#content"));
+  // context-stroke no es universal: fijar color de la punta
+  clone.querySelectorAll("marker path").forEach(p => p.setAttribute("fill", "#000"));
+  clone.querySelectorAll("line[marker-end], line[marker-start]").forEach((ln, i) => {
+    const col = ln.getAttribute("stroke");
+    const mid = "ah" + i;
+    const m = clone.querySelector("#ah").cloneNode(true); m.id = mid; m.querySelector("path").setAttribute("fill", col);
+    clone.querySelector("defs").appendChild(m);
+    if (ln.hasAttribute("marker-end")) ln.setAttribute("marker-end", `url(#${mid})`);
+    if (ln.hasAttribute("marker-start")) ln.setAttribute("marker-start", `url(#${mid})`);
+  });
+  sel = prevSel; render();
+  return { str: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(clone), w, h };
+}
+function download(blob, name) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$("svg").onclick = () => { const { str } = exportSVGString(); download(new Blob([str], { type: "image/svg+xml" }), "dibujo-quimica.svg"); };
+$("png").onclick = () => {
+  const { str, w, h } = exportSVGString();
+  const img = new Image(), scale = 3;
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = w * scale; c.height = h * scale;
+    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    c.toBlob(b => download(b, "dibujo-quimica.png"), "image/png");
+  };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(str);
+};
+
+// ---------- Proyecto ----------
+$("save").onclick = () => download(new Blob([JSON.stringify({ app: "quimdibujo", v: 1, W, H, objs }, null, 1)], { type: "application/json" }), "proyecto-quimica.json");
+$("open").onclick = () => $("file").click();
+$("file").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.objs)) throw 0; commit(); restore(JSON.stringify({ objs: d.objs, W: d.W || 800, H: d.H || 500 })); }
+  catch (_) { alert("No se pudo abrir el archivo."); }
+  e.target.value = "";
+};
+$("clear").onclick = () => { if (objs.length && !confirm("¿Empezar un dibujo nuevo? (Podés deshacer con Ctrl+Z)")) return; commit(); objs = []; sel = null; render(); renderProps(); autosave(); };
+$("undo").onclick = undo; $("redo").onclick = redo;
+$("bw").onclick = () => { bw = !bw; $("bw").classList.toggle("on", bw); render(); };
+$("grid").onclick = () => { snap = !snap; $("grid").classList.toggle("on", snap); render(); };
+$("size").onchange = () => { commit(); [W, H] = $("size").value.split("x").map(Number); render(); autosave(); };
+
+// ---------- Teclado ----------
+document.addEventListener("keydown", (e) => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === "z" && !typing) { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (mod && e.key.toLowerCase() === "y" && !typing) { e.preventDefault(); redo(); return; }
+  if (typing) return;
+  if (mod && e.key.toLowerCase() === "d") { e.preventDefault(); duplicate(); return; }
+  if (e.key === "Escape") { setTool("select"); sel = null; render(); renderProps(); }
+  if ((e.key === "Delete" || e.key === "Backspace") && sel) { e.preventDefault(); del(); }
+  const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  if (arrows[e.key] && sel) {
+    e.preventDefault(); const o = byId(sel), st = e.shiftKey ? 10 : 1, [dx, dy] = arrows[e.key];
+    commit();
+    if (o.type === "line") { o.x1 += dx * st; o.x2 += dx * st; o.y1 += dy * st; o.y2 += dy * st; } else { o.x += dx * st; o.y += dy * st; }
+    render(); autosave();
+  }
+});
+
+// ---------- Inicio ----------
+try {
+  const saved = JSON.parse(localStorage.getItem("quimdibujo") || "null");
+  if (saved && Array.isArray(saved.objs)) { objs = saved.objs; W = saved.W; H = saved.H; nextId = objs.reduce((m, o) => Math.max(m, o.id), 0) + 1; $("size").value = W + "x" + H; }
+} catch (e) {}
+if (!objs.length) {
+  // Ejemplo inicial
+  const b = create("lab", 150, 250, { shape: "beaker" }); b.w = 120; b.h = 135; b.x = 90; b.y = 180;
+  const t = create("text", 150, 350, { over: { text: "H_2O (l)", fs: 20, anchor: "middle" } });
+  create("line", 250, 250, { head: "eq", over: { x2: 350 } });
+  const box = create("rect", 400, 180); box.w = 200; box.h = 140;
+  const tt = create("text", 500, 350, { over: { text: "Modelo de partículas", fs: 18, anchor: "middle" } });
+}
+render(); renderProps();
+</script>
+</body>
+</html>
