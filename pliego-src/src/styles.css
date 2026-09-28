@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+
+  --color-paper: #f3efe6;
+  --color-surface: #fffdf8;
+  --color-ink: #1c1915;
+  --color-muted: #5c564e;
+  --color-line: #e0d8cc;
+  --color-accent: #b42318;
+  --color-accent-ink: #fffdf8;
+  --color-accent-press: #8e1b14;
+  --color-soft: #ebe4d8;
+
+  --shadow-lift: 0 1px 2px rgb(28 25 21 / 0.05), 0 18px 40px rgb(28 25 21 / 0.08);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+}
+
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+  }
+
+  .field,
+  .field-area {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    padding: 0.75rem 0.875rem;
+    color: var(--color-ink);
+    outline: none;
+    font: inherit;
+  }
+
+  .field {
+    height: 3rem;
+  }
+
+  .field-area {
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  .field::placeholder,
+  .field-area::placeholder {
+    color: var(--color-muted);
+    opacity: 0.75;
+  }
+
+  .field:focus,
+  .field-area:focus {
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px rgb(180 35 24 / 0.18);
+  }
+
+  .field[aria-invalid="true"] {
+    border-color: var(--color-accent);
+  }
+
+  .btn {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding-inline: 1rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.2;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease,
+      border-color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+  }
+
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-accent-press);
+  }
+
+  .btn-secondary {
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-ink);
+  }
+
+  .btn-quiet {
+    background: transparent;
+    color: var(--color-muted);
+    padding-inline: 0.75rem;
+  }
+
+  .btn-quiet:hover:not(:disabled) {
+    background: var(--color-soft);
+    color: var(--color-ink);
+  }
+
+  .seg {
+    display: flex;
+    min-width: 0;
+    gap: 0.25rem;
+    border-radius: 0.75rem;
+    background: var(--color-soft);
+    padding: 0.25rem;
+  }
+
+  .seg button {
+    min-width: 0;
+    min-height: 2.75rem;
+    flex: 1;
+    border-radius: 0.55rem;
+    padding-inline: 0.35rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+
+  .seg button[aria-pressed="true"] {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .sheet-preload {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(100%);
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:active:not(:disabled) {
+    transition: none;
+    transform: none;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .sheet-preload {
+    position: static;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    pointer-events: auto;
+  }
+
+  body {
+    background: white;
+  }
+
+  .sheet-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8mm !important;
+  }
+
+  .sheet-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
