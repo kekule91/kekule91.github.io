@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0f3d2e">
+<title>Adiviná el Carbono</title>
+<style>
+:root{--bg:#0f3d2e;--card:#fff;--ink:#12302a;--ok:#2bb673;--pass:#f39c3d;--acc:#ffd23f;--mut:#a9c9bd}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh;padding:16px;max-width:900px;margin:0 auto}
+.screen.on{display:block}
+h1{font-size:1.9rem;margin:8px 0 2px}h2{font-size:1.3rem;margin:12px 0 8px}
+.sub{color:var(--mut);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.deck{border:0;border-radius:18px;padding:16px;text-align:left;color:var(--ink);cursor:pointer;min-height:120px;font:inherit;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.deck b{display:block;font-size:1.1rem;margin:4px 0}.deck small{opacity:.8}
+.deck .ic{font-size:2rem}
+.btn{border:0;border-radius:14px;padding:14px 20px;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;background:var(--acc);color:var(--ink)}
+.btn.sec{background:#ffffff22;color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+label{color:var(--mut)}select,input{font:inherit;padding:8px;border-radius:10px;border:0}
+.panel{background:#ffffff14;border-radius:16px;padding:14px;margin:12px 0}
+.teams span{display:inline-block;background:#ffffff22;border-radius:10px;padding:6px 10px;margin:4px}
+/* juego */
+#play{position:fixed;inset:0;max-width:none;padding:0;background:#1f6f54;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;user-select:none}
+#play.on{display:flex}
+#play.ok{background:var(--ok)}#play.pass{background:var(--pass)}
+#timer{position:absolute;top:10px;left:0;right:0;font-size:2rem;font-weight:800}
+#score{position:absolute;top:14px;right:18px;font-size:1.2rem}
+#term{font-size:clamp(2.2rem,9vw,5.5rem);font-weight:900;padding:0 24px;line-height:1.05}
+#taboo{margin-top:16px;font-size:clamp(1rem,3vw,1.4rem);color:#ffffffcc}
+#taboo em{font-style:normal;background:#00000033;border-radius:8px;padding:2px 8px;margin:2px;display:inline-block}
+#hint{position:absolute;bottom:10px;left:0;right:0;color:#ffffffaa;font-size:.9rem}
+.tap{position:absolute;top:0;bottom:0;width:50%}.tap.l{left:0}.tap.r{right:0}
+#count{font-size:8rem;font-weight:900}
+.res li{list-style:none;padding:6px 10px;border-radius:10px;margin:4px 0;background:#ffffff14}
+.res li.ok::before{content:"✔ ";color:var(--ok)}.res li.no::before{content:"✘ ";color:var(--pass)}
+.res li small{display:block;color:var(--mut)}
+</style>
+</head>
+<body>
+
+<section id="home" class="screen on">
+  <h1>🌍 Adiviná el Carbono</h1>
+  <p class="sub">Charadas inversas · FQ 3 · Carbono y Energía. Poné el celu en la frente; tu equipo explica sin decir las palabras prohibidas.</p>
+  <div class="panel">
+    <div class="row">
+      <label>Tiempo <select id="time"><option>45</option><option selected>60</option><option>90</option></select> s</label>
+      <label><input type="checkbox" id="showTaboo" checked> Palabras prohibidas</label>
+      <label><input type="checkbox" id="invert"> Invertir inclinación</label>
+    </div>
+    <div class="row">
+      <input id="teamName" placeholder="Nombre del equipo" maxlength="20">
+      <button class="btn sec" id="addTeam">+ Equipo</button>
+      <button class="btn sec" id="clearTeams">Borrar equipos</button>
+    </div>
+    <div class="teams" id="teams"></div>
+  </div>
+  <h2>Elegí un mazo</h2>
+  <div class="grid" id="decks"></div>
+  <div class="panel" style="margin-top:18px">
+    <b>Cómo se juega</b>
+    <p class="sub" style="margin:6px 0 0">Girá el celular en horizontal y apoyalo en la frente. <b>Inclinalo hacia abajo</b> = acierto ✔. <b>Hacia arriba</b> = paso ✘. Sin sensores: tocá la mitad derecha (acierto) o izquierda (paso). En PC: → acierto, ← paso.<br>
+    Las tarjetas que se pasan vuelven antes en próximas partidas (repetición espaciada).</p>
+    <div class="row"><button class="btn sec" id="resetMem">Reiniciar memoria de tarjetas</button></div>
+  </div>
+</section>
+
+<section id="ready" class="screen">
+  <h1 id="readyTitle"></h1>
+  <p class="sub" id="readyTeam"></p>
+  <p>Poné el celular en la frente con la pantalla hacia tu equipo.</p>
+  <div class="row"><button class="btn" id="go">¡Empezar!</button><button class="btn sec" data-back>Volver</button></div>
+</section>
+
+<div id="play">
+  <div id="timer"></div><div id="score"></div>
+  <div id="count"></div>
+  <div id="term"></div><div id="taboo"></div>
+  <div id="hint">abajo = ✔ · arriba = pasar</div>
+  <div class="tap l" data-act="pass"></div><div class="tap r" data-act="ok"></div>
+</div>
+
+<section id="results" class="screen">
+  <h1 id="resTitle"></h1>
+  <p class="sub" id="resSub"></p>
+  <div class="panel"><b>Para el debate:</b> elijan una tarjeta pasada y expliquen juntos el concepto en una oración usando evidencia.</div>
+  <ul class="res" id="resList"></ul>
+  <div class="row"><button class="btn" id="again">Otra ronda</button><button class="btn sec" data-back>Mazos</button></div>
+</section>
+
+<script>
+const DECKS=[
+{id:"A",ic:"🔄",name:"Ciclo del carbono",desc:"Reservorios, flujos, ciclo rápido y lento, desequilibrio",color:"#9be7c4",cards:[
+["Reservorio","depósito","guardar","carbono"],["Flujo de carbono","movimiento","pasar","reservorio"],["Tiempo de permanencia","cuánto","quedarse","años"],
+["Fotosíntesis","planta","luz","glucosa"],["Respiración celular","oxígeno","energía","exhalar"],["Océano","agua","mar","disuelto"],
+["Combustible fósil","petróleo","carbón","gas"],["Ciclo rápido","seres vivos","años","velocidad"],["Ciclo lento","rocas","millones","geológico"],
+["Roca caliza","carbonato","piedra","sedimento"],["Descomposición","hongos","bacterias","muerto"],["Atmósfera","aire","capa","CO₂"],
+["Deforestación","árboles","talar","bosque"],["Combustión","quemar","fuego","oxígeno"],["Desequilibrio","entra","sale","diferencia"],
+["Volcán","lava","erupción","montaña"],["Sumidero de carbono","absorbe","captura","guarda"]]},
+{id:"B",ic:"🌈",name:"Radiación",desc:"Espectro electromagnético y balance radiativo",color:"#ffd6a5",cards:[
+["Espectro electromagnético","ondas","luz","radiación"],["Longitud de onda","distancia","cresta","metro"],["Radiación infrarroja","calor","rojo","invisible"],
+["Luz visible","colores","ojo","arcoíris"],["Radiación ultravioleta","sol","piel","violeta"],["Microondas","cocina","calentar","onda"],
+["Rayos X","hueso","radiografía","médico"],["Ondas de radio","antena","música","FM"],["Frecuencia","hertz","veces","segundo"],
+["Balance radiativo","entra","sale","Tierra"],["Albedo","refleja","blanco","hielo"],["Temperatura del Sol","caliente","estrella","grados"],
+["Energía del fotón","partícula","luz","alta"],["Rayos gamma","nuclear","peligrosa","energía"]]},
+{id:"C",ic:"🧪",name:"Efecto invernadero",desc:"Absorción selectiva, balance energético, ecuaciones",color:"#caffbf",cards:[
+["Efecto invernadero","vidrio","calor","gases"],["Dióxido de carbono","CO₂","gas","respirar"],["Metano","CH₄","vacas","gas"],
+["Vapor de agua","nube","H₂O","humedad"],["Nitrógeno (N₂)","aire","78","no absorbe"],["Vibración molecular","mover","enlace","estirar"],
+["Absorción selectiva","algunas","elige","infrarrojo"],["Distribución de carga","polo","eléctrica","dipolo"],["Ecuación química","reactivos","productos","flecha"],
+["Balancear una ecuación","igualar","átomos","coeficiente"],["Ley de conservación de la masa","Lavoisier","nada se pierde","igual"],
+["Efecto invernadero natural","habitable","15 grados","vida"],["Equilibrio térmico","igual","temperatura","balance"],["Reactivo","inicio","izquierda","reacciona"]]},
+{id:"D",ic:"📈",name:"Cambio climático",desc:"Datos, series temporales, retroalimentaciones",color:"#bdb2ff",cards:[
+["Cambio climático","clima","calentamiento","global"],["Clima","tiempo","promedio","años"],["Tiempo meteorológico","hoy","lluvia","pronóstico"],
+["Serie temporal","datos","años","gráfico"],["Curva de Keeling","Mauna Loa","CO₂","zigzag"],["Retroalimentación positiva","refuerza","ciclo","más"],
+["Deshielo","hielo","derretir","polo"],["Permafrost","congelado","suelo","metano"],["Nivel del mar","sube","costa","océano"],
+["Tendencia","dirección","sube","gráfico"],["Anomalía de temperatura","diferencia","promedio","grados"],["Evento extremo","ola de calor","sequía","inundación"],
+["Acidificación del océano","pH","ácido","corales"],["Testigo de hielo","Antártida","burbujas","pasado"]]},
+{id:"E",ic:"⚡",name:"Energía eléctrica",desc:"Cadena de producción, tecnologías, matriz argentina",color:"#a0c4ff",cards:[
+["Central térmica","quemar","gas","vapor"],["Central hidroeléctrica","represa","río","agua"],["Energía eólica","viento","molino","aspas"],
+["Energía solar fotovoltaica","panel","sol","celda"],["Energía nuclear","uranio","Atucha","átomo"],["Turbina","girar","aspas","eje"],
+["Generador eléctrico","imán","bobina","corriente"],["Rendimiento","eficiencia","porcentaje","pérdida"],["Disipación como calor","pérdida","caliente","entorno"],
+["Matriz energética","mezcla","fuentes","país"],["Huella de carbono","emisiones","pisada","CO₂"],["Red eléctrica","cables","transmisión","torres"],
+["Energía renovable","agota","natural","limpia"],["Biomasa","leña","orgánica","residuos"],["Kilowatt hora","factura","consumo","kWh"],
+["Transformación de energía","cambia","forma","convierte"]]}
+];
+DECKS.push({id:"X",ic:"🎲",name:"Mezcla total",desc:"Todas las unidades: repaso integrador",color:"#ffadad",cards:DECKS.flatMap(d=>d.cards)});
+
+const $=s=>document.querySelector(s);
+const st=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let teams=st("gu_teams",[]),mem=st("gu_mem",{});
+let deck,cards,idx,log,left,tick,armed,busy,turn=0,started=false;
+
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("#play").classList.remove("on");id==="play"?$("#play").classList.add("on"):$("#"+id).classList.add("on");scrollTo(0,0)}
+function renderTeams(){$("#teams").innerHTML=teams.map(t=>`<span>${esc(t.n)}: <b>${t.p}</b></span>`).join("")||'<span>Modo libre (sin equipos)</span>'}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+$("#decks").innerHTML=DECKS.map(d=>`<button class="deck" style="background:${d.color}" data-d="${d.id}"><span class="ic">${d.ic}</span><b>${d.name}</b><small>${d.desc} · ${d.cards.length} tarjetas</small></button>`).join("");
+$("#decks").onclick=e=>{const b=e.target.closest(".deck");if(!b)return;deck=DECKS.find(d=>d.id===b.dataset.d);prepare()};
+$("#addTeam").onclick=()=>{const n=$("#teamName").value.trim();if(n){teams.push({n,p:0});sv("gu_teams",teams);$("#teamName").value="";renderTeams()}};
+$("#clearTeams").onclick=()=>{teams=[];turn=0;sv("gu_teams",teams);renderTeams()};
+$("#resetMem").onclick=()=>{mem={};sv("gu_mem",mem);alert("Memoria reiniciada")};
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>{renderTeams();show("home")});
+
+// Leitner: caja 0..4, intervalos en días
+const INT=[0,1,3,7,30];
+function priority(c){const m=mem[c[0]];if(!m)return 1+Math.random();const due=(Date.now()-m.t)/864e5-INT[m.b];return (due>=0?2:0)+(4-m.b)/4+Math.random()*.8}
+function prepare(){
+  cards=[...deck.cards].sort((a,b)=>priority(b)-priority(a));
+  $("#readyTitle").textContent=deck.ic+" "+deck.name;
+  $("#readyTeam").textContent=teams.length?"Turno de: "+teams[turn%teams.length].n:"";
+  show("ready");
+}
+async function askSensors(){
+  try{if(typeof DeviceMotionEvent!=="undefined"&&DeviceMotionEvent.requestPermission)await DeviceMotionEvent.requestPermission()}catch(e){}
+  try{if(screen.orientation&&screen.orientation.lock){await document.documentElement.requestFullscreen?.();await screen.orientation.lock("landscape")}}catch(e){}
+  try{wake=await navigator.wakeLock?.request("screen")}catch(e){}
+}
+let wake;
+$("#go").onclick=async()=>{await askSensors();start()};
+function start(){
+  idx=0;log=[];left=+$("#time").value;armed=false;busy=true;show("play");
+  $("#term").textContent="";$("#taboo").textContent="";$("#timer").textContent="";$("#score").textContent="";
+  let n=3;$("#count").textContent=n;
+  const c=setInterval(()=>{n--;if(n>0){$("#count").textContent=n;beep(500)}else{clearInterval(c);$("#count").textContent="";busy=false;started=true;card();
+    tick=setInterval(()=>{left--;$("#timer").textContent=left;if(left<=5&&left>0)beep(800);if(left<=0)end()},1000)}},1000);
+  beep(500);
+}
+function card(){
+  if(idx>=cards.length){end();return}
+  const c=cards[idx];$("#term").textContent=c[0];
+  $("#taboo").innerHTML=$("#showTaboo").checked?"No decir: "+c.slice(1).map(w=>`<em>${esc(w)}</em>`).join(""):"";
+  $("#timer").textContent=left;$("#score").textContent="✔ "+log.filter(l=>l.ok).length;
+  $("#play").className="on";
+}
+function answer(ok){
+  if(busy||!started)return;busy=true;
+  const c=cards[idx];log.push({c,ok});
+  const m=mem[c[0]]||{b:0,t:0};m.b=ok?Math.min(4,m.b+1):0;m.t=Date.now();mem[c[0]]=m;sv("gu_mem",mem);
+  $("#play").className="on "+(ok?"ok":"pass");$("#term").textContent=ok?"¡Correcto!":"Paso";$("#taboo").textContent="";
+  beep(ok?900:250);navigator.vibrate?.(ok?60:[40,40,40]);
+  setTimeout(()=>{idx++;busy=false;if(started)card()},700);
+}
+function end(){
+  if(!started)return;started=false;clearInterval(tick);beep(200,.6);
+  try{wake?.release();screen.orientation?.unlock?.();document.fullscreenElement&&document.exitFullscreen()}catch(e){}
+  const pts=log.filter(l=>l.ok).length;
+  let who="";if(teams.length){const t=teams[turn%teams.length];t.p+=pts;who=t.n+" · ";turn++;sv("gu_teams",teams)}
+  $("#resTitle").textContent=who+pts+" acierto"+(pts===1?"":"s");
+  $("#resSub").textContent=teams.length?"Tabla: "+teams.map(t=>t.n+" "+t.p).join(" · ")+(teams.length?" — sigue "+teams[turn%teams.length].n:""):deck.name;
+  $("#resList").innerHTML=log.map(l=>`<li class="${l.ok?"ok":"no"}">${esc(l.c[0])}<small>pistas: ${l.c.slice(1).map(esc).join(", ")}</small></li>`).join("")||"<li>Sin tarjetas jugadas</li>";
+  show("results");
+}
+$("#again").onclick=prepare;
+// entrada: inclinación por gravedad (eje z de la pantalla)
+addEventListener("devicemotion",e=>{
+  const g=e.accelerationIncludingGravity;if(!g||g.z==null||!started)return;
+  let z=g.z*($("#invert").checked?-1:1);
+  if(Math.abs(z)<3.5){armed=true;return}
+  if(!armed)return;
+  if(z<-7){armed=false;answer(true)}else if(z>7){armed=false;answer(false)}
+});
+document.querySelectorAll(".tap").forEach(t=>t.onclick=()=>answer(t.dataset.act==="ok"));
+addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key===" ")answer(true);if(e.key==="ArrowLeft")answer(false)});
+let ac;function beep(f,d=.12){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+renderTeams();
+</script>
+</body>
+</html>
