@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b4f8a">
+<title>4 Esquinas – Docente</title>
+<style>
+:root{--bg:#1b4f8a;--ink:#13233a;--sun:#f6b40e;--card:#ffffff18}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh;line-height:1.4}
+.screen{display:none;padding:16px;max-width:1100px;margin:0 auto}
+.screen.on{display:block}
+h1{font-size:1.9rem;margin:6px 0}h2{font-size:1.25rem;margin:18px 0 8px}
+.sub{color:#cfe0f3}
+.panel{background:var(--card);border-radius:16px;padding:14px;margin:12px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.btn{border:0;border-radius:14px;padding:12px 18px;font:inherit;font-weight:800;font-size:1rem;cursor:pointer;background:var(--sun);color:var(--ink)}
+.btn.sec{background:#ffffff26;color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.big{padding:18px 22px;font-size:1.15rem}
+.modos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.modos .panel p{margin:8px 0 12px;color:#dbe7f5}
+.cat h3{font-size:1rem;margin:14px 0 6px;color:var(--sun)}
+.af{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:10px;padding:8px 10px;margin:4px 0;cursor:pointer}
+.af input{width:20px;height:20px;flex:none;margin-top:2px}
+.af small{display:block;color:#cfe0f3}
+.count{font-weight:800}
+/* juego */
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.top .cat{color:var(--sun);font-weight:700}
+#frase{font-size:clamp(1.4rem,3.6vw,2.6rem);font-weight:800;text-align:center;margin:22px auto;max-width:950px;line-height:1.25}
+.corners{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.corner{border-radius:18px;padding:16px;min-height:120px;color:var(--ink);position:relative}
+.corner h4{font-size:clamp(1.05rem,2.2vw,1.5rem)}
+.corner p{font-size:.92rem;margin-top:4px}
+.corner .n{position:absolute;right:14px;top:8px;font-size:2.6rem;font-weight:900}
+.corner .names{margin-top:8px;font-size:.95rem;font-weight:600}
+.corner.correct{outline:6px solid #fff}
+.bar{height:10px;border-radius:6px;background:#0002;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:#0006}
+#timer{font-size:2rem;font-weight:900;min-width:70px;text-align:center}
+#timer.low{color:var(--sun)}
+#resp{display:none}
+#resp.on{display:block}
+#resp .r{font-size:1.2rem;font-weight:900;color:var(--sun)}
+#resp p{white-space:pre-line;margin-top:6px}
+.estado{font-weight:700}
+/* sala */
+.lobby{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+#qr{background:#fff;padding:10px;border-radius:12px;width:max-content}
+.code{font-size:3rem;font-weight:900;letter-spacing:.2em;color:var(--sun)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips span{background:#ffffff26;border-radius:20px;padding:4px 10px}
+/* consulta */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{border:0;border-radius:10px;padding:8px 12px;font:inherit;cursor:pointer;background:#ffffff26;color:#fff}
+.tabs button.on{background:var(--sun);color:var(--ink);font-weight:800}
+.ref{background:#fff;color:var(--ink);border-radius:14px;padding:16px 18px;margin-top:10px}
+.ref h4{margin:14px 0 4px;color:var(--bg)}
+.ref p,.ref li{margin:4px 0}.ref ul{padding-left:20px}
+.ref a{color:#0b5cad}
+dialog{border:0;border-radius:16px;max-width:900px;width:94vw;max-height:90vh;padding:16px;background:var(--bg);color:#fff}
+dialog::backdrop{background:#000a}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:#fff;color:var(--ink)}
+th,td{border:1px solid #ccd;padding:6px;text-align:left;vertical-align:top}
+th{background:#e8eef7}
+.tablewrap{overflow-x:auto;border-radius:10px}
+@media (max-width:640px){.corners{grid-template-columns:1fr}.lobby{grid-template-columns:1fr}.corner .n{font-size:2rem}}
+</style>
+</head>
+<body>
+
+<!-- INICIO -->
+<section class="screen on" id="inicio">
+  <h1>Juego de las 4 Esquinas</h1>
+  <p class="sub">Mitos y Realidades sobre las Adicciones · versión docente</p>
+  <div class="modos">
+    <div class="panel">
+      <h2>Sin dispositivos</h2>
+      <p>Proyectá la frase y las 4 esquinas. Los alumnos caminan a la esquina del aula que elijan.</p>
+      <button class="btn big" onclick="elegirModo('local')">Elegir frases</button>
+    </div>
+    <div class="panel">
+      <h2>Con celulares</h2>
+      <p>Cada alumno entra con su nombre y elige su esquina desde el celular. Vos ves quién eligió qué.</p>
+      <button class="btn big" id="btnOnline" onclick="elegirModo('online')">Crear sala</button>
+      <p id="noFb" class="sub" style="display:none;font-size:.9rem">Falta configurar Firebase (ver <code>cuatro-esquinas/LEEME.md</code>).</p>
+    </div>
+  </div>
+  <h2>Material de consulta</h2>
+  <div class="tabs" id="tabsInicio"></div>
+  <div class="ref" id="refInicio"></div>
+</section>
+
+<!-- SELECCIÓN DE FRASES -->
+<section class="screen" id="seleccion">
+  <div class="top">
+    <button class="btn sec" onclick="show('inicio')">← Volver</button>
+    <span><span class="count" id="nSel">0</span> frases elegidas (se recomiendan 5-7)</span>
+  </div>
+  <div class="row">
+    <button class="btn sec" onclick="marcar(true)">Marcar todas</button>
+    <button class="btn sec" onclick="marcar(false)">Desmarcar todas</button>
+    <button class="btn sec" onclick="azar()">7 al azar</button>
+    <label class="row" style="margin:0"><input type="checkbox" id="mezclar"> Mezclar orden</label>
+  </div>
+  <div id="listaFrases"></div>
+  <div class="row" style="position:sticky;bottom:0;background:var(--bg);padding:10px 0">
+    <button class="btn big" id="btnSeguir" onclick="seguir()">Continuar →</button>
+  </div>
+</section>
+
+<!-- SALA (online) -->
+<section class="screen" id="sala">
+  <div class="top"><h1>Sala de juego</h1><button class="btn sec" onclick="abrirConsulta()">Consulta</button></div>
+  <div class="panel lobby">
+    <div id="qr"></div>
+    <div>
+      <p>Los alumnos entran en:</p>
+      <p><b id="urlAlumno"></b></p>
+      <p style="margin-top:10px">Código de sala:</p>
+      <div class="code" id="codigo"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <b>Conectados: <span id="nConect">0</span></b>
+    <div class="chips" id="conectados"></div>
+  </div>
+  <button class="btn big" onclick="empezar()">Empezar el juego →</button>
+</section>
+
+<!-- JUEGO -->
+<section class="screen" id="juego">
+  <div class="top">
+    <span><b id="pos"></b> · <span class="cat" id="catJuego"></span></span>
+    <span class="row" style="margin:0">
+      <span id="timer">30</span>
+      <button class="btn sec" id="btnTimer" onclick="toggleTimer()">▶ 30 s</button>
+      <button class="btn sec" onclick="abrirConsulta()">Consulta</button>
+    </span>
+  </div>
+  <div id="frase"></div>
+  <div class="row online" style="justify-content:center">
+    <span class="estado" id="estadoVot"></span>
+    <button class="btn sec" id="btnVot" onclick="toggleVotacion()"></button>
+    <label class="row" style="margin:0"><input type="checkbox" id="verNombres" onchange="pintar()"> Mostrar nombres</label>
+  </div>
+  <div class="corners" id="corners"></div>
+  <div class="panel online" id="sinVotar"></div>
+  <div class="panel" id="resp">
+    <div class="r" id="respTxt"></div>
+    <p id="debateTxt"></p>
+    <p style="margin-top:10px;color:#cfe0f3"><b>Para el debate:</b> ¿Cuál es el "pero"? ¿Qué le falta o le sobra a la frase? Que la esquina "Falso" rebata a "Verdadero". ¿A los de "No sé" los argumentos los ayudaron a decidir?</p>
+  </div>
+  <div class="row" style="justify-content:space-between">
+    <button class="btn sec" onclick="mover(-1)">← Anterior</button>
+    <button class="btn" id="btnResp" onclick="toggleResp()">Mostrar respuesta y debate</button>
+    <button class="btn sec" id="btnSig" onclick="mover(1)">Siguiente →</button>
+  </div>
+</section>
+
+<!-- CIERRE -->
+<section class="screen" id="cierre">
+  <h1>Cierre y reflexión</h1>
+  <div class="panel" style="font-size:1.25rem">
+    <p>Reunámonos en el centro de la sala.</p>
+    <ul style="padding-left:24px;margin-top:10px">
+      <li>¿Qué fue lo que más les sorprendió?</li>
+      <li>¿Cambiaron de opinión sobre algo durante el juego?</li>
+      <li>¿Qué idea o concepto se llevan de esta actividad?</li>
+    </ul>
+    <p style="margin-top:14px"><b>La adicción es una enfermedad que afecta al cerebro. Buscar ayuda es un acto de fortaleza.</b></p>
+    <p style="margin-top:8px;font-size:1rem">Ayuda: <a style="color:var(--sun)" href="https://www.argentina.gob.ar/tema/cuidarlasalud/recuperacion-de-adicciones" target="_blank" rel="noopener">argentina.gob.ar · Recuperación de adicciones</a></p>
+  </div>
+  <div class="online">
+    <h2>Respuestas de los alumnos</h2>
+    <div class="row"><button class="btn" onclick="descargarCSV()">Descargar CSV</button></div>
+    <div class="tablewrap" id="tabla"></div>
+  </div>
+  <div class="row">
+    <button class="btn sec" onclick="mover(0);show('juego')">← Volver al juego</button>
+    <button class="btn sec" onclick="location.reload()">Terminar</button>
+  </div>
+</section>
+
+<dialog id="dlg">
+  <div class="top"><b>Material de consulta</b><button class="btn sec" onclick="dlg.close()">Cerrar ✕</button></div>
+  <div class="tabs" id="tabsDlg" style="margin-top:10px"></div>
+  <div class="ref" id="refDlg"></div>
+</dialog>
+
+<script src="contenido.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const A = window.AFIRMACIONES, E = window.ESQUINAS;
+
+let modo = 'local', lista = [], pos = 0, revelada = false;
+let db = null, sala = null, salaRef = null, alumnos = {}, votos = {}, abierta = false, votosRef = null;
+
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); scrollTo(0,0); }
+
+/* ---------- consulta ---------- */
+function tabs(tabsId, refId){
+  const t = $(tabsId);
+  t.innerHTML = window.CONSULTA.map((c,i) => `<button data-i="${i}">${esc(c.titulo)}</button>`).join('');
+  const sel = i => { [...t.children].forEach((b,j) => b.classList.toggle('on', i===j)); $(refId).innerHTML = window.CONSULTA[i].html; };
+  t.onclick = e => { if (e.target.dataset.i) sel(+e.target.dataset.i); };
+  sel(0);
+}
+tabs('tabsInicio','refInicio'); tabs('tabsDlg','refDlg');
+const dlg = $('dlg');
+function abrirConsulta(){ dlg.showModal(); }
+
+/* ---------- inicio / selección ---------- */
+if (!window.FIREBASE_CONFIG) { $('btnOnline').disabled = true; $('noFb').style.display = 'block'; }
+
+(function armarLista(){
+  let html = '', cat = null;
+  A.forEach((a,i) => {
+    if (a.cat !== cat){ if (cat) html += '</div>'; cat = a.cat; html += `<div class="cat"><h3>${esc(cat)}</h3>`; }
+    html += `<label class="af"><input type="checkbox" value="${i}"><span>"${esc(a.texto)}"<small>Respuesta sugerida: ${esc(a.resp)}</small></span></label>`;
+  });
+  $('listaFrases').innerHTML = html + '</div>';
+  $('listaFrases').onchange = contar;
+})();
+const checks = () => [...document.querySelectorAll('#listaFrases input')];
+function contar(){ const n = checks().filter(c => c.checked).length; $('nSel').textContent = n; $('btnSeguir').disabled = !n; }
+function marcar(v){ checks().forEach(c => c.checked = v); contar(); }
+function azar(){ const cs = checks().sort(() => Math.random()-.5); cs.forEach((c,i) => c.checked = i < 7); contar(); }
+contar();
+
+function elegirModo(m){ modo = m; document.querySelectorAll('.online').forEach(el => el.style.display = m === 'online' ? '' : 'none'); show('seleccion'); }
+
+function seguir(){
+  lista = checks().filter(c => c.checked).map(c => +c.value);
+  if ($('mezclar').checked) lista.sort(() => Math.random()-.5);
+  pos = 0;
+  if (modo === 'online') crearSala(); else { show('juego'); render(); }
+}
+
+/* ---------- sala online ---------- */
+function cargarScript(src){ return new Promise((ok,err) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = err; document.head.appendChild(s); }); }
+
+async function crearSala(){
+  $('btnSeguir').disabled = true;
+  try {
+    await cargarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await cargarScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js');
+  } catch(e){ alert('No se pudo cargar Firebase. Revisá la conexión.'); $('btnSeguir').disabled = false; return; }
+  firebase.initializeApp(window.FIREBASE_CONFIG);
+  db = firebase.database();
+  const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  for (let intento = 0; intento < 5; intento++){
+    sala = Array.from({length:4}, () => L[Math.floor(Math.random()*L.length)]).join('');
+    const snap = await db.ref('salas/'+sala+'/creada').get();
+    if (!snap.exists()) break;
+  }
+  salaRef = db.ref('salas/'+sala);
+  await salaRef.set({ creada: firebase.database.ServerValue.TIMESTAMP, estado: { idx: -1, abierta: false } });
+  salaRef.child('alumnos').on('value', s => { alumnos = s.val() || {}; pintarConectados(); if ($('juego').classList.contains('on')) pintar(); });
+
+  const url = new URL('alumno.html', location.href); url.searchParams.set('sala', sala);
+  $('urlAlumno').textContent = url.origin + url.pathname;
+  $('codigo').textContent = sala;
+  try {
+    await cargarScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js');
+    new QRCode($('qr'), { text: url.href, width: 200, height: 200 });
+  } catch(e){ $('qr').style.display = 'none'; }
+  show('sala');
+}
+function pintarConectados(){
+  const ns = Object.values(alumnos).map(a => a.nombre).sort((a,b) => a.localeCompare(b));
+  $('nConect').textContent = ns.length;
+  $('conectados').innerHTML = ns.map(n => `<span>${esc(n)}</span>`).join('');
+}
+function empezar(){ show('juego'); render(); }
+
+function publicarEstado(){
+  if (modo !== 'online') return;
+  salaRef.child('estado').set({ idx: lista[pos], abierta, n: pos+1, total: lista.length });
+}
+function escucharVotos(){
+  if (votosRef) votosRef.off();
+  votos = {};
+  votosRef = salaRef.child('votos/'+lista[pos]);
+  votosRef.on('value', s => { votos = s.val() || {}; pintar(); });
+}
+function toggleVotacion(){ abierta = !abierta; publicarEstado(); pintar(); }
+
+/* ---------- juego ---------- */
+let tId = null, tLeft = 30;
+function toggleTimer(){
+  if (tId){ clearInterval(tId); tId = null; $('btnTimer').textContent = '▶ 30 s'; return; }
+  tLeft = 30; tick();
+  tId = setInterval(() => { tLeft--; tick(); if (tLeft <= 0){ clearInterval(tId); tId = null; $('btnTimer').textContent = '▶ 30 s'; beep(); if (modo === 'online' && abierta) toggleVotacion(); } }, 1000);
+  $('btnTimer').textContent = '■ Detener';
+}
+function tick(){ $('timer').textContent = tLeft; $('timer').classList.toggle('low', tLeft <= 5); }
+function beep(){ try { const c = new AudioContext(), o = c.createOscillator(); o.frequency.value = 880; o.connect(c.destination); o.start(); o.stop(c.currentTime + .4); } catch(e){} }
+
+function render(){
+  const a = A[lista[pos]];
+  $('pos').textContent = `Frase ${pos+1} de ${lista.length}`;
+  $('catJuego').textContent = a.cat;
+  $('frase').textContent = `"${a.texto}"`;
+  $('respTxt').textContent = 'Respuesta sugerida: ' + a.resp;
+  $('debateTxt').textContent = a.debate;
+  revelada = false; $('resp').classList.remove('on'); $('btnResp').textContent = 'Mostrar respuesta y debate';
+  $('btnSig').textContent = pos === lista.length-1 ? 'Cierre →' : 'Siguiente →';
+  if (tId){ clearInterval(tId); tId = null; $('btnTimer').textContent = '▶ 30 s'; }
+  tLeft = 30; tick();
+  if (modo === 'online'){ abierta = true; publicarEstado(); escucharVotos(); }
+  pintar();
+}
+function correctas(){
+  const r = A[lista[pos]].resp.toUpperCase(), s = new Set();
+  r.split('/').map(x => x.trim()).forEach(x => {
+    if (x.startsWith('VERDADERO, PERO')) s.add('VP'); else if (x === 'VERDADERO') s.add('V'); else if (x === 'FALSO') s.add('F');
+  });
+  return s;
+}
+function pintar(){
+  const online = modo === 'online', ver = $('verNombres').checked;
+  const porEsq = {}; E.forEach(e => porEsq[e.id] = []);
+  Object.entries(votos).forEach(([uid,esq]) => { if (porEsq[esq]) porEsq[esq].push(alumnos[uid] ? alumnos[uid].nombre : '?'); });
+  const total = Object.keys(votos).length, ok = revelada ? correctas() : new Set();
+  $('corners').innerHTML = E.map((e,i) => {
+    const ns = porEsq[e.id].sort((a,b) => a.localeCompare(b));
+    return `<div class="corner${ok.has(e.id) ? ' correct' : ''}" style="background:${e.color}">
+      <h4>Esquina ${i+1}: ${esc(e.nombre)}</h4><p>${esc(e.desc)}</p>
+      ${online ? `<span class="n">${ns.length}</span><div class="bar"><i style="width:${total ? ns.length/total*100 : 0}%"></i></div>
+      ${ver && ns.length ? `<div class="names">${ns.map(esc).join(', ')}</div>` : ''}` : ''}</div>`;
+  }).join('');
+  if (online){
+    $('estadoVot').textContent = abierta ? '🟢 Votación abierta' : '🔒 Votación cerrada';
+    $('btnVot').textContent = abierta ? 'Cerrar votación' : 'Reabrir votación';
+    const faltan = Object.entries(alumnos).filter(([uid]) => !votos[uid]).map(([,a]) => a.nombre).sort((a,b) => a.localeCompare(b));
+    $('sinVotar').innerHTML = `<b>Votaron ${total} de ${Object.keys(alumnos).length}</b>` +
+      (ver && faltan.length ? ` · Sin votar: ${faltan.map(esc).join(', ')}` : '');
+  }
+}
+function toggleResp(){
+  revelada = !revelada;
+  $('resp').classList.toggle('on', revelada);
+  $('btnResp').textContent = revelada ? 'Ocultar respuesta' : 'Mostrar respuesta y debate';
+  if (revelada && modo === 'online' && abierta) toggleVotacion(); else pintar();
+}
+function mover(d){
+  if (d > 0 && pos === lista.length-1){ irCierre(); return; }
+  pos = Math.max(0, Math.min(lista.length-1, pos + d)); render();
+}
+
+/* ---------- cierre ---------- */
+let todos = {};
+async function irCierre(){
+  if (modo === 'online'){
+    abierta = false; salaRef.child('estado').set({ idx: -2, abierta: false });
+    todos = (await salaRef.child('votos').get()).val() || {};
+    const nom = id => E.find(e => e.id === id)?.corto || '';
+    const filas = Object.entries(alumnos).sort((a,b) => a[1].nombre.localeCompare(b[1].nombre));
+    $('tabla').innerHTML = `<table><tr><th>Alumno/a</th>${lista.map((i,k) => `<th title="${esc(A[i].texto)}">${k+1}. ${esc(A[i].texto.slice(0,40))}…</th>`).join('')}</tr>` +
+      filas.map(([uid,a]) => `<tr><td>${esc(a.nombre)}</td>${lista.map(i => `<td>${esc(nom((todos[i]||{})[uid]))}</td>`).join('')}</tr>`).join('') + '</table>';
+  }
+  show('cierre');
+}
+function descargarCSV(){
+  const q = s => '"' + String(s).replace(/"/g,'""') + '"';
+  const nom = id => E.find(e => e.id === id)?.corto || '';
+  const filas = [['Alumno/a', ...lista.map(i => A[i].texto)]];
+  Object.entries(alumnos).sort((a,b) => a[1].nombre.localeCompare(b[1].nombre))
+    .forEach(([uid,a]) => filas.push([a.nombre, ...lista.map(i => nom((todos[i]||{})[uid]))]));
+  filas.push([]); filas.push(['Respuesta sugerida', ...lista.map(i => A[i].resp)]);
+  const blob = new Blob(['﻿' + filas.map(f => f.map(q).join(';')).join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `4esquinas_${sala}.csv`; a.click();
+}
+document.querySelectorAll('.online').forEach(el => el.style.display = 'none');
+</script>
+</body>
+</html>
