@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b4f8a">
+<title>Tabú Argentino</title>
+<style>
+:root{--bg:#1b4f8a;--sky:#75aadb;--sun:#f6b40e;--ok:#2bb673;--bad:#e5484d;--pass:#8c9bb0;--ink:#13233a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
+.screen{display:none;padding:16px;max-width:760px;margin:0 auto;min-height:100vh}
+.screen.on{display:block}
+h1{font-size:2rem;margin:6px 0}h2{font-size:1.2rem;margin:16px 0 8px}
+.sub{color:#cfe0f3}
+.panel{background:#ffffff18;border-radius:16px;padding:14px;margin:12px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+input,select{font:inherit;padding:9px;border-radius:10px;border:0;max-width:100%}
+.btn{border:0;border-radius:14px;padding:14px 18px;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;background:var(--sun);color:var(--ink)}
+.btn.sec{background:#ffffff26;color:#fff}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cat{background:#ffffff18;border-radius:12px;padding:10px;display:flex;gap:8px;align-items:center;cursor:pointer}
+.cat input{width:20px;height:20px}
+.board{display:flex;gap:8px;flex-wrap:wrap}
+.board div{flex:1;min-width:120px;background:#ffffff18;border-radius:12px;padding:10px;text-align:center}
+.board b{display:block;font-size:2rem}.board .cur{outline:3px solid var(--sun)}
+/* juego */
+#play{padding:12px}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+#timer{font-size:2.2rem}#timer.low{color:var(--sun)}
+.card{background:#fff;color:var(--ink);border-radius:22px;margin:14px auto;max-width:420px;overflow:hidden;box-shadow:0 8px 0 #0003}
+.card .word{background:var(--sky);padding:26px 14px;text-align:center;font-size:clamp(1.8rem,8vw,2.6rem);font-weight:900;color:#fff;text-shadow:0 2px 0 #0003}
+.card .cat-l{font-size:.8rem;text-align:center;padding:6px;background:var(--sun);font-weight:700}
+.card ul{list-style:none;padding:14px 18px}
+.card li{font-size:1.3rem;font-weight:700;text-align:center;padding:7px;border-bottom:1px dashed #c8d3e0;color:#b4232a}
+.card li:last-child{border:0}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;max-width:420px;margin:0 auto}
+.actions .btn{padding:18px 6px}
+.b-ok{background:var(--ok)!important;color:#fff!important}.b-bad{background:var(--bad)!important;color:#fff!important}.b-pass{background:var(--pass)!important;color:#fff!important}
+.flash-ok{animation:f1 .35s}.flash-bad{animation:f2 .35s}
+@keyframes f1{from{background:var(--ok)}}@keyframes f2{from{background:var(--bad)}}
+.res li{list-style:none;padding:6px 10px;border-radius:10px;margin:4px 0;background:#ffffff14}
+.res .ok::before{content:"✔ ";color:var(--ok)}.res .bad::before{content:"🚫 ";}.res .pass::before{content:"⏭ "}
+</style>
+</head>
+<body>
+
+<section id="home" class="screen on">
+  <h1>🧉 Tabú Argentino</h1>
+  <p class="sub">Describí la palabra sin decir ninguna de las prohibidas. Tu equipo adivina; el equipo rival controla y canta "¡Tabú!".</p>
+  <div class="panel">
+    <h2 style="margin-top:0">Equipos</h2>
+    <div class="row"><input id="t1" value="Equipo Celeste" maxlength="20"><input id="t2" value="Equipo Blanco" maxlength="20"></div>
+    <div class="row"><input id="t3" placeholder="Equipo 3 (opcional)" maxlength="20"><input id="t4" placeholder="Equipo 4 (opcional)" maxlength="20"></div>
+  </div>
+  <div class="panel">
+    <h2 style="margin-top:0">Categorías</h2>
+    <div class="cats" id="cats"></div>
+  </div>
+  <div class="panel">
+    <div class="row">
+      <label>Tiempo por turno <select id="time"><option>45</option><option selected>60</option><option>90</option></select> s</label>
+      <label>Gana con <select id="goal"><option>15</option><option selected>25</option><option>40</option></select> pts</label>
+      <label>Pases por turno <select id="passes"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="99">Sin límite</option></select></label>
+    </div>
+  </div>
+  <button class="btn" id="start" style="width:100%">¡A jugar!</button>
+  <p class="sub" style="margin-top:12px;font-size:.9rem">Reglas: ✔ Correcto = +1 · 🚫 Tabú (dijo una prohibida, parte de ella, o hizo gestos) = −1 · ⏭ Pasar = 0. Gana el primer equipo que llega al puntaje al terminar la vuelta.</p>
+</section>
+
+<section id="turn" class="screen">
+  <div class="board" id="board1"></div>
+  <div class="panel" style="text-align:center;margin-top:20px">
+    <p class="sub">Le toca a</p>
+    <h1 id="turnTeam"></h1>
+    <p class="sub">Elijan quién describe. Solo esa persona mira la pantalla; un rival controla las palabras prohibidas.</p>
+    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" id="go">Empezar turno</button><button class="btn sec" id="quit">Terminar partida</button></div>
+  </div>
+</section>
+
+<section id="play" class="screen">
+  <div class="top"><span id="pTeam"></span><span id="timer"></span><span id="pScore"></span></div>
+  <div class="card" id="card"><div class="word" id="word"></div><div class="cat-l" id="catL"></div><ul id="taboo"></ul></div>
+  <div class="actions">
+    <button class="btn b-bad" id="bBad">🚫 Tabú</button>
+    <button class="btn b-pass" id="bPass">⏭ Pasar</button>
+    <button class="btn b-ok" id="bOk">✔ Bien</button>
+  </div>
+</section>
+
+<section id="summary" class="screen">
+  <h1 id="sumTitle"></h1>
+  <ul class="res" id="sumList"></ul>
+  <div class="board" id="board2" style="margin-top:12px"></div>
+  <div class="row" style="margin-top:14px"><button class="btn" id="next">Siguiente equipo</button></div>
+</section>
+
+<section id="win" class="screen" style="text-align:center">
+  <h1 style="font-size:3rem;margin-top:40px">🏆</h1>
+  <h1 id="winTitle"></h1>
+  <div class="board" id="board3" style="margin:20px 0"></div>
+  <button class="btn" id="again">Nueva partida</button>
+</section>
+
+<script>
+const CATS={
+comida:{n:"Comida y bebida",i:"🥩",c:[
+["Mate","yerba","bombilla","termo","calabaza","cebar"],["Asado","parrilla","carne","domingo","achuras","fuego"],
+["Alfajor","dulce de leche","maicena","Havanna","chocolate","tapas"],["Fernet","Coca","Córdoba","Branca","trago","amargo"],
+["Empanada","repulgue","horno","carne","salteña","masa"],["Dulce de leche","vaca","postre","untar","Sancor","repostero"],
+["Choripán","chorizo","pan","cancha","chimichurri","sanguche"],["Milanesa","napolitana","pan rallado","huevo","freír","puré"],
+["Medialuna","factura","manteca","grasa","desayuno","café"],["Provoleta","queso","parrilla","orégano","derretido","asado"],
+["Facturas","panadería","vigilante","bola de fraile","tortita negra","docena"],["Locro","25 de Mayo","maíz","guiso","zapallo","patria"],
+["Chimichurri","salsa","ajo","perejil","asado","orégano"],["Pizza de muzzarella","Corrientes","queso","porción","Güerrín","fainá"],
+["Vino Malbec","Mendoza","uva","tinto","copa","bodega"],["Tereré","mate","frío","jugo","verano","Paraguay"],
+["Garrapiñada","maní","azúcar","calle","caramelo","cucurucho"],["Helado de dulce de leche","cucurucho","kilo","gusto","heladería","granizado"],
+["Sánguche de miga","pan","jamón","queso","cumpleaños","triples"],["Pastafrola","membrillo","tarta","enrejado","batata","merienda"]]},
+futbol:{n:"Fútbol y deportes",i:"⚽",c:[
+["Superclásico","Boca","River","partido","Bombonera","Monumental"],["Messi","Leo","Rosario","Barcelona","Inter Miami","10"],
+["Maradona","Diego","mano de Dios","10","Napoli","Pelusa"],["La Bombonera","Boca","estadio","La Boca","tiembla","azul y oro"],
+["Mundial de Qatar","2022","Francia","campeón","Messi","Montiel"],["Dibu Martínez","arquero","penales","Aston Villa","atajar","Emiliano"],
+["Los Pumas","rugby","selección","scrum","ovalada","try"],["Las Leonas","hockey","palo","selección","femenino","bocha"],
+["Gol","arco","red","pelota","gritar","meter"],["Barra brava","hinchada","bombo","cantar","tribuna","violencia"],
+["Penal","once metros","arquero","patear","falta","área"],["Manu Ginóbili","básquet","Spurs","Bahía Blanca","NBA","oro"],
+["Del Potro","tenis","Tandil","Delpo","US Open","raqueta"],["Fútbol cinco","cancha","sintético","amigos","alquilar","jueves"],
+["Fixture","calendario","fechas","torneo","partidos","Mundial"],["Hincha","fanático","club","camiseta","alentar","cancha"],
+["Fangio","Fórmula 1","Balcarce","auto","campeón","carreras"],["Pato","deporte nacional","caballo","pelota","asas","gaucho"],
+["Scaloneta","selección","técnico","Scaloni","equipo","Copa"],["Descenso","promedios","segunda","B","perder","categoría"]]},
+lugares:{n:"Lugares y lunfardo",i:"🗺️",c:[
+["Obelisco","Corrientes","9 de Julio","festejar","monumento","punta"],["Glaciar Perito Moreno","hielo","Calafate","Santa Cruz","ruptura","sur"],
+["Cataratas del Iguazú","agua","Misiones","Garganta del Diablo","Brasil","cascada"],["Mar del Plata","playa","Mardel","costa","lobo marino","verano"],
+["Bariloche","nieve","chocolate","egresados","Río Negro","esquí"],["Caminito","La Boca","tango","colores","conventillo","turistas"],
+["Ushuaia","fin del mundo","Tierra del Fuego","sur","frío","faro"],["Casa Rosada","presidente","balcón","Plaza de Mayo","gobierno","rosa"],
+["Bondi","colectivo","SUBE","parada","línea","chofer"],["Laburo","trabajo","jefe","sueldo","oficina","laburar"],
+["Chamuyo","mentira","hablar","verso","seducir","labia"],["Quilombo","lío","desorden","caos","bardo","despelote"],
+["Mina","mujer","chica","novia","linda","piba"],["Guita","plata","dinero","mango","billete","pesos"],
+["Fiaca","pereza","vago","dormir","sillón","ganas"],["Morfar","comer","comida","hambre","morfi","plato"],
+["Boludo","che","amigo","insulto","tonto","pelotudo"],["Dólar blue","cueva","arbolito","cotización","pesos","oficial"],
+["Previa","antes","boliche","juntada","tomar","salir"],["Garca","estafador","cagador","mentiroso","traidor","plata"],
+["Purmamarca","Jujuy","cerro","siete colores","norte","quebrada"],["Aconcagua","montaña","Mendoza","alto","cerro","escalar"]]},
+famosos:{n:"Famosos, música y TV",i:"🎤",c:[
+["Mafalda","Quino","sopa","historieta","nena","Manolito"],["Soda Stereo","Cerati","Gracias totales","banda","rock","Zeta"],
+["Mirtha Legrand","almuerzos","Chiquita","mesa","como te ven","diva"],["Carlos Gardel","tango","Zorzal","Mi Buenos Aires querido","cantor","sombrero"],
+["Charly García","Say No More","piano","Clics modernos","Serú Girán","bigote"],["Susana Giménez","Su","teléfono","programa","Hola Susana","rubia"],
+["Bizarrap","sesiones","productor","gorra","Shakira","lentes"],["Tini","Violetta","cantante","Disney","Stoessel","Tini Tini"],
+["El Eternauta","historieta","nevada","Oesterheld","Netflix","Darín"],["Ricardo Darín","actor","Nueve reinas","Argentina 1985","Secreto","cine"],
+["Gran Hermano","casa","Santiago del Moro","placa","nominación","reality"],["Tango","bandoneón","baile","milonga","Piazzolla","abrazo"],
+["Cumbia","bailar","Damas Gratis","villera","Los Palmeras","güira"],["Los Simuladores","Santos","operativo","serie","equipo","Medina"],
+["Marcelo Tinelli","ShowMatch","Bailando","Videomatch","conductor","Tinelli"],["Papa Francisco","Bergoglio","Vaticano","Iglesia","San Lorenzo","papa"],
+["Fito Páez","rosarino","Rodolfo","El amor después del amor","piano","rock"],["Diego Torres","Color esperanza","cantante","canción","pop","esperanza"],
+["Patoruzú","indio","historieta","cacique","Isidoro","Dante Quinterno"],["Duki","trap","rapero","Modo diablo","Ysy","freestyle"]]},
+quimica:{n:"Cosas de química",i:"🧪",c:[
+["Tabla periódica","elementos","Mendeléiev","grupos","períodos","columnas"],["Átomo","protón","electrón","neutrón","partícula","núcleo"],
+["Molécula","átomos","unión","enlace","compuesto","agua"],["pH","ácido","base","escala","7","neutro"],
+["Oxidación","óxido","oxígeno","herrumbre","electrones","manzana"],["Combustión","fuego","quemar","oxígeno","llama","calor"],
+["Mezcla","juntar","separar","componentes","homogénea","heterogénea"],["Destilación","hervir","separar","vapor","condensar","alambique"],
+["Agua","H2O","líquida","tomar","hidrógeno","oxígeno"],["Sal de mesa","cloruro","sodio","cocina","NaCl","salero"],
+["Laboratorio","bata","tubo","experimento","científico","guardapolvo"],["Mechero","fuego","Bunsen","gas","llama","calentar"],
+["Ecuación química","reactivos","productos","flecha","balancear","fórmula"],["Evaporación","agua","vapor","calor","secar","charco"],
+["Lavandina","cloro","limpiar","blanquear","desinfectar","hipoclorito"],["Bicarbonato de sodio","vinagre","burbujas","volcán","polvo","antiácido"],
+["Enlace covalente","compartir","electrones","no metales","molécula","unión"],["Dióxido de carbono","CO2","gas","respirar","burbujas","efecto invernadero"],
+["Densidad","masa","volumen","flotar","hundir","pesado"],["Ciclo del agua","lluvia","evaporación","nubes","condensación","río"]]}
+};
+const $=s=>document.querySelector(s);
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let teams=[],cur=0,deck=[],log=[],left=0,tick=null,passesLeft=0,playing=false,usedRecent=ld("tabu_seen",[]);
+
+$("#cats").innerHTML=Object.entries(CATS).map(([k,v])=>`<label class="cat"><input type="checkbox" value="${k}" checked>${v.i} ${v.n}</label>`).join("");
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("#"+id).classList.add("on");scrollTo(0,0)}
+function board(el){$(el).innerHTML=teams.map((t,i)=>`<div class="${i===cur?"cur":""}">${esc(t.n)}<b>${t.p}</b></div>`).join("")}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function buildDeck(){
+  const sel=[...document.querySelectorAll("#cats input:checked")].map(i=>i.value);
+  let all=sel.flatMap(k=>CATS[k].c.map(c=>({w:c[0],t:c.slice(1),cat:CATS[k].i+" "+CATS[k].n})));
+  const fresh=all.filter(c=>!usedRecent.includes(c.w)),seen=all.filter(c=>usedRecent.includes(c.w));
+  return shuffle(fresh).concat(shuffle(seen)); // las ya vistas al final
+}
+$("#start").onclick=()=>{
+  teams=["#t1","#t2","#t3","#t4"].map(s=>$(s).value.trim()).filter(Boolean).map(n=>({n,p:0}));
+  if(teams.length<2){alert("Necesitás al menos 2 equipos");return}
+  deck=buildDeck();if(!deck.length){alert("Elegí al menos una categoría");return}
+  cur=0;turnScreen();
+};
+function turnScreen(){$("#turnTeam").textContent=teams[cur].n;board("#board1");show("turn")}
+let wake;
+$("#go").onclick=async()=>{
+  try{wake=await navigator.wakeLock?.request("screen")}catch(e){}
+  log=[];left=+$("#time").value;passesLeft=+$("#passes").value;playing=true;
+  $("#pTeam").textContent=teams[cur].n;show("play");next();
+  tick=setInterval(()=>{left--;upd();if(left<=5&&left>0)beep(800);if(left<=0)endTurn()},1000);upd();
+};
+$("#quit").onclick=()=>finish(true);
+function upd(){$("#timer").textContent=left;$("#timer").className=left<=10?"low":"";$("#pScore").textContent=(log.reduce((s,l)=>s+l.v,0)>=0?"+":"")+log.reduce((s,l)=>s+l.v,0);$("#bPass").textContent="⏭ Pasar"+(passesLeft<50?` (${passesLeft})`:"");$("#bPass").disabled=passesLeft<=0;$("#bPass").style.opacity=passesLeft<=0?.4:1}
+function next(){
+  if(!deck.length)deck=buildDeck();
+  const c=deck.shift();cardNow=c;
+  $("#word").textContent=c.w;$("#catL").textContent=c.cat;$("#taboo").innerHTML=c.t.map(x=>`<li>${esc(x)}</li>`).join("");
+  usedRecent=[c.w,...usedRecent.filter(x=>x!==c.w)].slice(0,80);sv("tabu_seen",usedRecent);
+}
+let cardNow;
+function act(kind){
+  if(!playing)return;
+  if(kind==="pass"){if(passesLeft<=0)return;passesLeft--}
+  const v=kind==="ok"?1:kind==="bad"?-1:0;log.push({w:cardNow.w,k:kind,v});
+  const el=$("#card .word");el.classList.remove("flash-ok","flash-bad");void el.offsetWidth;
+  if(kind!=="pass")el.classList.add(kind==="ok"?"flash-ok":"flash-bad");
+  beep(kind==="ok"?900:kind==="bad"?160:400,kind==="bad"?.3:.1);navigator.vibrate?.(kind==="bad"?[80,40,80]:40);
+  next();upd();
+}
+$("#bOk").onclick=()=>act("ok");$("#bBad").onclick=()=>act("bad");$("#bPass").onclick=()=>act("pass");
+addEventListener("keydown",e=>{if(!playing)return;if(e.key==="ArrowRight")act("ok");if(e.key==="ArrowLeft")act("pass");if(e.key==="ArrowDown"||e.key==="t")act("bad")});
+function endTurn(){
+  playing=false;clearInterval(tick);beep(220,.7);try{wake?.release()}catch(e){}
+  const pts=log.reduce((s,l)=>s+l.v,0);teams[cur].p+=pts;
+  $("#sumTitle").textContent=`${teams[cur].n}: ${pts>=0?"+":""}${pts}`;
+  $("#sumList").innerHTML=log.map(l=>`<li class="${l.k}">${esc(l.w)}</li>`).join("")||"<li>Ninguna tarjeta</li>";
+  board("#board2");show("summary");
+}
+$("#next").onclick=()=>{
+  cur=(cur+1)%teams.length;
+  const goal=+$("#goal").value;
+  if(cur===0&&teams.some(t=>t.p>=goal))return finish();
+  turnScreen();
+};
+function finish(){
+  clearInterval(tick);playing=false;
+  const max=Math.max(...teams.map(t=>t.p)),w=teams.filter(t=>t.p===max);
+  $("#winTitle").textContent=w.length>1?"¡Empate! "+w.map(t=>t.n).join(" y "):"¡Ganó "+w[0].n+"!";
+  cur=-1;board("#board3");show("win");
+}
+$("#again").onclick=()=>show("home");
+let ac;function beep(f,d=.12){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+</script>
+</body>
+</html>
