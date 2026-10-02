@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#102840" />
+    <title>Laboratorio 360°</title>
+    <meta name="description" content="Recorrido 360° del Laboratorio de Química con puntos interactivos sobre las mesadas y el pizarrón." />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css" />
+    <style>
+      :root { --azul: #102840; --verde: #6ec8be; --texto: #f0f5fa; }
+      html, body { margin: 0; height: 100%; background: var(--azul); font-family: system-ui, sans-serif; }
+      #pano { position: fixed; inset: 0; }
+      header {
+        position: fixed; top: 12px; left: 52px; z-index: 5; max-width: calc(100% - 68px); pointer-events: none;
+        background: rgba(16, 40, 64, .85); color: var(--texto); padding: 10px 14px; border-radius: 10px;
+      }
+      header h1 { margin: 0; font-size: 1.05rem; }
+      header p { margin: 4px 0 0; font-size: .85rem; opacity: .85; }
+      /* Puntos interactivos */
+      .punto { width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+        background: var(--verde); border: 3px solid var(--texto); box-shadow: 0 0 0 0 rgba(110,200,190,.7);
+        animation: pulso 2s infinite; display: grid; place-items: center; color: var(--azul); font-weight: 700; }
+      .punto span { pointer-events: none; }
+      @keyframes pulso { 70% { box-shadow: 0 0 0 14px rgba(110,200,190,0); } 100% { box-shadow: 0 0 0 0 rgba(110,200,190,0); } }
+      /* Panel de información */
+      #panel {
+        position: fixed; z-index: 10; right: 16px; bottom: 16px; width: min(380px, calc(100% - 32px));
+        max-height: 70vh; overflow: auto; background: #fff; color: #1b2733; border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.35); padding: 18px 18px 14px; display: none;
+      }
+      #panel.abierto { display: block; }
+      #panel h2 { margin: 0 32px 8px 0; font-size: 1.15rem; color: var(--azul); }
+      #panel p, #panel li { font-size: .95rem; line-height: 1.45; }
+      #panel ul { padding-left: 1.2rem; }
+      #panel .pregunta { background: #e9f6f4; border-left: 4px solid var(--verde); padding: 8px 10px; border-radius: 6px; }
+      #cerrar { position: absolute; top: 10px; right: 10px; border: 0; background: #eef2f6; border-radius: 50%;
+        width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Laboratorio de Química · 360°</h1>
+      <p>Arrastrá para mirar alrededor. Tocá los puntos ● para saber más.</p>
+    </header>
+    <div id="pano"></div>
+    <aside id="panel" role="dialog" aria-live="polite">
+      <button id="cerrar" aria-label="Cerrar">✕</button>
+      <div id="contenido"></div>
+    </aside>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js"></script>
+    <script>
+      // pitch/yaw en grados medidos sobre la foto equirectangular (yaw 0 = centro de la imagen)
+      const puntos = [
+        {
+          id: "pizarron", pitch: 4, yaw: 84.5, titulo: "Pizarrón",
+          html: `<p>Frente del laboratorio: acá se escriben el objetivo del práctico, los materiales, las cantidades y las normas del día.</p>
+            <ul><li>Antes de empezar, copiá el procedimiento y los datos que vas a necesitar.</li>
+            <li>Los resultados de cada grupo se pueden volcar en una tabla común para compararlos.</li></ul>
+            <p class="pregunta"><b>Para pensar:</b> ¿por qué conviene comparar los resultados de todos los grupos y no solo el propio?</p>`
+        },
+        {
+          id: "mesada-docente", pitch: -2.5, yaw: 86.5, titulo: "Mesada del docente: equipo armado",
+          html: `<p>Sobre la mesada del docente hay un equipo montado con <b>soporte universal, agarraderas y pinzas</b>, y material de vidrio (balón, refrigerante).</p>
+            <ul><li>El soporte sostiene el material: nunca se apoya vidrio caliente directo sobre la mesada.</li>
+            <li>Las demostraciones se hacen acá para que todo el curso pueda observar.</li></ul>
+            <p class="pregunta"><b>Para pensar:</b> ¿qué cambio de estado ocurre dentro del refrigerante de una destilación?</p>`
+        },
+        {
+          id: "mesada", pitch: -11, yaw: 13, titulo: "Mesada de trabajo",
+          html: `<p>Cada grupo trabaja en un puesto de la mesada. La superficie de madera y el revestimiento de azulejos son fáciles de limpiar.</p>
+            <ul><li>Sobre la mesada, solo el material del práctico: mochilas y carpetas, lejos.</li>
+            <li>Trabajá de pie y con el pelo atado; guardapolvo y anteojos de seguridad puestos.</li>
+            <li>Al terminar, el puesto queda limpio y el material lavado.</li></ul>
+            <p class="pregunta"><b>Para pensar:</b> ¿por qué no se debe comer ni beber en la mesada del laboratorio?</p>`
+        },
+        {
+          id: "gas", pitch: -16, yaw: -14, titulo: "Llave de gas",
+          html: `<p>Cada puesto tiene una <b>llave de gas</b> para conectar el mechero con una manguera.</p>
+            <ul><li>Para encender: primero el fósforo encendido cerca del mechero, después se abre la llave.</li>
+            <li>Al terminar o ante olor a gas: cerrar la llave y avisar al docente.</li>
+            <li>Revisá que la manguera no esté rota ni cerca de la llama.</li></ul>
+            <p class="pregunta"><b>Para pensar:</b> ¿qué diferencia hay entre la llama amarilla y la llama azul del mechero?</p>`
+        }
+      ];
+
+      const panel = document.getElementById("panel");
+      const contenido = document.getElementById("contenido");
+      function abrir(p) {
+        contenido.innerHTML = `<h2>${p.titulo}</h2>${p.html}`;
+        panel.classList.add("abierto");
+      }
+      document.getElementById("cerrar").onclick = () => panel.classList.remove("abierto");
+
+      function crearPunto(div, p) {
+        div.classList.add("punto");
+        div.innerHTML = "<span>i</span>";
+        div.title = p.titulo;
+        div.setAttribute("role", "button");
+        div.setAttribute("aria-label", p.titulo);
+      }
+
+      const visor = pannellum.viewer("pano", {
+        type: "equirectangular",
+        panorama: "laboratorio-360.jpg",
+        autoLoad: true,
+        yaw: 30, pitch: -5, hfov: 100,
+        autoRotate: -2, autoRotateInactivityDelay: 8000,
+        showControls: true,
+        hotSpots: puntos.map(p => ({
+          pitch: p.pitch, yaw: p.yaw, cssClass: "pnlm-hotspot-base",
+          createTooltipFunc: crearPunto, createTooltipArgs: p,
+          clickHandlerFunc: () => { visor.lookAt(p.pitch, p.yaw, 75, 800); abrir(p); }
+        }))
+      });
+    </script>
+  </body>
+</html>
