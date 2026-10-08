@@ -6,3 +6,5 @@ Editor de dibujos de química: https://kekule91.github.io/dibujo/
 
 App de Android (APK): https://kekule91.github.io/dibujo/DibujosQuimica.apk
 Para recompilarla: `ANDROID_HOME=/ruta/al/sdk android/build.sh` (requiere build-tools 35 y platform 34).
+
+Herramientas de deep research (GPT Researcher, STORM, Open Deep Research): ver [deep-research/README.md](deep-research/README.md).

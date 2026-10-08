@@ -1,0 +1,15 @@
+[submodule "deep-research/gpt-researcher"]
+	path = deep-research/gpt-researcher
+	url = https://github.com/assafelovic/gpt-researcher
+	ignore = dirty
+	shallow = true
+[submodule "deep-research/storm"]
+	path = deep-research/storm
+	url = https://github.com/stanford-oval/storm
+	ignore = dirty
+	shallow = true
+[submodule "deep-research/open_deep_research"]
+	path = deep-research/open_deep_research
+	url = https://github.com/langchain-ai/open_deep_research
+	ignore = dirty
+	shallow = true
