@@ -1,0 +1,62 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/Level.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="2_hud"]
+[ext_resource type="PackedScene" path="res://scenes/FeedbackPanel.tscn" id="3_fb"]
+
+[node name="Level" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_level")
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 214
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 244
+
+[node name="VBox" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="StatementPanel" type="PanelContainer" parent="Content/VBox"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Content/VBox/StatementPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ConceptLabel" type="Label" parent="Content/VBox/StatementPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.667, 0.71, 0.765, 1)
+theme_override_font_sizes/font_size = 36
+autowrap_mode = 3
+
+[node name="StatementLabel" type="Label" parent="Content/VBox/StatementPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="MechanicHost" type="Control" parent="Content/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="FeedbackPanel" parent="." instance=ExtResource("3_fb")]
+unique_name_in_owner = true
+layout_mode = 1

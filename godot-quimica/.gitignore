@@ -1,0 +1,10 @@
+# Carpeta interna del editor (se regenera sola)
+.godot/
+# Salidas de exportación
+build/
+*.apk
+*.aab
+# Credenciales de exportación (keystores y contraseñas)
+.godot/export_credentials.cfg
+*.keystore
+*.jks

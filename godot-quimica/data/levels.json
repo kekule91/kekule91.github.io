@@ -1,0 +1,122 @@
+{
+	"version": 1,
+	"desbloqueo_secuencial": true,
+	"niveles": [
+		{
+			"id": "n1_balanceo_metano",
+			"titulo": "Combustión del metano",
+			"concepto": "Balanceo de ecuaciones químicas (conservación de la masa)",
+			"enunciado": "El gas natural de la cocina es casi todo metano (CH₄). Al quemarse reacciona con el oxígeno del aire y forma dióxido de carbono y agua. Completá los coeficientes para que la ecuación quede balanceada con los números enteros más chicos posibles.",
+			"mecanica": "drag_drop",
+			"puntaje_base": 100,
+			"puntaje_minimo": 10,
+			"penalizacion_pista": [10, 15, 25],
+			"penalizacion_error": 5,
+			"config": {
+				"modo": "balanceo",
+				"fichas": ["1", "2", "3", "4"],
+				"ecuacion": [
+					{ "ranura": "a", "especie": "CH₄", "atomos": { "C": 1, "H": 4 }, "lado": "reactivos" },
+					{ "texto": "+" },
+					{ "ranura": "b", "especie": "O₂", "atomos": { "O": 2 }, "lado": "reactivos" },
+					{ "texto": "→" },
+					{ "ranura": "c", "especie": "CO₂", "atomos": { "C": 1, "O": 2 }, "lado": "productos" },
+					{ "texto": "+" },
+					{ "ranura": "d", "especie": "H₂O", "atomos": { "H": 2, "O": 1 }, "lado": "productos" }
+				]
+			},
+			"respuesta_correcta": { "a": "1", "b": "2", "c": "1", "d": "2" },
+			"pistas": [
+				"Empezá por el carbono: hay un solo C en el CH₄ y uno solo en el CO₂. Después ocupate del hidrógeno y dejá el oxígeno para el final, porque aparece en los dos productos.",
+				"Cada CH₄ aporta 4 átomos de H, pero cada H₂O tiene sólo 2. ¿Cuántas moléculas de agua necesitás para reunir 4 átomos de H?",
+				"Con 1 CO₂ y 2 H₂O, en los productos hay 2 + 2 = 4 átomos de O. Cada O₂ aporta 2 átomos de O: ¿cuántas moléculas de O₂ hacen falta?"
+			],
+			"explicaciones": {
+				"incompleto": "Te falta completar alguna ranura. En la ecuación escrita el coeficiente 1 no se anota, pero acá colocá la ficha «1» para indicar que lo pensaste.",
+				"desbalance_C": "El carbono no está balanceado: hay {izq} átomos de C en los reactivos y {der} en los productos. Recordá que el coeficiente multiplica a toda la fórmula: 2 CO₂ son 2 átomos de C y 4 de O.",
+				"desbalance_H": "El hidrógeno no está balanceado: hay {izq} átomos de H en los reactivos y {der} en los productos. Cada CH₄ aporta 4 H y cada H₂O sólo 2, así que necesitás el doble de moléculas de agua que de metano.",
+				"desbalance_O": "El oxígeno no está balanceado: hay {izq} átomos de O en los reactivos y {der} en los productos. Contá el O de los dos productos (el CO₂ tiene 2 y cada H₂O tiene 1) y recordá que el oxígeno del aire es diatómico: cada O₂ aporta 2 átomos.",
+				"no_minimos": "¡La ecuación está balanceada, pero se puede simplificar! Todos tus coeficientes son divisibles por {mcd}. Por convención se usan los números enteros más chicos posibles.",
+				"default": "La ecuación todavía no está balanceada. Contá los átomos de cada elemento a cada lado de la flecha: tienen que ser iguales porque en una reacción los átomos no se crean ni se destruyen."
+			},
+			"explicacion_exito": "CH₄ + 2 O₂ → CO₂ + 2 H₂O. A cada lado hay 1 C, 4 H y 4 O: los átomos sólo se reacomodan, por eso la masa se conserva (ley de Lavoisier)."
+		},
+		{
+			"id": "n2_enlace_nacl",
+			"titulo": "¿Qué une a la sal?",
+			"concepto": "Tipos de enlace químico y electronegatividad",
+			"enunciado": "La sal de mesa (NaCl) se forma a partir de sodio (Na, metal del grupo 1) y cloro (Cl, no metal del grupo 17). Sus electronegatividades son 0,93 y 3,16. ¿Qué tipo de enlace une a estos dos elementos?",
+			"mecanica": "multiple_choice",
+			"puntaje_base": 100,
+			"puntaje_minimo": 10,
+			"penalizacion_pista": [10, 15, 25],
+			"penalizacion_error": 10,
+			"config": {
+				"mezclar": true,
+				"opciones": [
+					{ "id": "ionico", "texto": "Enlace iónico: el Na cede un electrón al Cl y se forman iones Na⁺ y Cl⁻ que se atraen." },
+					{ "id": "cov_no_polar", "texto": "Enlace covalente no polar: los dos átomos comparten un par de electrones por igual." },
+					{ "id": "cov_polar", "texto": "Enlace covalente polar: comparten electrones, pero el Cl los atrae más." },
+					{ "id": "metalico", "texto": "Enlace metálico: los electrones forman un «mar» que rodea a los átomos." }
+				]
+			},
+			"respuesta_correcta": "ionico",
+			"pistas": [
+				"Fijate a qué grupo pertenece cada elemento: ¿es la unión de dos no metales, de dos metales o de un metal con un no metal?",
+				"Calculá la diferencia de electronegatividad: 3,16 − 0,93. Si es mayor que aproximadamente 1,7, el enlace se considera iónico.",
+				"El Na tiene 1 electrón de valencia y le conviene perderlo; al Cl le falta 1 para completar el octeto. ¿Qué pasa con ese electrón: se comparte o se transfiere?"
+			],
+			"explicaciones": {
+				"incompleto": "Todavía no elegiste ninguna opción. Tocá la que te parezca correcta y después «Comprobar».",
+				"cov_no_polar": "El enlace covalente no polar se da entre átomos con electronegatividades iguales o casi iguales, como en el Cl₂. Acá la diferencia es 3,16 − 0,93 = 2,23: el Cl atrae tanto al electrón que el Na directamente lo pierde.",
+				"cov_polar": "Vas bien en que el Cl atrae más los electrones, pero con una diferencia de electronegatividad de 2,23 (mayor que ~1,7) la transferencia es prácticamente total: no queda un par compartido sino dos iones. El covalente polar es típico de dos no metales, como en el H₂O o el HCl.",
+				"metalico": "El enlace metálico une átomos de metales entre sí, como en un cable de cobre. El cloro es un no metal, así que no puede formar enlace metálico con el sodio.",
+				"default": "Esa opción no describe al NaCl. Pensá en la diferencia de electronegatividad entre un metal del grupo 1 y un no metal del grupo 17."
+			},
+			"explicacion_exito": "El NaCl es un compuesto iónico: los iones Na⁺ y Cl⁻ se atraen por fuerzas electrostáticas y forman una red cristalina. Por eso es sólido a temperatura ambiente, funde recién a 801 °C y conduce la electricidad cuando está disuelto en agua."
+		},
+		{
+			"id": "n3_ph_hcl",
+			"titulo": "El pH de un ácido fuerte",
+			"concepto": "Escala de pH y concentración de H⁺",
+			"enunciado": "Preparaste una solución de ácido clorhídrico (HCl) 0,001 M. El HCl es un ácido fuerte: se disocia por completo, así que [H⁺] = 0,001 M. Ubicá el pH de esta solución en la escala.",
+			"mecanica": "slider",
+			"puntaje_base": 100,
+			"puntaje_minimo": 10,
+			"penalizacion_pista": [10, 15, 25],
+			"penalizacion_error": 5,
+			"config": {
+				"min": 0,
+				"max": 14,
+				"paso": 0.1,
+				"decimales": 1,
+				"valor_inicial": 7,
+				"etiqueta": "pH",
+				"unidad": "",
+				"escala": "ph",
+				"rangos_error": [
+					{ "min": 10.5, "max": 11.5, "razon": "confunde_poh" },
+					{ "min": 6.8, "max": 7.2, "razon": "neutro" },
+					{ "min": 7.2, "max": 14, "razon": "basico" },
+					{ "min": 0, "max": 2.8, "razon": "demasiado_acido" },
+					{ "min": 3.2, "max": 6.8, "razon": "poco_acido" }
+				]
+			},
+			"respuesta_correcta": { "valor": 3.0, "tolerancia": 0.2 },
+			"pistas": [
+				"El pH se define como pH = −log [H⁺]. Primero escribí 0,001 como una potencia de 10.",
+				"0,001 = 10⁻³. El logaritmo decimal de una potencia de 10 es su exponente: log (10⁻³) = −3.",
+				"pH = −(−3). Ubicá el marcador en ese valor; con los botones − y + podés ajustar de a 0,1."
+			],
+			"explicaciones": {
+				"confunde_poh": "Elegiste pH {valor}, que es el pOH de esta solución, no su pH. pH = −log (10⁻³) = 3 y, como pH + pOH = 14, el 11 es el pOH.",
+				"neutro": "Un pH de {valor} corresponde a una solución neutra, como el agua pura ([H⁺] = 10⁻⁷ M). Esta solución tiene [H⁺] = 10⁻³ M, diez mil veces más H⁺ que el agua: es ácida.",
+				"basico": "Un pH de {valor} es básico (mayor que 7). Un ácido aumenta la concentración de H⁺, así que el pH tiene que quedar por debajo de 7.",
+				"demasiado_acido": "Estás del lado ácido, pero pH {valor} es demasiado ácido: correspondería a una [H⁺] mayor que 0,001 M. Cada unidad que baja el pH significa 10 veces más H⁺. Calculá −log (10⁻³).",
+				"poco_acido": "Estás del lado ácido, pero pH {valor} indica menos H⁺ que 10⁻³ M. Como pH = −log [H⁺], el exponente de 10⁻³ (cambiado de signo) te da directamente el pH.",
+				"default": "Ese valor no corresponde a [H⁺] = 0,001 M. Recordá que pH = −log [H⁺]: escribí la concentración como potencia de 10 y fijate el exponente."
+			},
+			"explicacion_exito": "pH = −log (10⁻³) = 3. Es una solución ácida con 10.000 veces más H⁺ que el agua pura (pH 7): por cada unidad que baja el pH, la [H⁺] se multiplica por 10."
+		}
+	]
+}
