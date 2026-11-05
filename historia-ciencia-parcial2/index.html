@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Historia de la Ciencia · 2º parcial</title>
+<meta name="description" content="Guía interactiva por época y por profesor (Fede y Guille): siglos XVII a XX, quiz, preguntas abiertas y pares que se confunden.">
+<style>
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --surface-2:#e9eef4; --ink:#14202e; --ink-2:#465668;
+  --line:#cfd8e3; --prussia:#1d3f6e; --prussia-2:#2f5d9b; --fede:#2a7a5f; --guille:#8a4b9c;
+  --ok:#1f7a3d; --ok-bg:#e3f4e8; --bad:#a3262a; --bad-bg:#fbe7e7; --warn:#8a5a00; --warn-bg:#fff3d6;
+  --radius:12px; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --display:"Avenir Next","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1520; --surface:#142030; --surface-2:#1b2a3d; --ink:#e6edf5; --ink-2:#a6b4c4;
+  --line:#2a3b51; --prussia:#7fa9e6; --prussia-2:#a7c4f0; --fede:#5cc39c; --guille:#c79ad6;
+  --ok:#6ad08b; --ok-bg:#163423; --bad:#ff8a8a; --bad-bg:#3a1a1c; --warn:#f2c46a; --warn-bg:#3a2e12;}}
+:root[data-theme="dark"]{
+  --bg:#0d1520; --surface:#142030; --surface-2:#1b2a3d; --ink:#e6edf5; --ink-2:#a6b4c4;
+  --line:#2a3b51; --prussia:#7fa9e6; --prussia-2:#a7c4f0; --fede:#5cc39c; --guille:#c79ad6;
+  --ok:#6ad08b; --ok-bg:#163423; --bad:#ff8a8a; --bad-bg:#3a1a1c; --warn:#f2c46a; --warn-bg:#3a2e12;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans)}
+a{color:var(--prussia-2)}
+:focus-visible{outline:3px solid var(--prussia-2);outline-offset:2px;border-radius:4px}
+header.top{background:var(--prussia);color:#fff;padding:28px 16px 22px}
+:root[data-theme="dark"] header.top{color:#0d1520}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header.top{color:#0d1520}}
+.wrap{max-width:1040px;margin:0 auto}
+header.top h1{font:700 clamp(1.6rem,4vw,2.4rem)/1.15 var(--display);margin:0 0 6px;letter-spacing:-.01em}
+header.top p{margin:0;opacity:.9}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{font:600 .9rem var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:999px;cursor:pointer}
+.btn:hover{border-color:var(--prussia-2)}
+header.top .btn{background:transparent;color:inherit;border-color:currentColor}
+/* signature: rail of centuries with two lanes */
+nav.rail{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.rail-in{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(64px,1fr));gap:0;overflow-x:auto}
+.rail a{display:block;text-decoration:none;color:var(--ink-2);padding:10px 8px 8px;border-bottom:3px solid transparent;font-size:.82rem;white-space:nowrap;text-align:center}
+.rail a b{display:block;font:700 1rem var(--mono);color:var(--ink)}
+.rail a.active{border-bottom-color:var(--prussia-2);color:var(--ink)}
+.progress{height:4px;background:var(--surface-2)}
+.progress i{display:block;height:100%;width:0;background:var(--prussia-2);transition:width .3s}
+main{padding:0 16px 80px}
+section.era{padding-top:28px;scroll-margin-top:70px}
+.era-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:16px}
+.era-head .num{font:700 2.4rem/1 var(--mono);color:var(--prussia-2)}
+.era-head h2{font:700 1.5rem/1.2 var(--display);margin:0}
+.era-head p{margin:0;color:var(--ink-2);flex-basis:100%}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.lanes{grid-template-columns:1fr}}
+.lanes>*{min-width:0}
+.lane{overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;border-top:5px solid var(--fede)}
+.lane.g{border-top-color:var(--guille)}
+.lane h3{margin:0 0 4px;font:700 1.1rem var(--display)}
+.tag{display:inline-block;font:600 .72rem var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--fede)}
+.lane.g .tag{color:var(--guille)}
+.src{font-size:.85rem;color:var(--ink-2);margin:4px 0 10px}
+details{border-top:1px solid var(--line);padding:6px 0}
+details summary{cursor:pointer;font-weight:600;padding:4px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+";display:inline-block;width:1.2em;font-family:var(--mono);color:var(--prussia-2)}
+details[open] summary::before{content:"−"}
+details ul{margin:6px 0 8px;padding-left:1.2em}
+details li{margin:3px 0}
+.callout{border-left:4px solid var(--prussia-2);background:var(--surface-2);padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.95rem}
+.callout.err{border-color:var(--bad);background:var(--bad-bg)}
+.callout.err b:first-child{color:var(--bad)}
+.callout.ext{border-color:var(--warn);background:var(--warn-bg)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.tbl{overflow-x:auto}
+h2.big{font:700 1.5rem var(--display);margin:40px 0 6px}
+.lead{color:var(--ink-2);margin:0 0 14px}
+/* diagrams */
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0}
+.diagram svg{width:100%;height:auto;display:block}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{font:600 .82rem var(--sans);padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--prussia);color:#fff;border-color:var(--prussia)}
+.ap-out{min-height:3.2em;font-size:.95rem}
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin:12px 0}
+.q .meta{font:600 .75rem var(--mono);color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em}
+.q p.stem{font-weight:600;margin:6px 0 10px}
+.opts{display:grid;gap:6px}
+.opt{text-align:left;font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--prussia-2)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--ok-bg);border-color:var(--ok)}
+.opt.right::before{content:"✓ ";color:var(--ok);font-weight:700}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt.wrong::before{content:"✗ ";color:var(--bad);font-weight:700}
+.fb{margin-top:10px;font-size:.93rem;padding:8px 10px;border-radius:8px;background:var(--surface-2)}
+.fb[hidden]{display:none}
+.score{position:sticky;bottom:12px;display:inline-block;background:var(--prussia);color:#fff;font:700 .9rem var(--mono);padding:8px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+/* open questions & cards */
+.oq{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:10px 0}
+.oq textarea{width:100%;min-height:70px;font:inherit;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}
+.model{background:var(--ok-bg);border-left:4px solid var(--ok);padding:10px 12px;border-radius:0 8px 8px 0;margin-top:8px}
+.model[hidden]{display:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-height:130px;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.card .front{font-weight:700}
+.card .back{display:none;font-size:.9rem;margin-top:8px;color:var(--ink-2)}
+.card[aria-expanded="true"]{border-color:var(--prussia-2)}
+.card[aria-expanded="true"] .back{display:block}
+.timer{font:700 1.6rem var(--mono)}
+footer{color:var(--ink-2);font-size:.85rem;text-align:center;padding:20px 16px}
+@media print{nav.rail,.tools,.score{display:none}details{display:block}details>*{display:block}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>Historia de la Ciencia · Segundo parcial</h1>
+  <p>Siglos XVII a XX en dos carriles: <b>Fede</b> (ciencias de la vida) y <b>Guille</b> (hilo integrador). Leé, después practicá.</p>
+  <div class="tools">
+    <button class="btn" id="openAll">Abrir todo</button>
+    <button class="btn" id="closeAll">Cerrar todo</button>
+    <button class="btn" id="theme">Cambiar tema</button>
+    <a class="btn" href="resumen-segundo-parcial.md" style="text-decoration:none">Resumen completo (.md)</a>
+  </div>
+</div></header>
+<nav class="rail" aria-label="Épocas"><div class="rail-in">
+  <a href="#mapa"><b>00</b>Mapa</a>
+  <a href="#s17"><b>XVII</b>Período 5</a>
+  <a href="#s18"><b>XVIII</b>Período 6</a>
+  <a href="#s19"><b>XIX</b>Período 7</a>
+  <a href="#s20"><b>XX</b>Período 8</a>
+  <a href="#practica"><b>✎</b>Práctica</a>
+</div><div class="progress" aria-hidden="true"><i id="bar"></i></div></nav>
+<main><div class="wrap">
+<section class="era" id="mapa">
+  <div class="era-head"><span class="num">00</span><h2>Mapa del parcial y herramientas</h2>
+  <p>Ojo: el "período 7" de Fede es el siglo XIX, pero el "módulo 7" de Guille ya es el siglo XX.</p></div>
+  <div class="diagram" role="img" aria-label="Del siglo diecisiete al veinte, la idea de lo vivo pasa de la estructura visible a la organización oculta y luego a la organización autopoiética.">
+    <svg viewBox="0 0 900 150" aria-hidden="true">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--prussia-2)"/></marker></defs>
+      <g font-family="system-ui,sans-serif" font-size="14" fill="var(--ink)">
+        <rect x="10" y="30" width="190" height="72" rx="10" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="105" y="58" text-anchor="middle" font-weight="700">XVII · Estructura visible</text>
+        <text x="105" y="80" text-anchor="middle" font-size="12" fill="var(--ink-2)">organismo = máquina</text>
+        <rect x="240" y="30" width="190" height="72" rx="10" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="335" y="58" text-anchor="middle" font-weight="700">fin XVIII · Organización</text>
+        <text x="335" y="80" text-anchor="middle" font-size="12" fill="var(--ink-2)">vivo / no vivo, fuerza vital</text>
+        <rect x="470" y="30" width="190" height="72" rx="10" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="565" y="58" text-anchor="middle" font-weight="700">XIX · Variación</text>
+        <text x="565" y="80" text-anchor="middle" font-size="12" fill="var(--ink-2)">Darwin (Lewontin)</text>
+        <rect x="700" y="30" width="190" height="72" rx="10" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="795" y="58" text-anchor="middle" font-weight="700">XX · Autopoiesis</text>
+        <text x="795" y="80" text-anchor="middle" font-size="12" fill="var(--ink-2)">organización circular</text>
+        <path d="M200 66H236M430 66H466M660 66H696" stroke="var(--prussia-2)" stroke-width="2.5" marker-end="url(#ar)"/>
+        <text x="450" y="132" text-anchor="middle" font-size="12" fill="var(--ink-2)">Ejes de Fede: mecanicismo–vitalismo → fijismo–transformismo → variación → autopoiesis</text>
+      </g>
+    </svg>
+  </div>
+  <div class="lanes">
+    <div class="lane"><span class="tag">Fede</span><h3>Los ejes por siglo</h3>
+      <ul>
+        <li><b>XVII:</b> mecanicismo – vitalismo (animismo).</li>
+        <li><b>XVIII:</b> fijismo – transformismo.</li>
+        <li><b>XIX:</b> Darwin: la variación como objeto.</li>
+        <li><b>XX:</b> autopoiesis: lo vivo por su organización.</li>
+      </ul></div>
+    <div class="lane g"><span class="tag">Guille</span><h3>Tres categorías historiográficas</h3>
+      <ul>
+        <li><b>Externalismo / internalismo:</b> ¿la ciencia se explica desde afuera (Estado, economía, guerra) o desde adentro (ideas)? Guille las pone "en serie".</li>
+        <li><b>Continuismo / rupturismo:</b> tono rupturista, pero se declara continuista respecto del Renacimiento.</li>
+        <li><b>Anacronismo / diacronismo:</b> leer el pasado con categorías del presente o de la época.</li>
+      </ul></div>
+  </div>
+</section>
+
+<section class="era" id="s17">
+  <div class="era-head"><span class="num">XVII</span><h2>Período 5 · Modernidad</h2>
+  <p>Activá lo previo: en el 1er parcial viste el orden escolástico (Dios y la Iglesia en el centro) y el Renacimiento (semejanzas, signos). Ahora el centro pasa al yo y lo vivo se vuelve máquina.</p></div>
+  <div class="lanes">
+  <div class="lane"><span class="tag">Fede</span><h3>Mecanicismo y vitalismo</h3>
+    <p class="src">Jacob pp. 28-51 · Bowler pp. 112-126 · Solís y Sellés [compl.] · Descartes, <i>Pasiones del alma</i> VI</p>
+    <details><summary>Jacob: el desciframiento de la naturaleza</summary><ul>
+      <li>Se separan <b>observación, documento y fábula</b>; privilegio de la vista.</li>
+      <li>De la exégesis al <b>desciframiento</b>: "nosotros, que conocemos, y los objetos" (Descartes). Lo que importa es la clave del hombre, no la de Dios.</li>
+      <li><b>Leyes</b> regulares que "ni siquiera Dios" cambia; las causas primeras ceden ante las <b>eficientes</b>.</li>
+      <li>El signo lo produce el pensamiento; el más perfecto es la <b>matemática</b>, por eso la física es el modelo.</li>
+    </ul></details>
+    <details><summary>Jacob: el mecanicismo</summary><ul>
+      <li>O los seres son máquinas o se pierde la unidad del mundo. Organismo-máquina: <b>"no es metáfora ni analogía: es una identidad"</b>.</li>
+      <li><b>Continuidad vivo / no vivo</b> (Buffon, Bonnet). Organización = complejidad de la estructura visible; no hay grandes funciones, "hay órganos que funcionan".</li>
+      <li>El corazón fue estudiable <b>porque</b> funciona como bomba (no al revés).</li>
+      <li>Diferencia con Aristóteles: no hay alma motora; sólo ordenación de la materia y calor.</li>
+      <li>Límite: "una máquina sólo se explica desde el exterior".</li>
+      <li><b>Animismo</b>, dos componentes: valorar lo vivo (la perfección como explicación; abejas: Réaumur, Fontenelle vs la explicación mecánica de Buffon) y reacción contra La Mettrie y d'Holbach (Stahl). A fines del XVIII: <b>fuerza vital</b> difusa en la materia.</li>
+      <li>El vitalismo "interviene tras la observación, no para verla". El mecanicismo era la única postura acorde a la época.</li>
+      <li>Newton → atracción → <b>afinidad</b> → química de Lavoisier → digestión y respiración analizables → la <b>organización oculta</b>.</li>
+    </ul></details>
+    <details><summary>Jacob y Bowler: especies y clasificación</summary><ul>
+      <li>Historia natural: objeto = estructura visible, meta = clasificación. Describir por número, figura, proporción, situación.</li>
+      <li>Cinco niveles: Reino, Clase, Orden, Género, Especie. <b>Nombrar es clasificar</b>; el punto de encuentro es el <b>carácter</b>.</li>
+      <li><b>Sistema</b> (un carácter, artificial: Tournefort, Linneo) vs <b>método</b> (todos, natural: Ray, Adanson, Jussieu).</li>
+      <li><b>Especie</b> = semejanza + generación de lo semejante (Ray). "Tantas especies como formas creadas hubo en el principio" (Linneo).</li>
+      <li><b>Cadena del ser</b>: continuidad y plenitud; dificulta aceptar la extinción; "puentes" (pez volador, zoófitos). No es anticipación de la evolución.</li>
+      <li>Linneo: <i>Systema Naturae</i> 1735, nomenclatura binomial (1753/1758), casilleros rígidos que ceden a un sistema abierto.</li>
+    </ul></details>
+    <details><summary>Solís y Sellés: Vesalio, Harvey, mecanicismo médico</summary><ul>
+      <li>Vesalio (1543): créanle a los cadáveres; estructura visible → función.</li>
+      <li>Harvey (1628): argumento cuantitativo (8 kg en media hora) y ligaduras. <b>Pero era vitalista</b>: en 1651 la sangre es "la fuente de la vida o el alma".</li>
+      <li>Descartes: cuerpo autómata, corazón máquina térmica, alma en la glándula pineal sólo en humanos.</li>
+    </ul></details>
+    <div class="callout"><b>Los dos fragmentos.</b> Descartes: el vivo difiere del muerto como un <b>reloj montado</b> de uno roto; la muerte no es "falta del alma" (dualismo). "El hombre es una máquina y no hay más que una sola sustancia": <b>monismo materialista</b> (La Mettrie, 1747 [verificar autor]); el extremo contra el que reacciona el animismo.</div>
+  </div>
+  <div class="lane g"><span class="tag">Guille</span><h3>El yo, el contrato, la razón</h3>
+    <p class="src">Clase 29/10 · Bowler y Morus cap. 3 · <i>Marat-Sade</i>, <i>Los Miserables</i></p>
+    <details><summary><i>Las Meninas</i> y los centros</summary><ul>
+      <li>Todo apunta fuera del cuadro: el protagonista es <b>quien mira</b> (Foucault). Con Kant, comienzo de la modernidad.</li>
+      <li>Centros: cosmos y polis → Dios e Iglesia → <b>el yo</b>. El romanticismo abrirá "alguna grieta".</li>
+    </ul></details>
+    <details><summary>Estado, contrato y propiedad (externalismo)</summary><ul>
+      <li><b>Hobbes</b>, <i>Leviatán</i>: en el estado de naturaleza "se matan todos con todos"; se delega la voluntad.</li>
+      <li>Polis natural, Iglesia divina, <b>Estado convencional</b> que necesita fundamentarse.</li>
+      <li><b>"Ser es tener"</b>: el contrato cuida la propiedad privada, que ocupa el lugar de Dios. Sueño burgués: ascender trabajando ("hay trampa").</li>
+      <li>"La ciencia nace de esta matriz": saber útil y supeditado al dinero.</li>
+    </ul></details>
+    <details><summary>Descartes, Hume, Kant (internalismo)</summary><ul>
+      <li>Duda en cinco días: sentidos lejanos, cercanos, sensaciones (sueño), matemática (genio maligno), <b>algo que piensa</b>.</li>
+      <li>Verdad = certeza. Dios no está en el camino de ida; vuelve para recuperar la matemática. Fe al ámbito privado: <b>laico, no ateo</b>.</li>
+      <li>"Racionalismo, palabrita tramposa": la razón como Dios. Razón y propiedad "demasiado cerca".</li>
+      <li>Hume: percepciones (impresiones y reflexiones, simples o complejas). Descartes subordina sentidos a razón; Hume, razón a sentidos.</li>
+      <li>Kant: fenómenos por los sentidos, objetos por la razón; razón innata y universal. <b>No hay relativismo</b> en el XVII-XVIII.</li>
+    </ul></details>
+    <details><summary>Iluminismo: universalismo y reverso</summary><ul>
+      <li><i>Homo sapiens</i> en latín ("no es de nadie, puede ser de todos").</li>
+      <li><b>Sujeto histórico mundial</b>: europeo, hombre, blanco, burgués, urbano, culto, racional, laico.</li>
+      <li>Clasificación de 1758 en cinco grupos (salvaje, americano, europeo, asiático, africano): "acá empieza el racismo", estructura colonial (Pratt).</li>
+      <li>La Condamine; la Enciclopedia. Revolución Industrial 1760-1840: aparece el proletario.</li>
+    </ul></details>
+    <details><summary>Bowler y Morus cap. 3: ¿revolución química?</summary><ul>
+      <li>Paracelso, van Helmont, Boyle (corpuscular), Stahl (<b>flogisto</b>) se sentían en la vanguardia.</li>
+      <li>Química neumática: Hales, Black, <b>Priestley</b> (aire desflogistado, "economía aérea", radical político).</li>
+      <li>Kuhn: ¿quién descubrió el oxígeno? Scheele, Priestley, Lavoisier; el descubrimiento depende del sistema teórico.</li>
+      <li><b>Lavoisier</b>: oxígeno = principio de acidez + calórico; nueva nomenclatura; guillotinado en 1794.</li>
+      <li>Davy, Dalton (átomos reales, 1808) y Berzelius reforman a Lavoisier. Conclusión: no hubo una revolución nítida.</li>
+    </ul></details>
+    <div class="tbl"><table><tr><th></th><th><i>Marat-Sade</i></th><th><i>Los Miserables</i></th></tr>
+      <tr><td>Revuelta</td><td>Burgueses que miran a los locos</td><td>Pueblo, proletarios</td></tr>
+      <tr><td>Conflicto</td><td>Burguesía corre a la nobleza</td><td>Burguesía contra proletariado</td></tr>
+      <tr><td>Señal</td><td>"Seguir todo más o menos igual"</td><td>Bandera roja</td></tr></table></div>
+  </div>
+  </div>
+  <div class="callout err"><b>Error frecuente:</b> "Descartes la razón, Hume los sentidos, Kant los juntó y nació la ciencia". Es un relato internalista y progresivo; para Guille falta la matriz: Estado, contrato, propiedad, capitalismo, colonialismo.</div>
+  <div class="callout err"><b>Error frecuente:</b> "Harvey fundó el mecanicismo". El corazón fue estudiable porque funciona como bomba; Harvey era vitalista aristotélico.</div>
+</section>
+<section class="era" id="s18">
+  <div class="era-head"><span class="num">XVIII</span><h2>Período 6 · De la estructura a la organización</h2>
+  <p>Puente: en el XVII lo vivo era estructura visible y continuo con lo inerte. Ahora aparece una arquitectura oculta que separa los seres de las cosas, y con ella el tiempo y la transformación.</p></div>
+  <div class="lanes">
+  <div class="lane"><span class="tag">Fede</span><h3>Fijismo y transformismo</h3>
+    <p class="src">Jacob pp. 73-90 y 141-151 · Bowler pp. 129-139 [compl.] · E. Darwin · Goethe</p>
+    <details><summary>Jacob: la organización y la vida</summary><ul>
+      <li>Se analizan las <b>relaciones internas</b>: la superficie dominada por la profundidad, los órganos por funciones invisibles.</li>
+      <li>Motores: fisiología de Lavoisier (funciones coordinadas) y anatomía comparada (semejanza profunda). <b>Subordinación de caracteres</b>: pesarlos, no contarlos.</li>
+      <li>Consecuencias: totalidad, relación con las <b>circunstancias</b>, y corte <b>orgánico / inorgánico</b>. Nace la palabra <b>biología</b> (Lamarck, Treviranus, Oken).</li>
+      <li>Kant: en el reloj una parte existe <i>para</i> otra, no <i>por</i> otra; "los seres organizados se organizan ellos mismos".</li>
+      <li>La vida como resistencia a la muerte (Bichat, Cuvier); propiedades vitales temporales. El vitalismo funda la separación seres/cosas: "tan esencial como antes el mecanicismo".</li>
+    </ul></details>
+    <details><summary>Jacob: Lamarck y las transformaciones</summary><ul>
+      <li>La organización entera se transforma, en <b>sentido único</b>, ganando facultades (Buffon: "desnaturalización" dentro de familias).</li>
+      <li>Tres factores del tiempo: <b>sucesión, duración, perfeccionamiento</b>. Nada se extingue.</li>
+      <li>Dos factores: fuerza interna que compone la organización + <b>circunstancias</b> → hábitos → uso y desuso → herencia de lo adquirido.</li>
+      <li>Serie <b>lineal</b> (la vieja cadena en el tiempo), sin lucha, armonía preestablecida; generación espontánea en la base: "el mundo vivo conserva la inmutabilidad de su creación".</li>
+    </ul></details>
+    <details><summary>Bowler: posibilidades de cambio</summary><ul>
+      <li>"Las anticipaciones del darwinismo son <b>artilugios del historiador</b>."</li>
+      <li>Linneo: especies nuevas por hibridación, sin evolución. Bonnet: la cadena se manifiesta tarde pero es inmutable.</li>
+      <li>Buffon: partículas orgánicas, <b>molde interno</b>, degeneración por migración, generación espontánea de los tipos (Needham; refutada por Spallanzani).</li>
+      <li>Diderot y d'Holbach: naturaleza sin plan, monstruos. Erasmus Darwin: progreso por esfuerzo heredado. Lamarck: la jirafa, sin selección.</li>
+    </ul></details>
+    <div class="callout"><b>Fragmentos.</b> Erasmus Darwin: el "filamento vivo" que adquiere partes y las hereda: transformismo progresivo. Goethe: el <b>organismo arquetípico</b> y la ley de compensación ("un león con cuernos no le es posible a la Madre eterna"): morfología del tipo, no historia. Fausto ("palancas y tornillos"): crítica <b>romántica</b> a la ciencia mecánica.</div>
+    <div class="tbl"><table><tr><th>Debate (Onna)</th><th>A</th><th>B</th></tr>
+      <tr><td>Desarrollo</td><td>Preformación</td><td>Epigénesis</td></tr>
+      <tr><td>Animálculos</td><td>Antiespontaneísmo</td><td>Espontaneísmo</td></tr>
+      <tr><td>Especies</td><td>Fijismo</td><td>Transformismo</td></tr></table></div>
+  </div>
+  <div class="lane g"><span class="tag">Guille</span><h3>Romanticismo, positivismo, energía</h3>
+    <p class="src">Bowler y Morus cap. 4 (cap. 5 extra) · <i>Stalker</i>, <i>Tiempos modernos</i> · la clase del 12/11 no estaba dictada</p>
+    <details><summary>Cap. 4: la conservación de la energía</summary><ul>
+      <li>Kuhn: descubrimiento <b>simultáneo</b> (1825-1855) por motores, procesos de conversión y <i>Naturphilosophie</i>. ¿Descubrían lo mismo?</li>
+      <li><b>Sadi Carnot</b> (1824): el trabajo sale del transporte de calórico de caliente a frío, sin consumo.</li>
+      <li>Oersted (romántico), Faraday, Grove: una fuerza produce otra.</li>
+      <li><b>Joule</b>: equivalente mecánico del calor (1845), argumento teológico. Faraday: conservación sin conversión. Mayer: el barco <i>Java</i>.</li>
+      <li><b>Thomson</b> (1851): 1ª ley (conversión) y 2ª ley (pérdida en máquinas reales). Primer uso preciso de "energía". Maxwell y el éter.</li>
+      <li><b>Helmholtz</b> (1847): "no había que dar cuenta de ninguna fuerza vital". Clausius: entropía (1865).</li>
+      <li>Fin de la filosofía natural, inicio de la <b>física</b> como profesión; ciencia británica práctica vs alemana abstracta.</li>
+    </ul></details>
+    <details><summary>Cap. 5 (extra): la edad de la Tierra</summary><ul>
+      <li>Contra la historia de héroes (Hutton, Lyell) y villanos (catastrofistas). Gould: el tiempo con flecha es de los catastrofistas.</li>
+      <li>Buffon: enfriamiento, 70.000 años. Werner: neptunismo. Cuvier: extinción. Hutton y Lyell: causas actuales, estado estacionario, deísmo.</li>
+      <li>Kelvin achica la edad contra Lyell y Darwin; la radiactividad la agranda (4.500 millones).</li>
+    </ul></details>
+    <div class="callout ext"><b>Complemento externo (verificar con la cátedra).</b> <b>Romanticismo</b>: grieta en el yo racional, naturaleza como totalidad viva, crítica a la ciencia instrumental; <i>Stalker</i> (el religioso que sufre), <i>Los Miserables</i>. <b>Positivismo</b>: la ciencia como saber maduro, orden y progreso, control social; <i>Tiempos modernos</i> (el obrero en la máquina).</div>
+  </div>
+  </div>
+  <div class="callout err"><b>Error frecuente:</b> "Buffon, Erasmus Darwin y Lamarck fueron precursores de Darwin". Lamarck no tiene selección, extinción, ramificación ni lucha; su mundo es armónico e inmutable.</div>
+  <div class="diagram">
+    <p style="margin:0 0 6px;font-weight:700">Explorá: ¿qué dice cada autor sobre las especies?</p>
+    <div class="chips" id="apChips" role="group" aria-label="Autores">
+      <button class="chip" data-k="linneo" aria-pressed="false">Linneo</button>
+      <button class="chip" data-k="buffon" aria-pressed="false">Buffon</button>
+      <button class="chip" data-k="edarwin" aria-pressed="false">Erasmus Darwin</button>
+      <button class="chip" data-k="goethe" aria-pressed="false">Goethe</button>
+      <button class="chip" data-k="lamarck" aria-pressed="false">Lamarck</button>
+      <button class="chip" data-k="darwin" aria-pressed="false">Darwin (Lewontin)</button>
+    </div>
+    <div class="ap-out" id="apOut" aria-live="polite">Elegí un autor para ver su posición, el mecanismo y si hay extinción.</div>
+  </div>
+</section>
+
+<section class="era" id="s19">
+  <div class="era-head"><span class="num">XIX</span><h2>Período 7 (Fede) · Módulo 7 (Guille, ya siglo XX)</h2>
+  <p>Puente: Lamarck transformaba el tipo en una línea. Darwin cambia la pregunta: mira la variación entre individuos. Guille, mientras, salta al siglo XX y a la física que deja de entenderse.</p></div>
+  <div class="lanes">
+  <div class="lane"><span class="tag">Fede</span><h3>Darwin</h3>
+    <p class="src">Lewontin · <i>Frankenstein</i> (1818)</p>
+    <details open><summary>Lewontin: la revolución de Darwin</summary><ul>
+      <li><b>No</b> fue la idea de evolución.</li>
+      <li><b>No</b> fue la selección natural: "culminación de la revolución cartesiana" (un mecanismo).</li>
+      <li><b>No</b> fue el modelo variacional, aunque desplazó la acción del individuo al conjunto.</li>
+      <li><b>Sí</b>: el objeto pasa de la media o el tipo a <b>la variación entre individuos</b>. "La variación es el verdadero objeto de estudio." Antes se buscaba la forma platónica.</li>
+    </ul></details>
+    <details><summary><i>Frankenstein</i></summary><ul>
+      <li>Prefacio: el Dr. Darwin lo creía "no del todo imposible". Si la vida es materia y fuerzas, se puede fabricar (mecanicismo); si requiere un principio vital, no.</li>
+      <li>"Me reprochas tu creación": el creador humano y su responsabilidad.</li>
+      <li>Monstruo medieval: maravilla de los márgenes, signo divino. Monstruo moderno: obra técnica, habla, lee <i>El paraíso perdido</i>, se compara con Adán y con Satán, reclama un lugar.</li>
+    </ul></details>
+    <details><summary>Lo que suman otros textos</summary><ul>
+      <li>Darwin, discípulo de Lyell: aplicó el uniformitarianismo al mundo orgánico; Kelvin lo atacó por la edad de la Tierra.</li>
+      <li>Coleman: el XIX explicaba por la <b>historia</b> (herencia como enlace); a fines de siglo la función desplaza a la forma: <b>ideal experimental</b>, genética (Bateson 1905).</li>
+    </ul></details>
+  </div>
+  <div class="lane g"><span class="tag">Guille</span><h3>Siglo XX I: relatividad y cuántica</h3>
+    <p class="src">Labatut, <i>Un verdor terrible</i> · Bowler y Morus cap. 11 (opt.)</p>
+    <details open><summary>Labatut, capítulo por capítulo</summary><ul>
+      <li><b>Azul de Prusia:</b> del cianuro nazi al pigmento; <b>Haber</b>: gas en Ypres (1915), Clara Immerwahr, nitrógeno del aire (Haber-Bosch): pan y pólvora; "un verdor terrible".</li>
+      <li><b>Schwarzschild:</b> primera solución exacta de la relatividad general desde el frente (1915); la <b>singularidad</b> donde la física deja de tener sentido.</li>
+      <li><b>El corazón del corazón:</b> Grothendieck y Mochizuki; abstracción total y renuncia por responsabilidad.</li>
+      <li><b>Cuando dejamos de entender el mundo:</b> Heisenberg (matrices, Heligoland 1925), de Broglie (ondas de materia), Schrödinger (Ψ), incertidumbre, Solvay 1927, "Dios no juega a los dados".</li>
+      <li><b>El jardinero nocturno:</b> la cuántica funciona y nadie la entiende.</li>
+    </ul></details>
+    <div class="callout ext"><b>Es ficción basada en hechos.</b> El autor avisa que la ficción aumenta capítulo a capítulo (la villa Herwig de Schrödinger, por ejemplo).</div>
+    <details><summary>Cap. 11: la física del siglo XX</summary><ul>
+      <li>Electrón (Thomson 1897), rayos X, radiactividad, átomo de Rutherford (1911), cuantos de Bohr (1913).</li>
+      <li>Einstein 1905 y 1915; Michelson-Morley no fue leído como refutación del éter; Eddington 1919 con datos ambiguos.</li>
+      <li>Copenhague: incertidumbre y probabilidad (Born); el gato; Einstein disidente. Éxito por instituciones y trabajo en equipo.</li>
+      <li>Neutrón, Manhattan, quarks, CERN: "la forma institucional fue condición <i>sine qua non</i> del contenido intelectual".</li>
+    </ul></details>
+  </div>
+  </div>
+  <div class="callout err"><b>Error frecuente:</b> "La revolución de Darwin fue la selección natural". Para Lewontin la selección es un mecanismo más; la revolución fue epistemológica.</div>
+</section>
+<section class="era" id="s20">
+  <div class="era-head"><span class="num">XX</span><h2>Período 8 · Autopoiesis · Ciencia empresarial y ética</h2>
+  <p>Puente: el XIX opuso mecanicistas y vitalistas. Varela dice que esa oposición se disuelve en la organización. Guille cierra con la ciencia como asunto de Estado y de mercado.</p></div>
+  <div class="lanes">
+  <div class="lane"><span class="tag">Fede</span><h3>Autopoiesis</h3>
+    <p class="src">Varela pp. 21-40 y 49-63 · Onna · Coleman [compl.] · Veyne</p>
+    <details open><summary>¿Qué es la vida? (pp. 21-40)</summary><ul>
+      <li>Dos mentalidades: vida como <b>población genética</b> vs vida del <b>individuo aquí y ahora</b>. Varela: vida mínima, nivel individual.</li>
+      <li>El extraterrestre y el granjero: fallan movimiento, crecimiento, estímulos, energía, reproducción, ancestro. Funciona: <b>regenerarse desde adentro</b>.</li>
+      <li>Autopoiesis: red de procesos que produce los componentes que la producen y que constituyen la unidad. El ADN es una implementación; importa el <b>patrón</b>.</li>
+      <li>La evolución es <b>consecuencia</b> de la vida, no su causa.</li>
+    </ul></details>
+    <details><summary>Patrones de vida (pp. 49-63)</summary><ul>
+      <li>Prop. 1: el organismo es un proceso de constitución de una <b>identidad</b> por <b>cierre operacional</b>, sin controlador central.</li>
+      <li>Prop. 2: la identidad es el punto de referencia de un dominio de interacciones: los vivos <b>dan lugar a significados</b>.</li>
+      <li>La identidad tiene prioridad lógica y ontológica sobre la reproducción.</li>
+      <li>La causalidad recíproca local-global disuelve la oposición mecanicismo / vitalismo: ni <i>élan vital</i> ni programa genético.</li>
+      <li><b>Medioambiente</b> (del observador) vs <b>mundo</b> (para el sistema): la sacarosa sólo es alimento para la bacteria. Cognición = enlace + interpretación.</li>
+    </ul></details>
+    <div class="callout"><b>Veyne.</b> "Todo cambio de saber entraña el cambio de su objeto"; vivimos en una pecera cuyas paredes no vemos. Crítica diacrónica: "vida", "célula", "gen" son objetos constituidos por un saber de época, como lo fue la fuerza vital.</div>
+  </div>
+  <div class="lane g"><span class="tag">Guille</span><h3>Siglo XX II: Bush</h3>
+    <p class="src"><i>Ciencia, la frontera sin fin</i> (1945) · <i>Hannah Arendt</i>, <i>No mires arriba</i>, <i>El agrónomo</i> · <i>Milgram</i> (opt.)</p>
+    <details open><summary>El informe</summary><ul>
+      <li>Cuatro preguntas de Roosevelt: difundir lo de guerra, guerra contra la enfermedad, apoyo a la investigación, talento joven.</li>
+      <li><b>Modelo lineal</b>: la investigación básica es "capital científico" del que salen las aplicaciones. "Ya no podemos depender de Europa."</li>
+      <li>Tres guerras: enfermedad, seguridad nacional (investigación militar en paz, control civil), pleno empleo.</li>
+      <li>Talento: que decida la aptitud, no la fortuna familiar; becas; no descuidar ciencias sociales y humanidades.</li>
+      <li>Fundación Nacional de Investigación con <b>cinco elementos</b>: fondos estables, miembros idóneos, contratos sin laboratorios propios, control interno en las instituciones, responsabilidad ante presidente y Congreso.</li>
+    </ul></details>
+    <div class="callout"><b>Lectura con Guille.</b> Externalismo explícito: la ciencia como asunto de Estado, defensa y mercado (continúa "el saber supeditado al dinero" del módulo 5). Paradoja: libertad total para la básica, justificada por su utilidad futura.</div>
+    <div class="callout ext"><b>Lecturas orientativas, la clase no se dictó.</b> Las películas tratan la responsabilidad de quien sabe: obediencia (<i>Hannah Arendt</i>, <i>Milgram</i>), ciencia, medios y negocio (<i>No mires arriba</i>), ciencia aplicada y poder (<i>El agrónomo</i>).</div>
+  </div>
+  </div>
+  <div class="diagram">
+    <p style="margin:0 0 6px;font-weight:700">Probá los tres criterios de Varela</p>
+    <div class="chips" id="autoChips" role="group" aria-label="Objetos">
+      <button class="chip" data-k="virus" aria-pressed="false">Virus</button>
+      <button class="chip" data-k="cristal" aria-pressed="false">Cristal</button>
+      <button class="chip" data-k="ameba" aria-pressed="false">Ameba</button>
+      <button class="chip" data-k="mito" aria-pressed="false">Mitocondria</button>
+      <button class="chip" data-k="adn" aria-pressed="false">Sección de ADN</button>
+    </div>
+    <svg viewBox="0 0 640 210" role="img" aria-labelledby="autoT"><title id="autoT">Ciclo autopoiético: la membrana permite la red metabólica, que produce los componentes de la membrana</title>
+      <g font-family="system-ui,sans-serif" font-size="14">
+        <circle cx="200" cy="105" r="88" fill="none" stroke="var(--prussia-2)" stroke-width="6" stroke-dasharray="14 6" id="cMem"/>
+        <text x="200" y="40" text-anchor="middle" fill="var(--ink)" font-weight="700">1 · Borde semipermeable</text>
+        <text x="200" y="102" text-anchor="middle" fill="var(--ink)" font-weight="700" id="cNet">2 · Red de reacciones</text>
+        <text x="200" y="122" text-anchor="middle" fill="var(--ink-2)" font-size="12">produce los componentes del borde</text>
+        <text x="200" y="208" text-anchor="middle" fill="var(--ink)" font-weight="700" id="cInt">3 · Interdependencia 1 ↔ 2</text>
+      </g>
+      <g font-family="system-ui,sans-serif" font-size="15" id="autoRes">
+        <text x="330" y="70" fill="var(--ink)">Borde: <tspan id="r1">—</tspan></text>
+        <text x="330" y="100" fill="var(--ink)">Red: <tspan id="r2">—</tspan></text>
+        <text x="330" y="130" fill="var(--ink)">Interdependencia: <tspan id="r3">—</tspan></text>
+        <text x="330" y="168" fill="var(--ink)" font-weight="700">¿Vivo? <tspan id="r4">—</tspan></text>
+      </g>
+    </svg>
+    <div class="ap-out" id="autoOut" aria-live="polite">Elegí un objeto: los criterios se aplican en orden y, si uno falla, el sistema no es autopoiético.</div>
+  </div>
+  <div class="callout err"><b>Error frecuente:</b> "La autopoiesis es un vitalismo moderno". No hay fuerza ni agente central: el patrón circular de procesos físico-químicos alcanza.</div>
+</section>
+<section class="era" id="practica">
+  <div class="era-head"><span class="num">✎</span><h2>Práctica</h2>
+  <p>Ordenada de básica a integradora. Cada opción incorrecta encarna un error típico y la devolución lo nombra.</p></div>
+  <h2 class="big">Quiz</h2>
+  <div class="filters" id="qFilters" role="group" aria-label="Filtrar preguntas">
+    <button class="chip" data-f="all" aria-pressed="true">Todas</button>
+    <button class="chip" data-f="Fede" aria-pressed="false">Fede</button>
+    <button class="chip" data-f="Guille" aria-pressed="false">Guille</button>
+    <button class="chip" data-f="básica" aria-pressed="false">Básicas</button>
+    <button class="chip" data-f="integradora" aria-pressed="false">Integradoras</button>
+    <button class="chip" id="qReset" aria-pressed="false">Reiniciar</button>
+  </div>
+  <div id="quiz"></div>
+  <span class="score" id="score" aria-live="polite">0 / 0</span>
+
+  <h2 class="big">Pares que se confunden</h2>
+  <p class="lead">Tocá la tarjeta, decí la diferencia en voz alta y después comparala.</p>
+  <div class="cards" id="cards"></div>
+
+  <h2 class="big">Preguntas abiertas</h2>
+  <p class="lead">Escribí tu respuesta antes de ver la modelo. Nada se guarda: queda sólo en esta pestaña.</p>
+  <div id="open"></div>
+
+  <h2 class="big">Simulacro oral</h2>
+  <p class="lead">Una consigna integradora al azar y tres minutos para contestar en voz alta.</p>
+  <div class="oq"><p id="oralQ" style="font-weight:600">Tocá "Nueva consigna".</p>
+    <div class="timer" id="oralT" aria-live="off">3:00</div>
+    <div class="tools"><button class="btn" id="oralNew">Nueva consigna</button><button class="btn" id="oralGo">Iniciar / pausar</button></div>
+  </div>
+</section>
+</div></main>
+<footer>Armado a partir de las fuentes del vault del 2º parcial. Lo marcado como complemento externo hay que verificarlo con la cátedra.</footer>
+<script>
+const QUIZ=[
+{p:"Fede",l:"básica",s:"Para Jacob, en el siglo XVII la relación organismo-máquina es…",o:[
+ ["Una identidad: todos los cuerpos obedecen las mismas leyes del movimiento",1,"Correcto. Jacob: \"no es ni una metáfora ni una comparación ni una analogía: es una identidad\"."],
+ ["Una metáfora didáctica, como en los griegos",0,"Ésa es justamente la diferencia que marca Jacob: en los griegos era analogía didáctica; en el XVII se trata de unificar las fuerzas del mundo."],
+ ["Una hipótesis que los vitalistas ya habían refutado",0,"Confundís siglos: el vitalismo como operador del conocimiento es de fines del XVIII."],
+ ["Una idea marginal frente al animismo dominante",0,"Al revés: el mecanicismo era la única postura acorde al conocimiento de la época; el animismo era más filosofía y moral."]]},
+{p:"Fede",l:"básica",s:"¿Por qué Harvey pudo estudiar la circulación con los métodos de Galileo?",o:[
+ ["Porque el corazón funciona como una bomba y la sangre se analiza en volúmenes y flujos",1,"Correcto. Jacob invierte el orden: el corazón es estudiable porque funciona como bomba."],
+ ["Porque Harvey era mecanicista y rechazaba todo principio vital",0,"Error típico. Harvey era vitalista aristotélico: en 1651 la sangre es \"la fuente de la vida o el alma\"."],
+ ["Porque había resuelto antes el problema de la generación",0,"Jacob dice lo contrario: con la generación Harvey no pudo sacar conclusión alguna."],
+ ["Porque usaba el microscopio para ver los capilares",0,"Los capilares los vieron después Malpighi (1661) y Leeuwenhoek (1688)."]]},
+{p:"Fede",l:"básica",s:"En la clasificación del XVII-XVIII, ¿qué distingue al 'método' del 'sistema'?",o:[
+ ["Toma en cuenta todos los caracteres y busca un orden natural",1,"Correcto: Ray, Adanson, Jussieu. El sistema (Tournefort, Linneo) elige un solo carácter y es artificial pero práctico."],
+ ["Usa un solo carácter, por ejemplo los estambres",0,"Eso es el sistema de Linneo; estás invirtiendo los términos."],
+ ["Ordena las especies por su ancestro común",0,"Anacronismo: la filiación evolutiva como base de la clasificación llega con Darwin."],
+ ["Clasifica por la organización interna de las funciones",0,"Eso es la subordinación de caracteres de fines del XVIII, no el método del XVII."]]},
+{p:"Fede",l:"básica",s:"¿En qué se funda el concepto de especie a fines del XVII?",o:[
+ ["En la semejanza más la sucesión de generaciones que producen lo semejante",1,"Correcto. Ray: toro y vaca son de la misma especie porque nacen de los mismos padres."],
+ ["Sólo en la semejanza de la estructura visible",0,"La semejanza sola era arbitraria; la generación le da el apoyo \"real\"."],
+ ["En la capacidad de variar con las circunstancias",0,"Eso es Lamarck (siglo XIX temprano) y para él la especie sólo tiene permanencia relativa."],
+ ["En el aislamiento reproductivo producido por selección",0,"Concepto moderno, no del XVII."]]},
+{p:"Guille",l:"básica",s:"Según Guille, ¿por qué Las Meninas marca el comienzo de la modernidad?",o:[
+ ["Porque el lugar del protagonista lo ocupa quien mira: el yo",1,"Correcto. Todo apunta fuera del cuadro; el centro pasa al yo (lectura de Foucault)."],
+ ["Porque la protagonista es la infanta Margarita",0,"Fue una propuesta de la clase, pero no la lectura de Guille."],
+ ["Porque es la primera pintura con perspectiva",0,"La perspectiva es renacentista; no es el argumento de Guille."],
+ ["Porque muestra el poder de la Iglesia",0,"Al contrario: se rompe el centro en Dios y la Iglesia."]]},
+{p:"Guille",l:"básica",s:"¿Qué diferencia al Estado moderno de la polis y de la Iglesia?",o:[
+ ["Es una convención que necesita fundamentarse con un contrato",1,"Correcto. La polis era natural y la Iglesia representación de Dios: ninguna se discutía."],
+ ["Es natural y anterior a los individuos",0,"Eso describe a la polis griega."],
+ ["Se legitima por mandato divino",0,"Eso es el reino, no el Estado."],
+ ["Garantiza que cada uno haga lo que quiere",0,"Al revés: en el contrato \"nadie hace lo que quiere\"."]]},
+{p:"Guille",l:"básica",s:"¿Dónde aparece Dios en la duda cartesiana según Guille?",o:[
+ ["Sólo en el camino de vuelta, para descartar al genio maligno y recuperar la matemática",1,"Correcto. Descartes llega a tierra firme sin Dios: mundo laico, no ateo."],
+ ["En el primer día, como garantía de los sentidos",0,"En el camino de ida Dios no aparece."],
+ ["En ningún momento: Descartes es ateo",0,"Error típico: confundir laico con ateo."],
+ ["Como fuente de la luz natural, igual que en Agustín",0,"En Agustín iluminaba Dios; en la modernidad ilumina la razón."]]},
+{p:"Guille",l:"básica",s:"En la síntesis de Guille, ¿qué toma Kant de Descartes y qué de Hume?",o:[
+ ["El aparato racional interior de Descartes y que todo saber empieza por los sentidos de Hume",1,"Correcto. Sin sentidos no hay conocimiento nuevo; sin razón no hay objetos."],
+ ["La duda de Descartes y el escepticismo de Hume",0,"Kant no es escéptico; la razón es innata y universal."],
+ ["El relativismo de ambos",0,"Guille fue tajante: en el XVII-XVIII no hay relativismo."],
+ ["La fe de Descartes y la teología de Hume",0,"Hume no necesita a Dios para nada."]]},
+{p:"Fede",l:"intermedia",s:"¿Cuál de estas consecuencias NO se sigue de implantar la 'organización' a fines del XVIII?",o:[
+ ["Que las especies se ordenan en una cadena continua con lo mineral",1,"Correcto: es lo contrario. La organización corta definitivamente lo orgánico de lo inorgánico."],
+ ["Que el organismo es una totalidad de funciones",0,"Sí se sigue: es la primera consecuencia que da Jacob."],
+ ["Que el ser vivo se relaciona con las circunstancias",0,"Sí se sigue: Lamarck habla de \"la diversidad de los medios\"."],
+ ["Que aparece la palabra biología",0,"Sí: Lamarck, Treviranus y Oken la usan casi a la vez."]]},
+{p:"Fede",l:"intermedia",s:"¿Qué diferencia al vitalismo de fines del XVIII del animismo anterior, según Jacob?",o:[
+ ["Surge de la necesidad de separar los seres de las cosas fundándola en fuerzas, y funciona como operador del conocimiento",1,"Correcto. Es tan esencial al inicio de la biología como antes lo fue el mecanicismo."],
+ ["Recurre a un alma central que rige el organismo",0,"Eso es el animismo; la fuerza vital está repartida en cada órgano."],
+ ["Niega la unidad de la materia",0,"Jacob dice que la separación no se funda en la materia, cuya unidad se reconoce, sino en fuerzas."],
+ ["Es una reacción moral contra el ateísmo",0,"Ése es el segundo componente del animismo del XVII-XVIII."]]},
+{p:"Fede",l:"intermedia",s:"Para Lamarck, ¿qué papel tienen las 'circunstancias'?",o:[
+ ["Actúan directamente sobre la organización vía necesidades, hábitos, uso y desuso, y lo adquirido se hereda",1,"Correcto. Junto con la fuerza interna que compone la organización, son los dos factores."],
+ ["Seleccionan a los individuos más aptos en la lucha por la existencia",0,"Eso es Darwin; Lamarck no tiene lucha ni selección."],
+ ["Sólo favorecen o impiden la perpetuación de seres ya existentes",0,"Jacob atribuye esa idea a Maupertuis, Buffon y Diderot, no a Lamarck."],
+ ["Degradan la forma original de la especie",0,"Ésa es la \"desnaturalización\" de Buffon."]]},
+{p:"Fede",l:"intermedia",s:"¿Qué advierte Bowler sobre los 'precursores de Darwin' en el XVIII?",o:[
+ ["Que son artilugios de la imaginación del historiador: el contexto del XVIII es incompatible con el nuestro",1,"Correcto. Es un anacronismo armar un casi-Darwin con piezas dispersas."],
+ ["Que Buffon descubrió la evolución pero no se animó a publicarla",0,"Buffon sostuvo moldes internos eternos y tipos sin conexión."],
+ ["Que Lamarck tenía ya la selección natural",0,"Lamarck no tiene selección: todos los individuos cambian."],
+ ["Que la continuidad de la cadena del ser anticipa la evolución",0,"Bowler lo niega: la continuidad era entre especies vivas, no entre especies y antecesores."]]},
+{p:"Guille",l:"intermedia",s:"¿Qué muestra el episodio del oxígeno según Kuhn (Bowler y Morus cap. 3)?",o:[
+ ["Que un descubrimiento tiene estructura histórica y depende del sistema teórico",1,"Correcto: aire desflogistado (Priestley) u oxígeno (Lavoisier) según el sistema aceptado."],
+ ["Que Lavoisier fue el único descubridor",0,"Hay tres candidatos: Scheele, Priestley y Lavoisier."],
+ ["Que el flogisto era una teoría ridícula",0,"El capítulo critica ese enfoque whig: el flogisto era sofisticado."],
+ ["Que con Lavoisier comenzó la química moderna sin más",0,"De su sistema sobrevivió poco: calórico y oxígeno como principio de acidez cayeron."]]},
+{p:"Guille",l:"intermedia",s:"¿Cómo resolvieron Thomson y Clausius el choque entre Carnot y Joule?",o:[
+ ["Abandonando la conservación del calórico: el calor se convierte en trabajo y sólo hay trabajo con flujo de caliente a frío",1,"Correcto: primera y segunda ley de la termodinámica."],
+ ["Dándole la razón a Carnot: el calórico se conserva",0,"Eso es lo que hubo que abandonar."],
+ ["Probando el movimiento perpetuo",0,"Helmholtz parte justamente de su imposibilidad."],
+ ["Introduciendo la correlación de fuerzas de Grove",0,"Grove usaba la correlación contra la causalidad; no es la solución termodinámica."]]},
+{p:"Fede",l:"integradora",s:"Para Lewontin, ¿en qué consistió la revolución de Darwin?",o:[
+ ["En tomar la variación entre individuos como objeto de estudio, en lugar del tipo o la media",1,"Correcto. Reorientación epistemológica previa al mecanismo."],
+ ["En inventar la selección natural",0,"Lewontin: la selección es la culminación de la revolución cartesiana, un mecanismo."],
+ ["En proponer por primera vez la evolución",0,"La idea de evolución ya existía."],
+ ["En el modelo variacional en sí",0,"Fue una ruptura, pero \"sigue siendo un mecanismo\"."]]},
+{p:"Fede",l:"integradora",s:"Según los criterios autopoiéticos, ¿por qué una mitocondria no está viva?",o:[
+ ["Tiene borde y red, pero falta la interdependencia que la haga autónoma",1,"Correcto, así figura en la tabla de Varela."],
+ ["Porque no tiene membrana",0,"Sí tiene borde: cumple el criterio 1."],
+ ["Porque no se reproduce",0,"Error típico: para Varela la reproducción no es criterio de lo vivo mínimo."],
+ ["Porque no tiene ADN",0,"La definición es dependiente del patrón, no de la estructura molecular."]]},
+{p:"Fede",l:"integradora",s:"¿Cómo se ubica la autopoiesis frente a la oposición mecanicismo-vitalismo?",o:[
+ ["La disuelve por causalidad recíproca entre reglas locales y propiedades globales",1,"Correcto: no cae ni en el vitalismo ni en el reduccionismo."],
+ ["Es un vitalismo actualizado con un principio organizador",0,"Varela rechaza todo agente central como un élan vital."],
+ ["Es un reduccionismo: lo vivo es su ADN",0,"Rechaza también el programa genético preexistente."],
+ ["Retoma el alma escolástica como forma",0,"No hay finalidad externa: la lógica es autorreferencial."]]},
+{p:"Guille",l:"integradora",s:"¿Qué sostiene el informe de Bush sobre la investigación básica?",o:[
+ ["Que es capital científico que debe financiar el Estado en las universidades, preservando su libertad",1,"Correcto: modelo lineal y cinco elementos de la Fundación."],
+ ["Que debe dejarse en manos de la industria",0,"Bush: es esencialmente no comercial y la industria no la atenderá."],
+ ["Que debe dirigirla el ejército",0,"Pide control civil, aun para la investigación militar."],
+ ["Que Estados Unidos debe seguir apoyándose en Europa",0,"\"Ya no podemos depender de Europa.\""]]},
+{p:"Guille",l:"integradora",s:"¿Qué conclusión externalista saca Bowler y Morus en el cap. 11?",o:[
+ ["Que la forma institucional de la física fue condición sine qua non de su contenido intelectual",1,"Correcto: instituciones, equipos y recursos explican la aceptación de relatividad y cuántica."],
+ ["Que Michelson-Morley refutó el éter",0,"Nadie lo leyó así en su momento."],
+ ["Que la cuántica triunfó por el pesimismo de Weimar",0,"Algo hay, pero el capítulo dice que no alcanza."],
+ ["Que Einstein trabajó solo y aislado",0,"El capítulo insiste en el trabajo en equipo."]]},
+{p:"Guille",l:"integradora",s:"¿Cuál es el anacronismo que el propio Guille marcó como error?",o:[
+ ["Leer relativismo en los siglos XVII y XVIII",1,"Correcto: \"descubrieron la célula\", no la interpretaron; eso espera al XIX."],
+ ["Usar ejemplos del presente en clase",0,"Eso es deliberado y lo hace siempre."],
+ ["Decir que Guillermo de Baskerville razona como un moderno",0,"Eso lo dijo él mismo (razonamiento abductivo)."],
+ ["Llamar capitalismo al orden del XVII",0,"Guille lo llama así a propósito: \"bienvenidos al capitalismo\"."]]}
+];
+const PAIRS=[
+["Animismo vs vitalismo","Animismo: alma o inteligencia central, más moral que método. Vitalismo (fin XVIII): fuerza difusa de la materia viva que funda la separación seres/cosas."],
+["Mecanicismo cartesiano vs newtoniano","Cartesiano: figura y movimiento. Newtoniano: corpúsculos, vacío y atracción; abre la química (afinidad)."],
+["Sistema vs método","Sistema: un carácter, artificial. Método: todos los caracteres, natural."],
+["Estructura visible vs organización","XVII: forma, número, proporción. Fin XVIII: relaciones internas, funciones, totalidad."],
+["Buffon vs Lamarck","Buffon: degeneración dentro de familias, moldes eternos. Lamarck: todo deriva en sentido único hacia lo complejo."],
+["Lamarck vs Darwin","Transformación lineal del tipo sin extinción vs variación entre individuos, ramificación y selección."],
+["Preformación vs epigénesis","Germen en miniatura que crece vs complejidad que se agrega."],
+["Medioambiente vs mundo","El entorno que ve el observador vs el entorno con significado para el sistema."],
+["Racionalismo vs empirismo","Sentidos bajo la razón (Descartes) vs razón bajo los sentidos (Hume)."],
+["Laico vs ateo","La fe pasa a lo privado, pero Dios sigue (camino de vuelta)."],
+["Flogisto vs oxígeno","Combustión libera flogisto vs combustión es combinación con oxígeno."],
+["Calórico vs energía","Carnot: el calórico se conserva. Joule-Thomson: el calor se convierte; se conserva la energía."],
+["Catastrofismo vs uniformitarianismo","Causas naturales más intensas y Tierra con dirección vs causas actuales y ciclo eterno."],
+["Matrices vs ondas","Heisenberg: sólo observables, sin imagen. Schrödinger: ecuación de ondas, visualizable. Equivalentes."],
+["Incertidumbre vs complementariedad","Límite constitutivo entre pares de variables vs onda y partícula como descripciones complementarias."],
+["Básica vs aplicada (Bush)","Sin fines prácticos y en universidades vs respuestas acabadas en industria y gobierno."]
+];
+const OPEN=[
+["Cuadro: Renacimiento vs Modernidad (una continuidad y dos diferencias).","Continuidad: observación directa y crítica a la autoridad de los textos (Vesalio → Harvey). Diferencias: se pasa de semejanzas y signos puestos por Dios a comparación, leyes y lenguaje matemático; y de un organismo animado por un alma a la identidad organismo-máquina sin frontera vivo/no vivo."],
+["Problematizá el fragmento de Descartes (Pasiones del alma, art. VI) con mecanicismo-vitalismo.","El vivo difiere del muerto como un reloj montado de uno roto: la muerte es corrupción de las partes, no falta del alma. Mecanicismo para el cuerpo y dualismo: el alma sólo para el pensamiento. La Mettrie da el paso siguiente (monismo) y contra ese extremo reacciona el animismo."],
+["¿Qué concepción de ciencia critica el fragmento de las 'palancas y tornillos'?","La ciencia mecánica e instrumental, analítica, newtoniana, que pretende arrancarle a la naturaleza sus secretos con aparatos. La critica el Romanticismo / Naturphilosophie (mediados del XVIII y todo el XIX): naturaleza como totalidad viva, intuición."],
+["¿Por qué Lamarck está 'en el límite exacto entre el XVIII y el XIX'?","Del XIX: separa orgánico e inorgánico, pone la organización en el centro, da al tiempo un papel creador. Del XVIII: serie lineal heredera de la cadena del ser, armonía preestablecida, sin extinción ni lucha; el mundo conserva la inmutabilidad de su creación."],
+["Monstruo de Frankenstein vs monstruo medieval.","El medieval es anomalía dentro de un Orden Natural creado, maravilla de los márgenes, signo. El de Shelley es obra técnica de un hombre, está en el centro de Europa, habla, lee y reclama a su creador: plantea la responsabilidad del saber."],
+["Cuadro: organicismo escolástico, vitalismo del XIX, autopoiesis (dos semejanzas, tres diferencias).","Semejanzas: el todo explica las partes; distinción vivo/no vivo. Diferencias: alma vs fuerza vs organización; fin impuesto por Dios vs interno pero oscuro vs sin teleología; ruptura o continuidad con física y química."],
+["¿Qué crítica puede hacer una historiografía diacrónica (Veyne) a la biología actual?","Que sus objetos (vida, gen, información, autopoiesis) no son naturales sino constituidos por un saber de época; estamos en una pecera cuyas paredes no vemos y la verdad es 'decir verdad' según lo admitido. No es que todo dé igual: son verdades históricas."],
+["Leé el informe de Bush con las tres categorías de Guille.","Externalismo: ciencia como asunto de Estado, defensa y mercado. Continuismo: prolonga la OSRD de guerra en la paz y el 'saber útil' moderno. Anacronismo a evitar: leer en 1945 la crítica actual al modelo lineal."]
+];
+const ORAL=["Mecanicismo y vitalismo del XVII al XX: ¿quién gana?","De la estructura visible a la organización autopoiética en tres pasos.","Lamarck y Darwin con Lewontin.","La modernidad de Guille: el yo, el contrato y la razón.","¿Hubo revolución química? Usá Kuhn y el flogisto.","Conservación de la energía: ¿por qué es externalista?","Un verdor terrible: qué le pasa a la certeza moderna en el siglo XX.","Bush y la ciencia empresarial: ¿libertad o planificación?","Elegí un anacronismo de los que denuncian las fuentes y explicalo."];
+const AUTH={
+linneo:"<b>Linneo:</b> fijista; especies creadas al principio. Más tarde admite especies nuevas por <b>hibridación</b> dentro de cada género: multiplicación sin evolución. Extinción: no.",
+buffon:"<b>Buffon:</b> especie como reproducción de una estructura; <b>molde interno</b> y partículas orgánicas; cambio <b>degenerativo</b> por migración dentro de familias; tipos por generación espontánea. Extinción: sí, de formas del pasado cálido.",
+edarwin:"<b>Erasmus Darwin:</b> de un \"filamento vivo\"; progreso por el <b>esfuerzo</b> de los individuos, heredado. Describe la lucha pero no como fuerza creadora.",
+goethe:"<b>Goethe:</b> <b>organismo arquetípico</b> con ley de compensación; morfología del tipo, no historia en el tiempo. Romanticismo.",
+lamarck:"<b>Lamarck:</b> transformación de la organización en <b>sentido único</b>; fuerza interna + circunstancias, uso y desuso, herencia de lo adquirido; serie lineal; extinción: <b>no</b>.",
+darwin:"<b>Darwin (vía Lewontin):</b> la <b>variación</b> entre individuos como objeto; modelo variacional; ramificación; selección como mecanismo; extinción: sí."};
+const AUTO={virus:["sí","no","no","no","Tiene cápside, pero sus componentes se fabrican en la célula huésped."],cristal:["no","no","no","no","Crece por agregado externo; no hay borde ni red interna."],ameba:["sí","sí","sí","sí","Cumple los tres: es una unidad autopoiética."],mito:["sí","sí","no","no","Tiene borde y red, pero depende de la célula: falta la interdependencia autónoma."],adn:["no","no","no","no","Una molécula sola no tiene borde ni red: la definición depende del patrón, no de la estructura."]};
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+$("#theme").onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";};
+$("#openAll").onclick=()=>$$("details").forEach(d=>d.open=true);
+$("#closeAll").onclick=()=>$$("details").forEach(d=>d.open=false);
+const links=$$(".rail a"), secs=links.map(a=>$(a.getAttribute("href")));
+function onScroll(){const y=scrollY+90;let i=0;secs.forEach((s,k)=>{if(s&&s.offsetTop<=y)i=k});links.forEach((a,k)=>a.classList.toggle("active",k===i));
+ const h=document.documentElement.scrollHeight-innerHeight;$("#bar").style.width=(h>0?scrollY/h*100:0)+"%";}
+addEventListener("scroll",onScroll,{passive:true});onScroll();
+function group(id,fn){const b=$$("#"+id+" .chip");b.forEach(c=>c.onclick=()=>{b.forEach(x=>x.setAttribute("aria-pressed","false"));c.setAttribute("aria-pressed","true");fn(c.dataset.k);});}
+group("apChips",k=>{$("#apOut").innerHTML=AUTH[k];});
+group("autoChips",k=>{const r=AUTO[k];["r1","r2","r3","r4"].forEach((id,i)=>{const e=$("#"+id);e.textContent=r[i];e.setAttribute("fill",r[i]==="sí"?"var(--ok)":"var(--bad)");});$("#autoOut").textContent=r[4];});
+let filter="all", answered={}, orders={};
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function renderQuiz(){const box=$("#quiz");box.innerHTML="";
+ QUIZ.forEach((q,i)=>{if(filter!=="all"&&q.p!==filter&&q.l!==filter)return;
+  const d=document.createElement("div");d.className="q";
+  d.innerHTML=`<div class="meta">${q.p} · ${q.l}</div><p class="stem">${esc(q.s)}</p><div class="opts"></div><div class="fb" hidden aria-live="polite"></div>`;
+  const opts=d.querySelector(".opts"), fb=d.querySelector(".fb");
+  const order=orders[i]||(orders[i]=shuffle(q.o));
+  const right=order.find(x=>x[1]);
+  const mark=(chosen)=>{[...opts.children].forEach((x,k)=>{x.disabled=true;if(order[k][1])x.classList.add("right");if(k===chosen&&!order[k][1])x.classList.add("wrong");});
+    const o=order[chosen];fb.hidden=false;
+    fb.innerHTML=o[1]?"<b>Bien.</b> "+esc(o[2]):"<b>No.</b> "+esc(o[2])+"<br><b>La correcta:</b> "+esc(right[2]);};
+  order.forEach((o,k)=>{const b=document.createElement("button");b.className="opt";b.textContent=o[0];
+   b.onclick=()=>{answered[i]=k;mark(k);score();};opts.appendChild(b);});
+  if(i in answered)mark(answered[i]);
+  box.appendChild(d);});
+ score();}
+function score(){const ks=Object.keys(answered);const ok=ks.filter(i=>orders[i][answered[i]][1]).length;$("#score").textContent=`${ok} correctas · ${ks.length} de ${QUIZ.length} respondidas`;}
+$$("#qFilters .chip[data-f]").forEach(c=>c.onclick=()=>{$$("#qFilters .chip[data-f]").forEach(x=>x.setAttribute("aria-pressed","false"));c.setAttribute("aria-pressed","true");filter=c.dataset.f;renderQuiz();});
+$("#qReset").onclick=()=>{answered={};orders={};renderQuiz();};
+renderQuiz();
+PAIRS.forEach(([f,b])=>{const c=document.createElement("button");c.className="card";c.setAttribute("aria-expanded","false");
+ c.innerHTML=`<div class="front">${esc(f)}</div><div class="back">${esc(b)}</div>`;
+ c.onclick=()=>c.setAttribute("aria-expanded",c.getAttribute("aria-expanded")==="true"?"false":"true");$("#cards").appendChild(c);});
+OPEN.forEach(([q,m],i)=>{const d=document.createElement("div");d.className="oq";
+ d.innerHTML=`<p style="font-weight:600;margin:0">${i+1}. ${esc(q)}</p><label class="src" for="oa${i}">Tu respuesta</label><textarea id="oa${i}"></textarea><button class="btn">Ver respuesta modelo</button><div class="model" hidden>${esc(m)}</div>`;
+ const b=d.querySelector("button"),md=d.querySelector(".model");
+ b.onclick=()=>{md.hidden=!md.hidden;b.textContent=md.hidden?"Ver respuesta modelo":"Ocultar respuesta modelo";};$("#open").appendChild(d);});
+let t=180,timer=null;const show=()=>{$("#oralT").textContent=Math.floor(t/60)+":"+String(t%60).padStart(2,"0");};
+$("#oralNew").onclick=()=>{$("#oralQ").textContent=ORAL[Math.floor(Math.random()*ORAL.length)];clearInterval(timer);timer=null;t=180;show();};
+$("#oralGo").onclick=()=>{if(timer){clearInterval(timer);timer=null;return;}timer=setInterval(()=>{if(t>0){t--;show();}else{clearInterval(timer);timer=null;$("#oralT").textContent="¡Tiempo!";}},1000);};
+})();
+</script>
+</body>
+</html>
