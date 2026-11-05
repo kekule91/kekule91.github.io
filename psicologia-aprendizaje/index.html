@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Psicología y Aprendizaje · Guía para el final</title>
+<meta name="description" content="Guía interactiva de estudio para el final de Psicología y Aprendizaje (FCEN-UBA): cinco corrientes, comparativa, flashcards, quiz con feedback y simulacro oral.">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{
+  --bg:#F6F7F9; --paper:#FFFFFF; --ink:#1B2433; --ink-2:#4A5568; --line:#D9DEE6;
+  --c-vig:#0E7C7B; --c-pia:#C27C12; --c-cog:#6B4FBB; --c-tra:#3A6EA5; --c-psi:#B5443C;
+  --ok:#1E7F4F; --bad:#B23A3A; --focus:#2563EB;
+  --accent:var(--c-tra);
+  --radius:12px; --shadow:0 1px 2px rgba(20,30,50,.06),0 6px 18px rgba(20,30,50,.06);
+  --font-body:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+  --font-display:"Avenir Next","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --fs-0:.85rem; --fs-1:1rem; --fs-2:1.15rem; --fs-3:1.45rem; --fs-4:2rem; --fs-5:2.6rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121722; --paper:#1A2130; --ink:#E7EBF2; --ink-2:#AAB4C3; --line:#2C3547;
+    --c-vig:#3FBDB8; --c-pia:#E3A33A; --c-cog:#A08CE6; --c-tra:#6FA3DC; --c-psi:#E07068;
+    --ok:#4FC98A; --bad:#F07878; --focus:#7FB0FF;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121722; --paper:#1A2130; --ink:#E7EBF2; --ink-2:#AAB4C3; --line:#2C3547;
+  --c-vig:#3FBDB8; --c-pia:#E3A33A; --c-cog:#A08CE6; --c-tra:#6FA3DC; --c-psi:#E07068;
+  --ok:#4FC98A; --bad:#F07878; --focus:#7FB0FF;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:var(--fs-1);line-height:1.55}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+button{font:inherit;cursor:pointer}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;margin:0 0 .5em}
+h1{font-size:clamp(1.8rem,4.5vw,var(--fs-5));letter-spacing:-.01em}
+h2{font-size:clamp(1.4rem,3vw,var(--fs-4))}
+h3{font-size:var(--fs-2);margin-top:1.4em}
+p{margin:.4em 0 .9em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+.mono{font-family:var(--font-mono);font-size:var(--fs-0);letter-spacing:.02em}
+.muted{color:var(--ink-2)}
+
+/* ---------- header ---------- */
+header.hero{padding:40px 0 20px}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:28px;align-items:center}
+@media (max-width:760px){.hero-grid{grid-template-columns:1fr}}
+.hero p.lead{font-size:var(--fs-2);color:var(--ink-2);max-width:60ch}
+.knot{width:100%;max-width:360px;height:auto;display:block;margin:0 auto}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:.55em 1em;border-radius:999px;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:.35em .8em;font-size:var(--fs-0)}
+.btn[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ---------- riel (nav) ---------- */
+nav.riel{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.riel ul{list-style:none;margin:0;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;max-width:1080px;margin-inline:auto}
+.riel li{flex:0 0 auto}
+.riel a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-2);padding:.45em .8em;border-radius:999px;font-size:var(--fs-0);border:1px solid transparent;white-space:nowrap}
+.riel a .dot{width:10px;height:10px;border-radius:50%;background:var(--dot,var(--line));box-shadow:0 0 0 2px var(--paper)}
+.riel a.active,.riel a:hover{color:var(--ink);border-color:var(--line);background:var(--paper)}
+.riel a.active{box-shadow:inset 0 -3px 0 var(--dot,var(--accent))}
+.progress{height:4px;background:var(--line)}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--c-vig),var(--c-pia),var(--c-cog),var(--c-tra),var(--c-psi));transition:width .3s}
+
+/* ---------- sections ---------- */
+section.bloque{padding:48px 0 24px;border-top:1px solid var(--line)}
+section.bloque[data-c]{--accent:var(--c)}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:var(--fs-0);color:var(--ink-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.kicker::before{content:"";width:28px;height:4px;border-radius:2px;background:var(--accent)}
+.frase{font-size:var(--fs-2);border-left:4px solid var(--accent);padding:.5em 1em;margin:1em 0;background:var(--paper);border-radius:0 var(--radius) var(--radius) 0;box-shadow:var(--shadow)}
+.autores{display:flex;flex-wrap:wrap;gap:6px;margin:.5em 0 1em}
+.autores span{font-size:var(--fs-0);padding:.25em .7em;border-radius:999px;border:1px solid var(--line);background:var(--paper)}
+.autores span.comp{opacity:.75;border-style:dashed}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;align-items:start}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.card ul{padding-left:1.15em;margin:.3em 0}
+.card li{margin:.3em 0}
+details.card{padding:0}
+details.card summary{padding:14px 18px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary::after{content:"+";font-family:var(--font-mono);font-size:1.2rem;color:var(--accent)}
+details.card[open] summary::after{content:"–"}
+details.card .inner{padding:0 18px 16px}
+table{width:100%;border-collapse:collapse;font-size:.95rem;background:var(--paper);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+th,td{text-align:left;padding:.6em .7em;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:color-mix(in srgb,var(--accent) 12%,var(--paper));font-family:var(--font-display);font-weight:600}
+tr:last-child td{border-bottom:0}
+.table-scroll{overflow-x:auto;margin:1em 0}
+.callout{border-radius:var(--radius);padding:12px 16px;margin:1em 0;border:1px solid var(--line);background:var(--paper)}
+.callout.err{border-left:5px solid var(--bad)}
+.callout.err strong{color:var(--bad)}
+.callout.par{border-left:5px solid var(--accent)}
+.errlist li{margin:.5em 0}
+.errlist li b{color:var(--bad)}
+.errlist li em{color:var(--ok);font-style:normal}
+.srcnote{font-size:var(--fs-0);color:var(--ink-2);margin-top:1em}
+
+/* ---------- flashcards ---------- */
+.fc-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:1em 0}
+.fc-controls select{font:inherit;padding:.45em .7em;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.fc-stage{perspective:1200px;max-width:720px;margin:0 auto}
+.fc{position:relative;min-height:220px;border-radius:16px;cursor:pointer;transition:transform .5s;transform-style:preserve-3d;box-shadow:var(--shadow);background:transparent;border:0;width:100%;text-align:left;padding:0;color:inherit}
+.fc.flipped{transform:rotateY(180deg)}
+.fc .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--paper)}
+.fc .face.back{transform:rotateY(180deg);background:color-mix(in srgb,var(--fc-color,var(--accent)) 10%,var(--paper))}
+.fc .tag{font-family:var(--font-mono);font-size:var(--fs-0);color:var(--fc-color,var(--accent))}
+.fc .term{font-family:var(--font-display);font-size:var(--fs-3);font-weight:600}
+.fc .def{font-size:1rem}
+.fc-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px;align-items:center}
+@media (prefers-reduced-motion:reduce){.fc{transition:none}}
+
+/* ---------- quiz ---------- */
+.q{margin:1.2em 0}
+.q .stem{font-weight:600;margin-bottom:.5em}
+.q .opts{display:grid;gap:8px}
+.q .opt{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:.65em .9em;color:var(--ink);display:flex;gap:10px;align-items:flex-start}
+.q .opt:hover{border-color:var(--accent)}
+.q .opt .letter{font-family:var(--font-mono);color:var(--ink-2);flex:0 0 1.4em}
+.q .opt.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--paper))}
+.q .opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--paper))}
+.q .opt:disabled{cursor:default}
+.q .fb{margin-top:.6em;padding:.7em .9em;border-radius:10px;border:1px solid var(--line);background:var(--paper);display:none}
+.q .fb.show{display:block}
+.q .fb.good{border-left:5px solid var(--ok)}
+.q .fb.bad{border-left:5px solid var(--bad)}
+.score{position:sticky;bottom:12px;display:inline-flex;gap:14px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:.5em 1em;box-shadow:var(--shadow);font-family:var(--font-mono);font-size:var(--fs-0)}
+.chip{display:inline-block;font-family:var(--font-mono);font-size:.75rem;padding:.15em .55em;border-radius:999px;color:#fff;background:var(--chip,var(--accent));vertical-align:middle}
+
+/* ---------- abiertas ---------- */
+.abierta{margin:1em 0}
+.abierta textarea{width:100%;min-height:90px;font:inherit;padding:.6em;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);resize:vertical}
+.abierta .modelo{display:none;margin-top:.6em;padding:.8em 1em;border-radius:10px;border:1px solid var(--line);border-left:5px solid var(--accent);background:var(--paper)}
+.abierta .modelo.show{display:block}
+
+/* ---------- oral ---------- */
+.oral-box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.oral-box .prompt{font-size:var(--fs-2);font-family:var(--font-display);min-height:3em}
+.timer{font-family:var(--font-mono);font-size:var(--fs-4);font-variant-numeric:tabular-nums}
+.timer.warn{color:var(--bad)}
+
+footer{padding:40px 0 60px;color:var(--ink-2);font-size:var(--fs-0);border-top:1px solid var(--line);margin-top:40px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker" style="--accent:var(--c-tra)">Psicología y Aprendizaje · FCEN‑UBA</div>
+      <h1>Cinco corrientes, una trama: guía para el final</h1>
+      <p class="lead">Repaso activo de la bibliografía por teoría: socio‑histórica, psicogenética, cognitiva, textos transversales y psicoanálisis. Leé los núcleos, compará, y después ponete a prueba con flashcards, quiz con justificación y simulacro oral.</p>
+      <div class="toolbar">
+        <a class="btn primary" href="#quiz">Ir al quiz</a>
+        <a class="btn" href="#flash">Flashcards</a>
+        <a class="btn" href="#oral">Simulacro oral</a>
+        <button class="btn" id="themeBtn" type="button" aria-pressed="false">Modo oscuro</button>
+      </div>
+    </div>
+    <svg class="knot" viewBox="0 0 360 300" role="img" aria-labelledby="knotTitle knotDesc">
+      <title id="knotTitle">Nudo de cinco hilos</title>
+      <desc id="knotDesc">Cinco hilos de colores, uno por corriente, que se entrelazan en un mismo nudo central: el aprendizaje escolar.</desc>
+      <g fill="none" stroke-width="10" stroke-linecap="round" opacity=".95">
+        <path d="M40 60 C140 60 160 160 180 150 S260 60 320 60" stroke="var(--c-vig)"/>
+        <path d="M40 240 C140 240 160 140 180 150 S260 240 320 240" stroke="var(--c-pia)"/>
+        <path d="M60 150 C120 90 240 210 300 150" stroke="var(--c-cog)"/>
+        <path d="M180 30 C170 100 190 200 180 270" stroke="var(--c-tra)"/>
+        <path d="M60 150 C120 210 240 90 300 150" stroke="var(--c-psi)"/>
+      </g>
+      <circle cx="180" cy="150" r="22" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+      <text x="180" y="156" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="var(--ink)">aula</text>
+      <g font-family="ui-monospace,monospace" font-size="11" fill="var(--ink-2)">
+        <text x="18" y="50">Vigotsky</text><text x="18" y="262">Piaget</text>
+        <text x="300" y="50">Transv.</text><text x="286" y="262">Psicoan.</text><text x="150" y="292">Cognitiva</text>
+      </g>
+    </svg>
+  </div>
+</header>
+
+<nav class="riel" aria-label="Secciones">
+  <ul>
+    <li><a href="#vig" style="--dot:var(--c-vig)"><span class="dot"></span>Socio‑histórica</a></li>
+    <li><a href="#pia" style="--dot:var(--c-pia)"><span class="dot"></span>Psicogenética</a></li>
+    <li><a href="#cog" style="--dot:var(--c-cog)"><span class="dot"></span>Cognitiva</a></li>
+    <li><a href="#tra" style="--dot:var(--c-tra)"><span class="dot"></span>Transversales</a></li>
+    <li><a href="#psi" style="--dot:var(--c-psi)"><span class="dot"></span>Psicoanálisis</a></li>
+    <li><a href="#comp"><span class="dot"></span>Comparar</a></li>
+    <li><a href="#flash"><span class="dot"></span>Flashcards</a></li>
+    <li><a href="#quiz"><span class="dot"></span>Quiz</a></li>
+    <li><a href="#abiertas"><span class="dot"></span>Abiertas</a></li>
+    <li><a href="#oral"><span class="dot"></span>Oral</a></li>
+  </ul>
+  <div class="progress" aria-hidden="true"><div id="pbar"></div></div>
+</nav>
+
+<main>
+
+<!-- ============ VIGOTSKY ============ -->
+<section class="bloque" id="vig" data-c style="--c:var(--c-vig)">
+  <div class="wrap">
+    <div class="kicker">Unidad 3.1 · Teoría socio‑histórica</div>
+    <h2>Vigotsky: lo que hoy hacés con ayuda, mañana lo hacés solo</h2>
+    <div class="autores"><span>Vigotsky (caps. IV y VI)</span><span>Baquero y Limón Luque</span><span>Acevedo y Gomel</span><span>Rogoff</span><span class="comp">Luria (compl.)</span><span class="comp">Shepardson (compl.)</span></div>
+    <p class="frase">Las funciones psicológicas superiores (atención voluntaria, memoria lógica, formación de conceptos) tienen <strong>origen social</strong> y se constituyen por <strong>mediación semiótica</strong>: aparecen primero entre personas y luego dentro del sujeto. El aprendizaje no sigue al desarrollo: lo <strong>precede y lo tironea</strong>.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Núcleo duro</h3>
+        <ul>
+          <li><b>Unidades de análisis</b> tomadas del <i>trabajo</i> en Marx: actividad instrumental e interacción social. Herramienta (orientada afuera, cambia el objeto) vs. <b>signo</b> (orientado adentro, regula la propia conducta). Ambos: actividad mediata.</li>
+          <li><b>Procesos elementales</b> (línea natural) vs. <b>superiores</b> (línea cultural): origen social, uso de signos, control consciente y voluntario. Los elementales no se transforman en superiores: son condición necesaria, no suficiente.</li>
+          <li>Superiores <b>rudimentarios</b> (habla, conceptos cotidianos: universales por vivir en una cultura) y <b>avanzados</b> (escritura, conceptos científicos: requieren prácticas deliberadas como la escolarización; uso <b>descontextualizado</b> de los signos).</li>
+          <li><b>Ley de doble formación</b>: toda función aparece dos veces, interpsicológica y luego intrapsicológica. <b>Internalización</b> = reconstrucción interna de una operación externa (gesto de señalar): no copia, cambia estructura y función; construye el plano interior.</li>
+          <li><b>ZDP</b>: distancia entre el nivel real (resuelve solo; funciones maduras, "frutos") y el potencial (con guía o colaboración; funciones en maduración, "capullos"). "El buen aprendizaje precede al desarrollo." Unidad, no identidad.</li>
+          <li>Tres posiciones aprendizaje‑desarrollo criticadas: independencia (Piaget, Binet), identidad (James, Thorndike), combinación (Koffka). Imitación: solo se imita lo que está en la propia zona; los simios no tienen ZDP.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Lecturas y extensiones</h3>
+        <ul>
+          <li><b>Baquero</b>: discontinuidad entre lo cotidiano y lo avanzado (de ahí escolarizar); sin desarrollo de los conceptos cotidianos, la enseñanza queda en "hueco verbalismo". Juego de simulación = juego reglado que genera ZDP. <b>Moll</b>: la zona es del niño en actividad colaborativa; no toda ayuda es ZDP.</li>
+          <li><b>Acevedo y Gomel</b>: concepto = estructura de generalización; cotidianos vs. científicos (sistema de relaciones); <b>pseudoconcepto</b>: misma palabra, distinto significado, punto de partida. <b>Wertsch</b>: definición de la situación, <b>intersubjetividad</b> (planos y grados), mediación semiótica. Los ejemplos de la vida cotidiana no garantizan intersubjetividad (olla hirviendo; N₂O₄ ⇄ 2NO₂).</li>
+          <li><b>Rogoff</b>: tres planos inseparables: aprendizaje/<i>apprenticeship</i> (comunitario), <b>participación guiada</b> (interpersonal), <b>apropiación participativa</b> (personal: "el proceso es el producto"). Crítica a "internalización" como importar algo externo. Girl Scouts.</li>
+          <li><b>Luria</b> (Uzbekistán): clasificación por situación práctica ("todo hace falta") y rechazo del silogismo ("solo decimos lo que vemos"): el pensamiento abstracto como producto socio‑histórico.</li>
+          <li><b>Shepardson</b> (1º grado, metamorfosis): herramientas psicológicas ("pupa") dan la manera de ver; técnicas (lupa) el cómo ver; si el lenguaje científico se usa solo como etiqueta y no como herramienta funcional, no hay aprendizaje.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout par"><strong>Pares que se confunden</strong>
+      <div class="table-scroll"><table>
+        <tr><th>Se confunde</th><th>Con</th><th>Cómo distinguirlos</th></tr>
+        <tr><td>Signo</td><td>Herramienta</td><td>Ambos median, pero la herramienta se orienta al objeto externo; el signo se orienta al propio psiquismo.</td></tr>
+        <tr><td>Nivel potencial</td><td>"Lo que podría llegar a hacer algún día"</td><td>Potencial = lo que resuelve <i>hoy</i> con ayuda; es diagnóstico prospectivo, no una promesa vaga.</td></tr>
+        <tr><td>Internalización (Vigotsky)</td><td>Apropiación participativa (Rogoff)</td><td>Rogoff rechaza la frontera externo/interno y la secuencia inter→intra; el cambio ocurre en la participación misma.</td></tr>
+        <tr><td>Descontextualizado (psicología)</td><td>Descontextualizado (pedagogía)</td><td>En psicología es positivo: el signo se independiza del contexto espacio‑temporal (escritura, álgebra).</td></tr>
+        <tr><td>Concepto científico (Vigotsky)</td><td>Concepto correcto</td><td>"Científico" = inscripto en un sistema; puede estar en sistema y ser incorrecto para la disciplina (Johsua y Dupin).</td></tr>
+      </table></div>
+    </div>
+
+    <details class="card"><summary>Errores frecuentes en el final</summary><div class="inner"><ul class="errlist">
+      <li><b>"Lo social determina al sujeto pasivo."</b> <em>→ La internalización es reconstrucción activa; hay prioridad genética de lo intersubjetivo, no determinación unilateral.</em></li>
+      <li><b>"ZDP es cualquier ayuda del docente."</b> <em>→ Es la distancia real/potencial; Moll: una definición centrada en transferir habilidades "caracteriza casi cualquier enseñanza".</em></li>
+      <li><b>"Aprendizaje = desarrollo."</b> <em>→ Unidad, no identidad; el aprendizaje organizado se convierte en desarrollo pero no coinciden ("no como la sombra al objeto").</em></li>
+      <li><b>"Los procesos elementales maduran y se vuelven superiores."</b> <em>→ Distinta línea de desarrollo; se reorganizan y subordinan.</em></li>
+    </ul></div></details>
+    <p class="srcnote">Resumen completo: <a href="resumenes/01-teoria-socio-historica-vigotsky.md">01‑teoria‑socio‑historica‑vigotsky.md</a></p>
+  </div>
+</section>
+
+<!-- ============ PIAGET ============ -->
+<section class="bloque" id="pia" data-c style="--c:var(--c-pia)">
+  <div class="wrap">
+    <div class="kicker">Unidad 3.2 · Epistemología y Psicología Genéticas</div>
+    <h2>Piaget: conocer es actuar, y la novedad se construye por equilibración</h2>
+    <div class="autores"><span>Ferreiro (1999)</span><span>Castorina, Clase 2: Conocimiento y acción</span><span>Castorina, Clase 6: Equilibración y tesis básicas</span></div>
+    <p class="frase">Piaget es ante todo un <strong>epistemólogo</strong>: estudia al niño para responder cómo se pasa de un estado de menor a otro de mayor conocimiento. El conocimiento no es copia ni representación: es <strong>acción</strong> que transforma al objeto y al sujeto. Hay <strong>continuidad funcional</strong> (asimilación/acomodación) con <strong>discontinuidad estructural</strong> (estadios).</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Conocimiento y acción (Clase 2)</h3>
+        <ul>
+          <li><b>Acción cognoscitiva</b>: orientada a objetos, les da significado, es modificable. Un reflejo o mover las piernas no es acción. Hay significación prelingüística ("el mundo es para chupar"). Intencionalidad estricta = distinguir medios y fines.</li>
+          <li>La acción no se reduce a lo práctico: acción = transformación, material o mental (pensar, inferir, comparar). Reducirla a manipulación es un error con consecuencias educativas.</li>
+          <li><b>Esquema</b>: lo que se conserva y transfiere entre acciones; constructo teórico. Primarios y secundarios (coordinación → origen de la lógica). Prácticos vs. <b>representativos</b> (función semiótica, ~2 años). El lenguaje es significante del pensamiento, no el pensamiento.</li>
+          <li>La lógica no está en el mundo ni es innata: se construye por abstracción de la coordinación de acciones (espiral, dialéctica). Diferencia con Kant: las categorías no están dadas.</li>
+          <li><b>Invariantes funcionales</b>: asimilación (incorporar a los esquemas) y acomodación (modificar el esquema) son simultáneas y complementarias = adaptación; más <b>organización</b> (tendencia a la coherencia).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Equilibración y tesis básicas (Clase 6)</h3>
+        <ul>
+          <li><b>Equilibración</b>: de equilibrios aproximados a otros cualitativamente distintos pasando por desequilibrios y reequilibraciones. Secuencia perturbación → regulación → compensación. El desequilibrio es necesario pero no suficiente.</li>
+          <li><b>Observables y coordinaciones</b> (Obs S, Obs O, Coord S, Coord O); las coordinaciones del nivel n se vuelven observables del n+1: <b>abstracción reflexionante</b>.</li>
+          <li>Compensaciones por <b>inversión</b> ("se vuelve a hacer la bola") y <b>reciprocidad</b> ("más larga pero más finita"). Reacciones <b>α</b> (ignora), <b>β</b> (integra a posteriori), <b>γ</b> (anticipa; reversibilidad).</li>
+          <li>Conservación de la sustancia en cuatro niveles; los desequilibrios se deben al predominio de las <b>afirmaciones</b> sobre las <b>negaciones</b>.</li>
+          <li>Abstracción <b>empírica</b> (del objeto) / <b>reflexionante</b> (de las coordinaciones; multiplicación como adición sobre sí misma) / pseudo‑empírica / <b>reflexionada</b> (toma de conciencia).</li>
+          <li><b>Cinco tesis</b>: constructivista; mecanismo explicativo (equilibración); especificidad de dominio; realismo crítico e interaccionismo (el objeto real como límite asintótico); interacción individuo‑sociedad.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout err"><strong>Ferreiro: las cuatro tentaciones de aplicar a Piaget</strong>
+      <ol>
+        <li>Enseñar las nociones de conservación como contenidos (se enseña la respuesta, no la operación).</li>
+        <li>Esperar a que las operaciones "maduren" ("madurez para el aprendizaje"; confunde orden con edad).</li>
+        <li>Consultar a Piaget para ubicar contenidos por grado (disocia el contenido de su modo de construcción; "todo lo que se enseña al niño se impide que lo invente").</li>
+        <li>Tomar la teoría como pedagogía o recetario ("Piaget dijo que…").</li>
+      </ol>
+      <p>Las cuatro se reducen a una: cambiar apenas lo necesario para que nada cambie. La teoría <b>no es una pedagogía</b>, pero redefine la noción de aprendizaje.</p>
+    </div>
+
+    <details class="card"><summary>Errores frecuentes en el final</summary><div class="inner"><ul class="errlist">
+      <li><b>"Piaget es maduracionista; el desarrollo depende de la edad."</b> <em>→ El motor es la interacción y la equilibración; los estadios se definen por el orden, no por edades.</em></li>
+      <li><b>"El conocimiento refleja la realidad."</b> <em>→ Construcción; realismo crítico: nos acercamos al objeto real sin alcanzarlo.</em></li>
+      <li><b>"Asimilación o acomodación."</b> <em>→ Son simultáneas: no se conoce dos veces igual.</em></li>
+      <li><b>"El conflicto cognitivo produce la novedad."</b> <em>→ La desencadena; la novedad la producen las reequilibraciones (abstracción reflexionante, nuevos posibles).</em></li>
+    </ul></div></details>
+    <p class="srcnote">Resumen completo: <a href="resumenes/02-epistemologia-y-psicologia-geneticas-piaget.md">02‑epistemologia‑y‑psicologia‑geneticas‑piaget.md</a></p>
+  </div>
+</section>
+
+<!-- ============ COGNITIVA ============ -->
+<section class="bloque" id="cog" data-c style="--c:var(--c-cog)">
+  <div class="wrap">
+    <div class="kicker">Unidad 3.3 · Psicología cognitiva y cambio conceptual</div>
+    <h2>Cognitiva: las ideas previas no se borran, se redescriben e integran</h2>
+    <div class="autores"><span>Tolchinsky sobre Karmiloff‑Smith</span><span>Pozo (2002)</span><span>Carretero y Castorina (2011)</span><span class="comp">Vosniadou (2013, ampliatoria)</span></div>
+    <p class="frase">Los alumnos llegan con <strong>representaciones implícitas y encarnadas</strong> organizadas como <strong>teorías implícitas</strong>, útiles para predecir y controlar. Aprender ciencia no es sustituirlas ("misconceptions") sino <strong>explicitarlas, reestructurarlas e integrarlas jerárquicamente</strong> en sistemas más potentes: un <strong>cambio representacional</strong>.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Karmiloff‑Smith (vía Tolchinsky)</h3>
+        <ul>
+          <li>Contra "las psicologías del <i>o</i>": predisposiciones de dominio específico <b>no modulares</b>; los módulos son resultado (<b>modularización</b>), no punto de partida. Explicar cómo de cerebros parcialmente estructurados salen mentes creativas.</li>
+          <li>Niveles <b>I</b> (implícito, procedimental), <b>E1</b> (explícito para el sistema), <b>E2</b>, <b>E3</b> (consciente, verbalizable). <b>Redescripción representacional</b>: impulso endógeno que re‑representa lo adquirido para hacerlo accesible.</li>
+          <li>Tres fases recurrentes: maestría conductual → control interno con errores (progreso representacional) → reconciliación. Caso "un" artículo/numeral.</li>
+          <li>Implicaciones: el <b>éxito</b> también dispara el cambio (no solo el conflicto); lo <b>notacional</b> es dominio de conocimiento; el error y la <b>transgresión</b> ("una casa que no existe") como vías de acceso.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pozo: del cambio conceptual al representacional</h3>
+        <ul>
+          <li>Epidemiología de las representaciones (Sperber): la ciencia "corre mal" en la mente; <b>sistema cognitivo inmunológico</b> del equipamiento cognitivo de serie. Duit: ninguna concepción arraigada fue extinguida.</li>
+          <li><b>Mente híbrida</b>: sistema implícito (pragmático, asociativo, encarnado; aprendizaje implícito de Reber) y explícito (epistémico). Creencias vs. ideas (Ortega). Principios de Spelke; "lo que no se percibe no se concibe"; sustancialización.</li>
+          <li>Tres enfoques: <b>pericia</b> (empirismo), <b>módulos</b> (racionalismo), <b>teorías</b> (constructivismo; abstracción, coherencia, causalidad, compromiso ontológico). Tercera vía: <b>teorías implícitas</b>, consistentes por subdominio.</li>
+          <li><b>Integración jerárquica</b> mediante reestructuración teórica, explicitación progresiva e integración; función pragmática vs. epistémica ("seguimos viendo al Sol moverse"). La ciencia como prótesis cognitiva; el cambio es posible pero improbable: la educación debe hacerlo más probable.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Carretero y Castorina: el campo y sus debates</h3>
+        <ul>
+          <li>Origen años 80 (Carey; Posner et al.); fuentes: equilibración piagetiana, Kuhn, enseñanza de las ciencias. Rasgos de las ideas previas (implícitas, perceptivas, resistentes…).</li>
+          <li><b>Posner</b>: asimilación/acomodación; insatisfacción, inteligible, plausible, fructífera; ecología conceptual.</li>
+          <li>Tipos: enriquecimiento/revisión y teoría marco (Vosniadou); reestructuración débil/fuerte (Carey); cambio de árbol ontológico (Chi); coherencia vs. <b>p‑prims</b> (diSessa).</li>
+          <li>¿Cambio o conocimiento situado? Globo terráqueo (Säljö) vs. interpretación constructiva del artefacto (Vosniadou).</li>
+          <li><b>Marco epistémico</b> de la escisión (dualismo, naturalismo, contextualismo) vs. <b>relacional/dialéctico</b>: la novedad surge de interacciones; objetividad como conquista; el cambio ocurre dentro de situaciones didácticas. No "erradicar errores" sino generar diálogo.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Vosniadou: razonamiento basado en modelos</h3>
+        <ul>
+          <li>Acepta la crítica metodológica sociocultural, no la ontológica ("los objetos mentales no existen").</li>
+          <li>Modelos mentales de los niños como <b>híbridos sintéticos</b> (Tierra dual, esfera hueca) que reconcilian lo fenomenológico con lo científico; revisión lenta y gradual.</li>
+          <li>Los modelos median la interpretación de artefactos: el globo ayuda pero se distorsiona; aumentan respuestas "leíbles" y cae la consistencia.</li>
+          <li>Enseñanza basada en modelos: externalizar lo implícito, reducir la distancia con el artefacto, pasar de una epistemología perceptiva a una basada en modelos (dinamómetros, vectores de cartón, pegatinas de energía).</li>
+        </ul>
+      </div>
+    </div>
+
+    <details class="card"><summary>Errores frecuentes en el final</summary><div class="inner"><ul class="errlist">
+      <li><b>"Hay que erradicar las misconceptions."</b> <em>→ Integración jerárquica; tienen función pragmática y larga historia de éxitos.</em></li>
+      <li><b>"Cambio conceptual = aprender el dato correcto."</b> <em>→ Eso es enriquecimiento; el cambio en sentido fuerte reorganiza el núcleo o la teoría marco.</em></li>
+      <li><b>"En Karmiloff‑Smith el cambio lo dispara el fracaso."</b> <em>→ Razones endógenas; el éxito posibilita redescribir.</em></li>
+      <li><b>"Mostrar el globo terráqueo transmite el modelo."</b> <em>→ Comprenderlo es un acto constructivo; puede distorsionarse.</em></li>
+    </ul></div></details>
+    <p class="srcnote">Resumen completo: <a href="resumenes/03-psicologia-cognitiva-y-cambio-conceptual.md">03‑psicologia‑cognitiva‑y‑cambio‑conceptual.md</a></p>
+  </div>
+</section>
+
+<!-- ============ TRANSVERSALES ============ -->
+<section class="bloque" id="tra" data-c style="--c:var(--c-tra)">
+  <div class="wrap">
+    <div class="kicker">Unidades 1.1, 1.4 y 2.1 · Textos transversales</div>
+    <h2>Transversales: la escuela como contexto específico y las concepciones de los alumnos</h2>
+    <div class="autores"><span>Acevedo y Sokolowicz (ficha de cátedra)</span><span>Johsua y Dupin</span><span>Bril Mascarenhas y Burdman (análisis)</span><span class="comp">Acevedo, Casamajor y Espinoza</span><span class="comp">Acevedo y Castronuovo</span><span class="comp">Sadovsky</span></div>
+    <p class="frase">Aprender es construir conocimiento en <strong>prácticas situadas</strong>: el contexto no rodea al aprendizaje, es inherente. La escuela es una <strong>construcción socio‑histórica</strong> (dispositivo) que produce formas específicas de aprender; las respuestas "erróneas" de los alumnos son <strong>concepciones</strong> con lógica y pertinencia parcial.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Acevedo y Sokolowicz</h3>
+        <ul>
+          <li><b>Objeto de estudio ≠ unidad de análisis</b>; conciencia vs. conducta; crítica al <b>aplicacionismo</b> y al discurso psicológico normativo que culpa al sujeto.</li>
+          <li>Escuela moderna: invención de la infancia, encierro, higienismo, Estado nacional (Ley 1420). <b>Dispositivo</b> (Foucault): responde a una urgencia; produce objetos y enunciados ("repitente", "ADD"). Otra lectura: <b>tiempo libre</b>, suspensión y profanación (Simons y Masschelein).</li>
+          <li>Notas de Trilla (colectivo, espacio, tiempo, roles, contenidos predeterminados, aprendizaje <b>descontextualizado</b>: Chevallard y abstracción). Demandas cognitivas (Rivière). Enseñanza simultánea vs. mutua.</li>
+          <li>Unidades de análisis: <b>sistema de actividad</b> (Vigotsky → Leontiev → Engeström: triángulo, objeto, contradicciones) y la <b>interacción sujeto‑objeto</b> (psicología genética); el objeto es el conocimiento tal como circula en la clase.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Johsua y Dupin</h3>
+        <ul>
+          <li>El modelo científico rara vez continúa al sentido común; "error" es engañoso: concepciones <b>organizadas, con lógica propia</b> y <b>pertinencia parcial</b> (de ahí su resistencia). Preferir "concepciones" a "misconceptions".</li>
+          <li><b>Cohabitación</b> de concepciones herméticas por clase de problemas; la coherencia es exigencia de la ciencia, no del individuo. Progresión posible por ampliación del campo y diferenciación de nociones "demasiado ricas" ("ímpetu", "electricidad").</li>
+          <li><b>Razonamientos transversales</b>: variables solo positivas, una variable por vez, <b>razonamiento lineal causal</b>. Regresiones como regla.</li>
+          <li>Orígenes: medio social, afectividad, <b>obstáculos epistemológicos</b> (Bachelard), acción sobre los objetos (Ogborn), y la propia enseñanza (<b>productos didácticos</b>). Cuidado con el anacronismo histórico. Ejemplo: diferenciales.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Complementarios y análisis</h3>
+        <ul>
+          <li><b>Representaciones modélicas</b> (7º, discontinuidad de la materia): producir ≠ leer representaciones; función epistémica; macro vs. submicroscópico; animismo; condiciones didácticas.</li>
+          <li><b>Leer para aprender</b> (Biología, nivel superior): lectura como construcción de significado; propósito lector; salidas y entradas al texto; "fuente de energía ≠ energía".</li>
+          <li><b>Sadovsky</b>: la clase como espacio social que produce nuevos problemas (monedas, 41 vs. 201 soluciones); la propia producción como marco de control; institucionalizar normas; espacio privado y público.</li>
+          <li><b>"Promptear no es pensar"</b>: Juan y Bianca; ¿qué actividad cognoscitiva hubo? Material para discutir con las teorías.</li>
+        </ul>
+      </div>
+    </div>
+
+    <details class="card"><summary>Errores frecuentes en el final</summary><div class="inner"><ul class="errlist">
+      <li><b>"El contexto es el telón de fondo."</b> <em>→ Es inherente a la situación y se modifica en la interacción.</em></li>
+      <li><b>"El alumno es incoherente."</b> <em>→ Cohabitación de registros; la exigencia de coherencia es del discurso científico.</em></li>
+      <li><b>"Mostrar la imagen del libro alcanza."</b> <em>→ Las representaciones tienen carga conceptual; producirlas moviliza ideas.</em></li>
+      <li><b>"Trabajar en grupo garantiza aprendizaje."</b> <em>→ Lo que vale es la confrontación que abre problemas nuevos, regulada por el docente.</em></li>
+    </ul></div></details>
+    <p class="srcnote">Resumen completo: <a href="resumenes/04-textos-transversales.md">04‑textos‑transversales.md</a></p>
+  </div>
+</section>
+
+<!-- ============ PSICOANÁLISIS ============ -->
+<section class="bloque" id="psi" data-c style="--c:var(--c-psi)">
+  <div class="wrap">
+    <div class="kicker">Unidades 1.3, 2.2, 4.1 y 4.2 · Psicoanálisis</div>
+    <h2>Psicoanálisis: pulsión, cultura, vínculo educativo y adolescencias</h2>
+    <div class="autores"><span>Freud (Malestar; ¿Por qué la guerra?)</span><span>Serra Frediani</span><span>Ferreyra y Silva</span><span>Ruiz</span><span>Iturbide</span><span>Moyano</span><span>Ferreyra</span><span>Kiel</span><span>Zelmanovich (×4)</span><span>Tizio</span><span>Brignoni (×2)</span><span>Ubieto</span></div>
+    <p class="frase">Hay cultura <strong>porque</strong> hay un malestar pulsional irreductible: la cultura se edifica sobre la renuncia pulsional. El sujeto se constituye con otros, <strong>entre significantes</strong>, en un <strong>discurso</strong> que regula el goce. En la escuela, el <strong>vínculo educativo</strong> es ternario (agente, sujeto, contenidos de la cultura) y requiere transferencia, suponer un sujeto y ofrecer bienes culturales que hagan de mediación.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Freud y la pulsión</h3>
+        <ul>
+          <li><b>Malestar</b>: el principio de placer es irrealizable; tres fuentes del sufrimiento (cuerpo, mundo, vínculos); técnicas de vida (intoxicación, sublimación, amor, arte, religión como delirio de masas). Cultura: protección frente a la naturaleza + regulación de los vínculos; derecho = poder de la comunidad; renuncia pulsional.</li>
+          <li><b>¿Por qué la guerra?</b>: derecho = violencia de la comunidad ("la unión hace la fuerza"); Eros y pulsión de muerte/destrucción, siempre aleadas; desviar la agresión mediante identificaciones y educación de pensadores autónomos; "pacifistas por razones orgánicas".</li>
+          <li><b>Pulsión</b> (Trieb ≠ instinto): interna, constante, no se huye, se tramita; fronteriza anímico/somático; acéfala; autoerótica; destinos (trastorno en lo contrario, vuelta sobre sí, represión, sublimación): "se satisface siempre".</li>
+          <li><b>RSI</b>, estadio del espejo; "la cría nace, el sujeto es a producir"; función materna (cuidados particularizados; Spitz) y paterna (ley que señala un camino).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Discursos y vínculo educativo</h3>
+        <ul>
+          <li><b>Teoría de los discursos</b>: cuatro lugares (agente, otro, verdad, producto), cuatro elementos (S1, S2, $, a); amo, universitario, histérica, analista; cada uno con un imposible (gobernar, educar, hacer desear, analizar); la fijación empobrece, hay que girar. El campo discursivo afecta a todos; los sujetos son efecto del discurso.</li>
+          <li><b>Triángulo herbartiano</b> abierto en la base: "lo que separa, une"; el vínculo se construye (transmisión/apropiación); función filiadora; sin contenidos el par estalla (Moyano). Dinámica: elevar el vértice (Iturbide). Suponer al sujeto y al deseo de saber del educador (Ruiz). Docta ignorancia; del caso al niño.</li>
+          <li><b>Límites</b> (Kiel): dos caras; "para que sí"; se transmiten en la enseñanza; chicos limitados, no sin límites; futuro anterior.</li>
+          <li><b>Autoridad</b> (Zelmanovich): la "crisis" como mito/ficción socializada; pivote: Sujeto supuesto Saber; saber + deseo; alienación/separación; Otro descompletado; nuevas ficciones "al estilo del teatro".</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Adolescencias</h3>
+        <ul>
+          <li><b>Desamparo</b> (Zelmanovich): velo de significaciones; asimetría como amparo; no invertir la vulnerabilidad; jóvenes como personajes de un drama subjetivo que <b>ensayan</b>; no nombrarlos como destino; la escuela como adulto alternativo.</li>
+          <li><b>Brignoni</b>: ser contemporáneo; tribu del pulgar; adolescencia prolongada; acción ≠ acto; acompañar (ni delante ni detrás); no comprender sino mantener el enigma; crisis del deseo y del lenguaje; <b>adolescencia = respuestas/invención ante lo real de la pubertad</b>; tres duelos.</li>
+          <li><b>Síntoma</b> ≠ trastorno: verdad desconocida, goce + sufrimiento, intento de solución; <b>palanca</b>; "el cambio del sujeto es efecto del cambio de lugar"; síntomas del lazo social; respeto = incluir; fugas; marcas; tóxicos.</li>
+          <li><b>Bullying como mito</b>: doble operación; lo fraterno (Caín y Abel); foto → película; agresividad y reconocimiento (espejo); excepción grupal; autoridad vs. seguridad; secuencia anti‑segregativa (excepción segregada → excepcionalidad).</li>
+          <li><b>Ubieto</b>: ¿adictos o amantes?; túnel con dos salidas; frenesí, tráns(ito), virtualidad; salida de la era del padre; estigma → etiqueta; "no se educa sin un deseo vivo".</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Instituciones y cultura</h3>
+        <ul>
+          <li><b>Tizio</b>: vacío (productivo, colonizado por la cultura) vs. vaciamiento (pulsión de muerte); capitalismo global, multiculturalismo como racismo a distancia, crisis de las instituciones, lo light que "produce lo más duro"; <b>segregación o invención</b>: si la educación pierde su relación con el saber queda control social.</li>
+          <li><b>Sujeto entre significantes</b> (tesis Zelmanovich): Victoria, "manzana podrida" → "alguien que piensa"; la misma joven, dos sujetos; anudar significante y pulsión; agresividad cuando el otro devuelve una imagen fragmentada; discurso como tratamiento del goce (Lacan) y del poder (Foucault).</li>
+        </ul>
+      </div>
+    </div>
+
+    <details class="card"><summary>Errores frecuentes en el final</summary><div class="inner"><ul class="errlist">
+      <li><b>"Hay malestar porque hay cultura."</b> <em>→ Al revés: hay cultura porque hay malestar pulsional irreductible.</em></li>
+      <li><b>"Función materna = la madre; paterna = el padre."</b> <em>→ Son funciones, independientes de quién las ejerza.</em></li>
+      <li><b>"El discurso universitario es malo; el del analista, bueno."</b> <em>→ Todos tienen potencia e imposibilidad; lo problemático es la fijación.</em></li>
+      <li><b>"El síntoma hay que eliminarlo."</b> <em>→ Es intento de solución y llamado; tomarlo como palanca; cambio de lugar.</em></li>
+      <li><b>"Bullying: víctima y victimario."</b> <em>→ Figuras de la segunda operación del mito; rebobinar la película hasta el reconocimiento perdido y el lugar del adulto.</em></li>
+    </ul></div></details>
+    <p class="srcnote">Resumen completo: <a href="resumenes/05-psicoanalisis-adolescencia.md">05‑psicoanalisis‑adolescencia.md</a></p>
+  </div>
+</section>
+
+<!-- ============ COMPARATIVA ============ -->
+<section class="bloque" id="comp">
+  <div class="wrap">
+    <div class="kicker" style="--accent:var(--ink-2)">Pares de oral</div>
+    <h2>Comparar las corrientes</h2>
+    <p class="muted">En la mesa suelen pedir contrastes. Esta tabla ordena lo que cada marco dice sobre las mismas preguntas. Cada texto declara su marco: no se fusionan.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Pregunta</th><th style="color:var(--c-vig)">Socio‑histórica</th><th style="color:var(--c-pia)">Psicogenética</th><th style="color:var(--c-cog)">Cognitiva / cambio conceptual</th><th style="color:var(--c-psi)">Psicoanálisis</th></tr></thead>
+      <tbody>
+        <tr><td><b>Unidad de análisis</b></td><td>Actividad instrumental e interacción social; funcionamiento intersubjetivo mediado por signos (sistema de actividad).</td><td>Interacción sujeto‑objeto; esquemas de acción; sujeto epistémico.</td><td>Representaciones y sistemas representacionales (implícito/explícito; teorías implícitas; modelos mentales).</td><td>El lazo social como discurso; el sujeto entre significantes; vínculo educativo ternario.</td></tr>
+        <tr><td><b>Motor del cambio</b></td><td>Internalización de lo interpsicológico; aprendizaje que precede al desarrollo (ZDP).</td><td>Equilibración: perturbación → compensación; abstracción reflexionante.</td><td>Redescripción representacional (éxito y conflicto); reestructuración e integración jerárquica; insatisfacción + concepción inteligible/plausible/fructífera.</td><td>Transferencia; cambio de lugar y de discurso; tratamiento significante de la pulsión.</td></tr>
+        <tr><td><b>Aprendizaje y desarrollo</b></td><td>Unidad no identidad; el buen aprendizaje precede al desarrollo.</td><td>Continuidad de mecanismos; el aprendizaje escolar supone reconstrucción; "lo que se enseña se impide inventar".</td><td>El cambio representacional es posible pero improbable; la instrucción lo hace más probable.</td><td>Educar es una de las profesiones imposibles; se educa dejando subsistir la pulsión y redirigiéndola.</td></tr>
+        <tr><td><b>Lectura del "error"</b></td><td>Pseudoconcepto: punto de partida; distintas definiciones de la situación.</td><td>Respuesta con lógica propia; hipótesis del sujeto; indicador de nivel de equilibración.</td><td>Concepción con pertinencia parcial; teoría implícita; modelo sintético; p‑prim.</td><td>Síntoma como intento de solución y llamado; no fijar en el lugar.</td></tr>
+        <tr><td><b>Papel del docente</b></td><td>Regula significados en la ZDP; construye intersubjetividad; uso funcional del lenguaje científico.</td><td>No aplica recetas; crea situaciones que permitan reconstruir; estudia qué hace el pedagogo con los hechos del psicólogo.</td><td>Explicitar lo implícito, externalizar en modelos, ofrecer sistemas de representación, dialogar con lo previo.</td><td>Agente que supone un sujeto, desea transmitir, ofrece bienes culturales como terceridad; Otro descompletado; límites "para que sí".</td></tr>
+        <tr><td><b>Riesgo típico</b></td><td>Hueco verbalismo; suponer intersubjetividad por usar ejemplos cotidianos.</td><td>Las cuatro tentaciones (enseñar la respuesta, esperar la madurez, ubicar contenidos por edad, teoría como pedagogía).</td><td>Erradicar "misconceptions"; confundir enriquecimiento con cambio; creer que el artefacto transmite.</td><td>Fijar al sujeto en un diagnóstico o personaje; centrarse en el otro sin saber; nostalgia de una autoridad fuerte.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="grid2" style="margin-top:1em">
+      <div class="card"><h3>Puentes entre textos</h3><ul>
+        <li>Castorina (tesis 5) y Carretero‑Castorina (marco relacional) acercan Piaget a lo sociocultural: la construcción individual en una matriz cultural.</li>
+        <li>Acevedo y Gomel usan Johsua y Dupin para corregir a Vigotsky: estar en sistema no vuelve correcto un concepto.</li>
+        <li>Pozo y Vosniadou toman la redescripción de Karmiloff‑Smith; Tolchinsky la emparenta con la abstracción reflexionante piagetiana.</li>
+        <li>Zelmanovich lee a Freud al revés de la doxa: hay cultura porque hay malestar; Kiel y Moyano lo bajan a límites y contenidos.</li>
+        <li>Brignoni y Ubieto comparten la indicación: no comprender ni etiquetar; acompañar, respetar el semblante, preguntar por la función.</li>
+      </ul></div>
+      <div class="card"><h3>Frases para citar</h3><ul>
+        <li>"El buen aprendizaje es solo aquel que precede al desarrollo." (Vigotsky)</li>
+        <li>"Todo lo que se enseña al niño, se impide que lo invente." (Piaget, en Ferreiro)</li>
+        <li>"La teoría científica puede redescribir mi experiencia encarnada, pero no al revés." (Pozo)</li>
+        <li>"Lo que separa, une." (Herbart, en Moyano)</li>
+        <li>"El cambio del sujeto es efecto del cambio de lugar." (Bernfeld, en Brignoni)</li>
+        <li>"Hablamos para todos, pero nos escuchan uno por uno." (Núñez, en Ferreyra)</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FLASHCARDS ============ -->
+<section class="bloque" id="flash">
+  <div class="wrap">
+    <div class="kicker" style="--accent:var(--ink-2)">Recall activo</div>
+    <h2>Flashcards</h2>
+    <p class="muted">Tocá la tarjeta (o Enter/espacio) para darla vuelta. Marcá si la sabías: las que no, vuelven a aparecer.</p>
+    <div class="fc-controls">
+      <label for="fcFilter" class="mono">Corriente</label>
+      <select id="fcFilter">
+        <option value="all">Todas</option>
+        <option value="vig">Socio‑histórica</option>
+        <option value="pia">Psicogenética</option>
+        <option value="cog">Cognitiva</option>
+        <option value="tra">Transversales</option>
+        <option value="psi">Psicoanálisis</option>
+      </select>
+      <button class="btn small" id="fcShuffle" type="button">Mezclar</button>
+      <span class="mono" id="fcCount" aria-live="polite"></span>
+    </div>
+    <div class="fc-stage">
+      <button class="fc" id="fcCard" type="button" aria-label="Flashcard. Pulsá para ver la definición.">
+        <div class="face front"><span class="tag" id="fcTag"></span><span class="term" id="fcTerm"></span><span class="muted mono">pulsá para dar vuelta</span></div>
+        <div class="face back"><span class="tag" id="fcTag2"></span><span class="def" id="fcDef"></span></div>
+      </button>
+    </div>
+    <div class="fc-nav">
+      <button class="btn small" id="fcPrev" type="button">← Anterior</button>
+      <button class="btn small" id="fcNo" type="button">No la sabía</button>
+      <button class="btn small primary" id="fcYes" type="button">La sabía ✓</button>
+      <button class="btn small" id="fcNext" type="button">Siguiente →</button>
+    </div>
+    <p class="mono muted" style="text-align:center;margin-top:8px" id="fcStats" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="bloque" id="quiz">
+  <div class="wrap">
+    <div class="kicker" style="--accent:var(--ink-2)">Autoevaluación</div>
+    <h2>Quiz con feedback</h2>
+    <p class="muted">Ordenado de básico a integrador. Cada opción incorrecta encarna una confusión típica: el feedback la nombra. Podés filtrar por corriente.</p>
+    <div class="fc-controls">
+      <label for="qzFilter" class="mono">Corriente</label>
+      <select id="qzFilter">
+        <option value="all">Todas</option>
+        <option value="vig">Socio‑histórica</option>
+        <option value="pia">Psicogenética</option>
+        <option value="cog">Cognitiva</option>
+        <option value="tra">Transversales</option>
+        <option value="psi">Psicoanálisis</option>
+      </select>
+      <button class="btn small" id="qzReset" type="button">Reiniciar</button>
+    </div>
+    <div id="quizList"></div>
+    <div class="score" aria-live="polite">Puntaje <strong id="qzScore">0</strong> / <span id="qzTotal">0</span> · respondidas <span id="qzDone">0</span></div>
+  </div>
+</section>
+
+<!-- ============ ABIERTAS ============ -->
+<section class="bloque" id="abiertas">
+  <div class="wrap">
+    <div class="kicker" style="--accent:var(--ink-2)">Desarrollo</div>
+    <h2>Preguntas abiertas con respuesta modelo</h2>
+    <p class="muted">Escribí tu respuesta primero (queda solo en esta sesión) y recién después mostrá el modelo. La idea es comparar, no copiar.</p>
+    <div id="abiertasList"></div>
+  </div>
+</section>
+
+<!-- ============ ORAL ============ -->
+<section class="bloque" id="oral">
+  <div class="wrap">
+    <div class="kicker" style="--accent:var(--ink-2)">Mesa de examen</div>
+    <h2>Simulacro oral</h2>
+    <p class="muted">Consignas integradoras al estilo tribunal. Sacá una al azar, hablá en voz alta durante el tiempo asignado y después chequeá los puntos que no podían faltar.</p>
+    <div class="oral-box">
+      <p class="prompt" id="oralPrompt">Pulsá "Nueva consigna" para empezar.</p>
+      <div class="toolbar">
+        <button class="btn primary" id="oralNew" type="button">Nueva consigna</button>
+        <button class="btn" id="oralStart" type="button">Iniciar 4 min</button>
+        <button class="btn" id="oralStop" type="button">Detener</button>
+        <span class="timer" id="oralTimer" aria-live="off">04:00</span>
+      </div>
+      <details style="margin-top:12px"><summary>Puntos que no podían faltar</summary><ul id="oralPoints"></ul></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Guía elaborada a partir de la bibliografía de la cátedra organizada por teoría (parses completos, noviembre 2026). Los resúmenes extensos en Markdown están en la carpeta <span class="mono">resumenes/</span>. Para citar con página, volver al PDF original.</p>
+    <p>Funciona sin conexión, sin librerías externas y sin guardar datos: el progreso vive solo mientras la pestaña esté abierta.</p>
+  </div>
+</footer>
+
+<script>
+/* ======================= DATOS ======================= */
+const CORR = {vig:{n:'Socio‑histórica',c:'var(--c-vig)'},pia:{n:'Psicogenética',c:'var(--c-pia)'},cog:{n:'Cognitiva',c:'var(--c-cog)'},tra:{n:'Transversales',c:'var(--c-tra)'},psi:{n:'Psicoanálisis',c:'var(--c-psi)'}};
+
+const CARDS = [
+ // Vigotsky
+ ['vig','Ley de doble formación','Toda función superior aparece dos veces: primero a nivel social (interpsicológica) y después individual (intrapsicológica). Todas las funciones superiores se originan como relaciones entre seres humanos.'],
+ ['vig','Zona de desarrollo próximo','Distancia entre el nivel real (resolver solo) y el potencial (resolver con guía de un adulto o colaboración de un compañero más capaz). Define funciones en maduración; caracteriza el desarrollo prospectivamente.'],
+ ['vig','Internalización','Reconstrucción interna de una operación externa. No es copia ni traspaso a un interior preexistente: construye el plano interior y cambia la estructura y la función (ej. habla social → habla interior, abreviada y predicativa).'],
+ ['vig','Signo vs. herramienta','Ambos son actividad mediata. La herramienta está externamente orientada (cambia el objeto); el signo, internamente orientado (medio para dominarse a sí mismo, no cambia el objeto).'],
+ ['vig','Procesos superiores rudimentarios y avanzados','Rudimentarios: universales por pertenecer a una cultura (habla, conceptos cotidianos). Avanzados: requieren prácticas culturales deliberadas como la escolarización (escritura, conceptos científicos); uso descontextualizado de los signos.'],
+ ['vig','Pseudoconcepto','Palabra compartida por adulto y niño en referencia y término, pero no en significado. Permite la comunicación y es concepto científico potencial si el adulto regula su uso. En clase: punto de partida, no problema.'],
+ ['vig','Intersubjetividad (Wertsch)','Realidad social temporalmente compartida en la que los interlocutores comparten algún aspecto de sus definiciones de la situación. Se da en distintos planos (objeto, tarea, acciones) y grados; requiere mediaciones semióticas.'],
+ ['vig','Apropiación participativa (Rogoff)','Proceso personal por el cual los individuos se transforman a través de su propia participación en una actividad y se preparan para participaciones futuras. Conversión más que adquisición; cuestiona la frontera externo/interno.'],
+ ['vig','Participación guiada','Plano interpersonal: implicación mutua y coordinación entre individuos en una actividad culturalmente significativa; incluye lo tácito, lo "codo a codo" y lo a distancia; la guía viene de la cultura y de los otros (también como restricción).'],
+ ['vig','Hueco verbalismo','Lo que queda de la enseñanza de conceptos científicos (de arriba hacia abajo) cuando no se complementa con un desarrollo adecuado de los conceptos cotidianos (de abajo hacia arriba).'],
+ ['vig','Herramientas psicológicas y técnicas (Shepardson)','Las psicológicas (palabras como "pupa") dan la manera de ver, hablar y pensar; las técnicas (lupa, termómetro) dan acceso a nuevas perspectivas del fenómeno. Solo con las psicológicas los niños ven distinto.'],
+ ['vig','Tres posiciones sobre aprendizaje y desarrollo','1) Independencia: el desarrollo precede (Piaget, Binet). 2) Identidad: aprendizaje es desarrollo (James, Thorndike). 3) Combinación (Koffka). Vigotsky: unidad no identidad; el aprendizaje precede y despierta el desarrollo.'],
+ // Piaget
+ ['pia','Asimilación y acomodación','Asimilar: incorporar objetos y situaciones a los esquemas, darles significado. Acomodar: modificar el esquema en función de lo asimilado. Simultáneas y complementarias (dialéctica); juntas constituyen la adaptación.'],
+ ['pia','Esquema de acción','Lo que se conserva y transfiere de una acción a otra: sistema organizado de sub‑acciones. Constructo teórico (se observan actos, no esquemas). Primarios/secundarios; prácticos/representativos.'],
+ ['pia','Equilibración','Proceso que lleva de ciertos estados de equilibrio aproximado a otros cualitativamente diferentes, pasando por múltiples desequilibrios y reequilibraciones. Secuencia perturbación → regulación → compensación.'],
+ ['pia','Reacciones alfa, beta y gamma','Alfa: la perturbación se ignora o reprime. Beta: se modifica el sistema para integrarla a posteriori, sin sistematicidad. Gamma: se anticipa; deja de ser perturbación y se vuelve transformación del sistema (reversibilidad).'],
+ ['pia','Abstracción reflexionante','Extrae propiedades no del objeto sino de las coordinaciones de las acciones y las reorganiza en un plano superior (reflejamiento + reflexión). Fuente del conocimiento lógico‑matemático. Ej.: la multiplicación como adición sobre la adición.'],
+ ['pia','Abstracción empírica','Extrae propiedades del objeto (color, peso). Fuente del conocimiento físico. No es "pura": requiere esquemas de asimilación para captar la propiedad.'],
+ ['pia','Observables y coordinaciones','Observable: lo que el sujeto cree constatar (depende de coordinaciones previas). Coordinación: inferencia que va más allá de lo observable. Obs S / Obs O / Coord S / Coord O; las coordinaciones del nivel n se vuelven observables del n+1.'],
+ ['pia','Compensación por inversión y por reciprocidad','Inversión: retorno al punto de partida ("se puede volver a hacer la bola"). Reciprocidad: una relación compensa otra ("más larga pero más finita").'],
+ ['pia','Realismo crítico','El mundo existe independientemente del conocimiento, pero solo se conoce mediado por la actividad transformadora; el objeto real es un límite al que el conocimiento se acerca asintóticamente. No hay verdad como copia.'],
+ ['pia','Tesis de especificidad de dominio','La equilibración debe extenderse a los conocimientos de dominio (escritura, autoridad escolar, forma de la Tierra), que suponen pero no se reducen a las estructuras lógicas; un dominio se construye en la interacción, no está dado por lo innato ni por la cultura.'],
+ ['pia','Las cuatro tentaciones (Ferreiro)','Enseñar las conservaciones como contenidos; esperar la "madurez"; ubicar contenidos por edad según Piaget; tomar la teoría como pedagogía. Todas: cambiar lo mínimo para que nada cambie.'],
+ ['pia','Función semiótica','Alrededor de los dos años: significantes diferenciados de sus significados (imitación diferida, juego simbólico, imagen, dibujo, lenguaje). Sostiene las acciones interiorizadas; el lenguaje es significante del pensamiento, no el pensamiento.'],
+ // Cognitiva
+ ['cog','Redescripción representacional','Operación interna (impulso endógeno) que re‑representa el conocimiento ya adquirido en formatos más explícitos y accesibles (niveles I, E1, E2, E3). Permite trabajar sobre las partes de un procedimiento. Marco de Karmiloff‑Smith.'],
+ ['cog','Modularización','Para Karmiloff‑Smith los módulos no son punto de partida sino resultado del desarrollo: predisposiciones de dominio específico se encapsulan por procesamiento repetido. Preserva el aprendizaje constructivo.'],
+ ['cog','Maestría conductual','Fin de la fase 1: ejecutar correctamente las conductas de un microdominio con representaciones yuxtapuestas e implícitas. No es índice de adquisición (luego aparecen errores que son progreso representacional).'],
+ ['cog','Sistema cognitivo inmunológico','Metáfora de Pozo (desde Sperber): el equipamiento cognitivo de serie nos "vacuna" contra representaciones incompatibles con su formato, como el conocimiento científico.'],
+ ['cog','Representaciones implícitas y encarnadas','Creencias (Ortega) adquiridas por aprendizaje implícito (Reber), basadas en lo que el cuerpo informa de los cambios del mundo. Función pragmática; "lo que no se percibe no se concibe"; sustancialización.'],
+ ['cog','Teoría implícita','Representaciones con rasgos de teoría (abstracción, coherencia, causalidad, compromiso ontológico) pero de naturaleza implícita; consistentes en subdominios, sin consistencia global. Tercera vía entre pericia y módulos.'],
+ ['cog','Integración jerárquica','Alternativa a la sustitución: redescribir el conocimiento cotidiano en términos de modelos científicos más potentes sin abandonarlo; tres procesos: reestructuración teórica, explicitación progresiva, integración.'],
+ ['cog','Condiciones de Posner et al. (1982)','Para la acomodación: insatisfacción con las concepciones existentes; la nueva debe ser inteligible, plausible y fructífera. Revisión 1992: ecología conceptual. La insatisfacción es necesaria pero no suficiente.'],
+ ['cog','Reestructuración débil y fuerte (Carey)','Débil: nuevas relaciones y conceptos supraordinados manteniendo el núcleo (novato → experto). Fuerte/radical: cambio de los conceptos centrales (cambio teórico). Solo la fuerte es cambio conceptual en sentido estricto.'],
+ ['cog','p‑prims (diSessa)','Primitivos fenomenológicos: piezas de conocimiento fragmentarias, abstracciones de experiencias comunes que no necesitan explicación (la fuerza como agente que produce movimiento). Contra la idea de teorías coherentes.'],
+ ['cog','Teoría marco (Vosniadou)','Teoría ingenua del mundo físico que restringe las teorías específicas; el cambio conceptual es la reinterpretación gradual de sus restricciones, tras reestructuraciones débiles de las teorías específicas.'],
+ ['cog','Modelo sintético','Híbrido generativo que reconcilia el modelo inicial fenomenológico (Tierra plana, apoyada) con la información científica (esfera que rota): Tierra dual, esfera hueca. Muestra que el aprendizaje es revisión gradual de modelos.'],
+ ['cog','Marco epistémico de la escisión vs. relacional','Escisión: dualismo, naturalismo (innato vs. empírico) y contextualismo que disuelve al sujeto. Relacional/dialéctico: la novedad surge de las interacciones (sujeto/objeto, ideas previas/información, individuo/cultura); objetividad como conquista.'],
+ // Transversales
+ ['tra','Objeto de estudio vs. unidad de análisis','El objeto es lo que se estudia (p. ej., el aprendizaje); la unidad son los elementos y relaciones mínimas con que se lo indaga y su principio explicativo. Si coinciden, la investigación es circular.'],
+ ['tra','Dispositivo (Foucault)','Conjunto heterogéneo (discursos, instituciones, arquitecturas, leyes, enunciados) cuya red responde a una urgencia histórica, inscripta en relaciones de poder; produce regímenes de objetos y de enunciación.'],
+ ['tra','Tiempo libre, suspensión y profanación','Simons y Masschelein: la escuela ofrece tiempo liberado al suspender el orden desigual de origen y profanar los saberes (volverlos bien común). Lectura democratizadora de lo escolar.'],
+ ['tra','Aprendizaje descontextualizado (dos sentidos)','1) Los saberes funcionan fuera de su contexto de producción (Chevallard: descontextualización‑recontextualización). 2) Uso crecientemente abstracto de los instrumentos semióticos que trasciende la situación de adquisición.'],
+ ['tra','Sistema de actividad (Engeström)','Formación colectiva con sujeto, objeto/objetivo, instrumentos, comunidad, reglas y división del trabajo; las contradicciones son motor de cambio. Objetos antitéticos de la escuela (Terigi).'],
+ ['tra','Concepciones (Johsua y Dupin)','Modos de razonamiento organizados, con lógica propia y pertinencia parcial para ciertas clases de problemas; resistentes porque funcionan. Preferible a "misconception", que las define solo por oposición al saber canónico.'],
+ ['tra','Razonamiento lineal causal','Analizar un sistema de interacciones simultáneas como cadena A→B→C sucesiva (gas a presión constante; circuitos). Razonamiento transversal muy resistente por su adecuación a muchos problemas escolares.'],
+ ['tra','Productos didácticos','Concepciones que no son intrínsecas al alumno sino efectos de la enseñanza pasada (el "modelo de suministro constante" del generador como generalización indebida de la insistencia en la intensidad constante).'],
+ ['tra','Función epistémica de las representaciones','Producir representaciones no textuales (no solo leerlas) externaliza ideas, moviliza centraciones conceptuales y ayuda a descentrarse de lo observable (plano macro → submicroscópico).'],
+ ['tra','Propósito lector y "salidas y entradas al texto"','Leer en clase con una pregunta construida, volver al texto para cotejar, e interrumpir la lectura para expandirla con otra situación (video, experimento) y retomarla. Criterios de Acevedo y Castronuovo.'],
+ // Psicoanálisis
+ ['psi','Tres fuentes del sufrimiento','La hiperpotencia de la naturaleza, la fragilidad del cuerpo propio y la insuficiencia de las normas que regulan los vínculos entre los hombres. A las dos primeras nos resignamos; la social nos negamos a admitirla.'],
+ ['psi','Cultura (Freud)','Suma de operaciones y normas que distancian nuestra vida de la de los antepasados animales; sirve a dos fines: proteger frente a la naturaleza y regular los vínculos recíprocos. Se edifica sobre la renuncia pulsional.'],
+ ['psi','Derecho y violencia','El derecho es el poder de una comunidad: la unión de los débiles vence la fuerza del individuo; sigue siendo violencia, ahora colectiva, sostenida por la permanencia de la unión y por lazos afectivos (identificaciones).'],
+ ['psi','Pulsión (Trieb)','Concepto fronterizo entre lo anímico y lo somático; estímulo interno, constante, del que no se huye y que solo se tramita. Fuente, empuje, meta, objeto. Acéfala; autoerótica; "se satisface siempre".'],
+ ['psi','Destinos de pulsión','Trastorno en lo contrario (activo/pasivo), vuelta hacia la propia persona (sujeto/objeto), represión y sublimación. Son defensas; ninguno anula la satisfacción.'],
+ ['psi','Eros y pulsión de muerte','Dos clases: las que conservan y reúnen (eróticas) y las que destruyen y matan. Nunca actúan aisladas: siempre aleadas. La pulsión de muerte dirigida afuera es destrucción; hacia adentro, conciencia moral.'],
+ ['psi','Teoría de los discursos','Formalización del lazo social: cuatro lugares (agente, otro, verdad, producto) y cuatro elementos (S1, S2, $, a). Amo, universitario, histérica, analista; cada uno con un imposible (gobernar, educar, hacer desear, analizar).'],
+ ['psi','Discurso universitario','S2 (el saber) en el lugar del agente; el otro como objeto receptor. Potencia: situar un objeto para la sublimación. Límite: pretender enseñarlo todo; fijación → burocratización, aburrimiento. También: discurso universalizante que clasifica (mito del bullying).'],
+ ['psi','Triángulo herbartiano','Agente de la educación, sujeto de la educación y contenidos de la cultura; abierto en la base: agente y sujeto se relacionan mediante los contenidos. "Lo que separa, une." El vínculo se construye (transmisión/apropiación).'],
+ ['psi','Transferencia (en educación)','Clisés de relación que se repiten; "cada vez que un hombre habla a otro de modo auténtico hay transferencia". En la escuela: transmitir al otro el propio deseo (Iturbide); supone suponer un sujeto y un deseo de saber en el educador (Ruiz).'],
+ ['psi','Docta ignorancia','Posición del agente: disposición al saber (función y cultura) y a la vez al no saber sobre el sujeto. Contra el educador "modelo" que lo sabe todo. Confianza asentada en un no saber (Moyano).'],
+ ['psi','Registros R, S, I','Real (goce, lo que escapa, lo traumático), Simbólico (lenguaje, ley), Imaginario (imagen del cuerpo, el yo). Nudo borromeo: todo concepto está en su intersección.'],
+ ['psi','Función materna y función paterna','Materna: cuidados particularizados, deseo no anónimo (Spitz: marasmo); el Otro debe ser faltoso. Paterna: encarnación de la ley en el deseo; prohibir señalando un camino (Moisés). Funciones, no personas.'],
+ ['psi','Vivencia de satisfacción y deseo','Primer encuentro mítico con el objeto que cancela el estímulo, mediado por el Otro de los cuidados; deja una huella y un plus. El deseo es el movimiento producido por la diferencia entre la satisfacción buscada y la hallada.'],
+ ['psi','Las dos caras del límite','Prohibición y posibilidad: "siempre que decimos que no es para que otra cosa pueda acontecer". Presentar las reglas por el "sí" (ajedrez) y definir por criterios, no por enumeración. Los límites se transmiten en la enseñanza misma.'],
+ ['psi','Chicos limitados, no sin límites','Limitados de historia, identidad, pertenencia, lazos, futuro: de recursos simbólicos. La pregunta no es qué problema tiene el chico sino qué le ofrece la sociedad a cambio de cada renuncia ("enfermarse de cultura").'],
+ ['psi','Velo de significaciones','Trama de sentido que un Otro con algún grado de integridad teje para que lo que irrumpe pueda subjetivarse (La vida es bella). No es mentira: es distancia necesaria. Función de los adultos en la escuela: mediar con la realidad.'],
+ ['psi','Personajes de un drama subjetivo','Trocar los nombres (pibe chorro, anoréxica) por personajes que un sujeto en constitución ensaya. No confrontarlo con la realidad del personaje; sostener la asimetría; señalarle que aún no eligió su destino.'],
+ ['psi','Vacío y vaciamiento (Tizio)','El vacío es fundamento productivo de la cultura, agujero con bordes que se coloniza. El vaciamiento (modernidad, mercado, lo light) hace aparecer la pulsión de muerte. Segregación o invención.'],
+ ['psi','Sujeto supuesto Saber (autoridad)','Pivote de las experiencias que funcionan: un sujeto al que se le supone y atribuye saber (rasgos, no la persona). Cuatro vertientes: sobre el obstáculo, el valor de la cultura, el deseo, y un vacío de saber.'],
+ ['psi','Acción vs. acto (Brignoni)','Los adolescentes están siempre en el hacer (acciones, incluidas transgresiones); la acción inhibe el acto. El acto transforma al sujeto (de A a B). Encargo: ayudarlos a dar valor de acto a sus acciones.'],
+ ['psi','Adolescencia como respuesta a la pubertad','La pubertad (siempre existió) impone un real: cuerpo, capacidad reproductora, tres duelos. La adolescencia es la variedad de respuestas posibles, una invención/bricolage con materiales de la época (Stevens, Miller).'],
+ ['psi','Síntoma vs. trastorno','Trastorno: manifestación, fenómeno a eliminar o reeducar. Síntoma: emergencia de una verdad desconocida, con goce y sufrimiento; intento de solución y llamado al otro. Tomarlo como palanca.'],
+ ['psi','Síntoma y lugar','Los adolescentes se hacen representar por un síntoma y obtienen un lugar; insistir en eliminarlo los fija. "El cambio del sujeto es efecto del cambio de lugar" (Bernfeld); la oferta del otro es condición (Rosa y la prueba).'],
+ ['psi','Sujeto entre significantes','Un significante representa al sujeto ante otro significante. Victoria: "manzana podrida" vs. "alguien que piensa": la misma joven, dos sujetos. La oferta de significantes puede dejar al sujeto librado a sus pulsiones o protegerlo.'],
+ ['psi','Mito del bullying: doble operación','Primera operación: lo que da origen (lo fraterno, la pérdida del lugar de reconocimiento). Segunda: la que cristaliza y transmite víctima/victimario e invisibiliza la primera. Convertir la foto en película, caso por caso.'],
+ ['psi','Secuencia anti‑segregativa','Pasar de la excepción segregada (el diferente que ordena al grupo) a la excepcionalidad: un rasgo singular con el que el sujeto se inserta en lo colectivo por su producción cultural. Reintroduce la dignidad.'],
+ ['psi','Estigma vs. etiqueta (Ubieto)','Estigma (Goffman): marca desacreditadora de pertenencia a un grupo menospreciado. Etiqueta (label): nominación buscada como derecho e identidad (comunidad de goce). Riesgo: jaula de hierro que borra la singularidad.'],
+ ['psi','Túnel con dos salidas','Metáfora freudiana de la pubertad: cavar a la vez la salida a los deberes adultos y la salida a la condición sexual reconciliada con el cuerpo. El cuerpo como exilio interno.'],
+];
+
+const QUIZ = [
+ // básicas
+ {c:'vig',q:'Según Vigotsky, ¿qué define la zona de desarrollo próximo?',o:[
+  'La distancia entre lo que el niño resuelve solo y lo que resuelve con guía o colaboración de alguien más capaz.',
+  'El conjunto de tareas que el niño ya domina de manera independiente.',
+  'La edad en la que una función madura según los tests.',
+  'Cualquier contenido que el docente enseña por encima del nivel del alumno.'],a:0,f:[
+  'Correcto: nivel real vs. potencial; define funciones en maduración ("capullos") y caracteriza el desarrollo prospectivamente.',
+  'Eso es el nivel real (funciones ya maduras, "frutos"): lo que miden los tests. La ZDP es la distancia hacia el potencial.',
+  'Confundís la ZDP con el nivel real y con el diagnóstico por edad mental; la ZDP es justamente lo que esos tests no ven.',
+  'No toda enseñanza genera ZDP (Moll); la zona es una propiedad del niño en actividad colaborativa, no de la dificultad del contenido.']},
+ {c:'pia',q:'Para Piaget, la asimilación y la acomodación…',o:[
+  'son dos fases sucesivas: primero se asimila, cuando falla se acomoda.',
+  'son funciones simultáneas y complementarias cuya unidad constituye la adaptación.',
+  'corresponden a estadios distintos: asimilación en lo sensoriomotor, acomodación en lo operatorio.',
+  'son los dos tipos de abstracción (empírica y reflexionante).'],a:1,f:[
+  'Error típico de secuenciarlas: toda asimilación es a la vez acomodación; "no se conoce dos veces igual".',
+  'Correcto: unidad dialéctica de contrarios; solo asimilación no habría cambio, solo acomodación no habría continuidad.',
+  'Son invariantes funcionales: presentes en todos los niveles, del bebé al científico; lo que cambia son las estructuras.',
+  'Las abstracciones son otra cosa (de dónde se extrae la propiedad: del objeto o de la coordinación de acciones).']},
+ {c:'cog',q:'En el modelo de Karmiloff‑Smith, los módulos son…',o:[
+  'el punto de partida innato del desarrollo, encapsulado y de arquitectura fija.',
+  'el resultado de un proceso de modularización a partir de predisposiciones de dominio específico.',
+  'estructuras lógicas generales que se aplican a todos los dominios.',
+  'un mito: no hay ninguna especificidad de dominio.'],a:1,f:[
+  'Esa es la posición de Fodor, que KS redescribe; en su modelo los módulos son consecuencia, no causa.',
+  'Correcto: predisposiciones de dominio específico pero no modulares que se encapsulan por procesamiento repetido; así se preserva el aprendizaje constructivo.',
+  'Eso se parece a las estructuras piagetianas generales; KS trabaja con dominios y microdominios.',
+  'KS sí admite conocimiento precoz de dominio específico; lo que niega es su carácter modular de entrada.']},
+ {c:'tra',q:'Según Acevedo y Sokolowicz, el contexto escolar es…',o:[
+  'el escenario sobre el que ocurren los procesos cognitivos, independiente de ellos.',
+  'una variable que incide en el aprendizaje y debe controlarse.',
+  'parte inherente de las situaciones educativas, que produce modos específicos de aprender.',
+  'un obstáculo a descontextualizar para llegar al aprendizaje puro.'],a:2,f:[
+  'Esa es la idea de contexto como "telón de fondo" que la ficha rechaza explícitamente.',
+  'Tampoco es una variable externa que incide: es constitutivo y se modifica en la interacción (McDermott).',
+  'Correcto: el contexto es inherente, histórico y produce formas particulares de vincularse con el conocimiento.',
+  'La escuela descontextualiza los saberes (Chevallard), pero el contexto escolar mismo no se puede quitar: es el que define el aprendizaje escolar.']},
+ {c:'psi',q:'En *Pulsiones y destinos de pulsión*, Freud elige el término Trieb y no Instinkt porque…',o:[
+  'la pulsión tiene objeto y fin fijados por la herencia.',
+  'la pulsión acentúa el empuje irrepresible más que la fijeza del fin y del objeto.',
+  'el instinto es exclusivamente humano.',
+  'la pulsión puede evitarse huyendo del estímulo.'],a:1,f:[
+  'Eso describe al instinto animal: preformado y adaptado a su objeto.',
+  'Correcto: Trieb conserva el matiz de empuje constante; el objeto es variable y se apoya en la necesidad.',
+  'Al revés: Freud reserva Instinkt para los comportamientos animales fijados genéticamente.',
+  'La huida no sirve contra la pulsión porque viene del interior: solo cabe tramitarla.']},
+ // intermedias
+ {c:'vig',q:'¿Cuál es la diferencia esencial entre signo y herramienta para Vigotsky?',o:[
+  'No hay diferencia: el lenguaje es "la herramienta de las herramientas".',
+  'La herramienta media; el signo no media, solo representa.',
+  'La herramienta está orientada hacia el objeto externo; el signo, hacia el propio psiquismo.',
+  'El signo es innato y la herramienta se aprende.'],a:2,f:[
+  'Esa es la posición de Dewey que Vigotsky critica como uso figurativo que borra la diferencia.',
+  'Ambos son actividad mediata: la mediación es lo que comparten.',
+  'Correcto: la herramienta cambia el objeto (dominio de la naturaleza); el signo es medio de actividad interna para dominarse a sí mismo.',
+  'Ninguno es innato; ambos son adquisiciones culturales que transforman las funciones.']},
+ {c:'pia',q:'Un niño admite que la salchicha "se alarga y se adelgaza" pero no puede afirmar que la cantidad se conserva. ¿Qué nivel y qué tipo de compensación describe Castorina?',o:[
+  'Nivel 1, reacción alfa: ignora el adelgazamiento.',
+  'Nivel 3, reacción beta: simultaneidad cualitativa sin articulación cuantitativa.',
+  'Nivel 4, reacción gamma: compensación anticipada y necesaria.',
+  'Nivel 2, reacción gamma: oscila entre los dos observables.'],a:1,f:[
+  'En alfa el segundo observable ni siquiera se registra; acá sí se admite el adelgazamiento.',
+  'Correcto: la perturbación se integra a posteriori como variación admitida, pero falta la compensación exacta (reversibilidad).',
+  'Gamma implica "se adelgaza tanto como se alarga": compensación exacta y necesaria, que aquí falta.',
+  'En el nivel 2 hay oscilación entre observables sin coordinarlos y la reacción sigue siendo alfa, no gamma.']},
+ {c:'cog',q:'Pozo sostiene que el aprendizaje de la ciencia requiere…',o:[
+  'sustituir las misconceptions por conocimiento científico mediante conflicto cognitivo.',
+  'suprimir contextualmente las ideas intuitivas para que no interfieran.',
+  'integrar jerárquicamente las representaciones implícitas en sistemas científicos que las redescriben.',
+  'acumular práctica hasta convertirse en experto, sin cambio representacional.'],a:2,f:[
+  'Ese es el modelo clásico (Posner) cuyo fracaso denuncia Duit: ninguna concepción arraigada fue extinguida.',
+  'La supresión situada no es cambio conceptual, es uso contextual de representaciones distintas.',
+  'Correcto: reestructuración teórica, explicitación progresiva e integración jerárquica; la teoría científica redescribe la experiencia encarnada.',
+  'Esa es la posición de la pericia (empirismo); los expertos sí reestructuran y además conservan representaciones implícitas.']},
+ {c:'tra',q:'Para Johsua y Dupin, la resistencia de las concepciones de los alumnos se explica sobre todo porque…',o:[
+  'son simples errores por distracción que la enseñanza no corrigió.',
+  'tienen una pertinencia parcial para cierta clase de problemas: funcionan.',
+  'reproducen exactamente las etapas de la historia de la ciencia.',
+  'los alumnos carecen de capacidad de abstracción.'],a:1,f:[
+  'Los errores banales existen, pero los que interesan son sistemáticos y organizados.',
+  'Correcto: cuanto mayor la adecuación entre la concepción y los problemas que parece resolver, mayor su resistencia.',
+  'El paralelismo con la historia es esclarecedor pero riesgoso (anacronismo; el científico crea un saber, el alumno se apropia de uno existente).',
+  'No es un déficit: incluso docentes y especialistas cohabitan concepciones fuera de su dominio de experticia.']},
+ {c:'psi',q:'En la teoría de los discursos, ¿qué caracteriza al discurso universitario cuando se fija?',o:[
+  'La queja y la insatisfacción permanente con la respuesta del otro.',
+  'La pretensión de enseñarlo todo, que produce ajenidad, burocratización y aburrimiento.',
+  'La deconstrucción de todos los ideales que impide sostener el lazo.',
+  'La imposición de la ley sin interés por el saber.'],a:1,f:[
+  'Eso es la fijación del discurso histérico (impotencia y queja).',
+  'Correcto: S2 en el lugar del agente, el otro como objeto receptor; su potencia es situar un objeto para la sublimación, su límite el todo‑saber.',
+  'Eso es la fijación del discurso del analista, fugaz y necesario para el giro.',
+  'Eso describe al discurso del amo (que las cosas marchen).']},
+ {c:'psi',q:'Según Moyano, ¿por qué Herbart no cierra la base del triángulo uniendo agente y sujeto?',o:[
+  'Porque el docente no debe tener contacto con el alumno.',
+  'Porque aquello que separa (los contenidos de la cultura) es lo que une; sin terceridad hay una relación simétrica sin mediación.',
+  'Porque los contenidos son secundarios frente a la relación afectiva.',
+  'Porque el sujeto de la educación no está aún constituido.'],a:1,f:[
+  'No se trata de ausencia de contacto sino de que la relación esté mediada por el saber.',
+  'Correcto: la cultura es el lugar de encuentro; la educación es asimétrica y "lo que separa, une".',
+  'Es exactamente lo contrario: Moyano denuncia el abandono de los contenidos y su reemplazo por "efectos educativos".',
+  'Que el sujeto esté en constitución es cierto, pero la base abierta responde a la función de terceridad de los contenidos.']},
+ {c:'vig',q:'Acevedo y Gomel muestran, con las viñetas de química, que…',o:[
+  'los ejemplos de la vida cotidiana garantizan un referente compartido.',
+  'la intersubjetividad se construye en planos y grados y no es inherente a todo intercambio.',
+  'los alumnos no tienen conceptos previos sobre equilibrio.',
+  'el pseudoconcepto es un obstáculo que debe eliminarse.'],a:1,f:[
+  'Es el supuesto que las viñetas cuestionan: el equilibrio como "misma cantidad de cosas" muestra el desentendimiento.',
+  'Correcto: definición de la situación, redefiniciones y mediaciones semióticas (Wertsch); la intersubjetividad depende de las orientaciones didácticas.',
+  'Sí los tienen ("misma cantidad de un lado y del otro"); de eso se trata la diferencia de significados detrás de la palabra.',
+  'El pseudoconcepto es punto de partida y concepto científico potencial si el docente regula su uso.']},
+ {c:'cog',q:'¿Qué diferencia una teoría (Gopnik y Meltzoff) de un esquema como "ir al restaurante"?',o:[
+  'La teoría es concreta y el esquema abstracto.',
+  'Solo la teoría tiene coherencia, causalidad y compromiso ontológico; el esquema solo abstracción.',
+  'El esquema es innato y la teoría aprendida.',
+  'No hay diferencia: ambos son modelos mentales.'],a:1,f:[
+  'Ambos son abstractos; esa es la única propiedad que comparten.',
+  'Correcto: el esquema reduce la incertidumbre en un escenario pero no predice otros, no explica y su violación no exige revisión ("pagar antes de comer" no lo rompe).',
+  'No se distinguen por su origen sino por su estructura representacional.',
+  'Los modelos mentales situacionales se construyen a partir de teorías/principios; no son lo mismo que esquemas.']},
+ {c:'pia',q:'Ferreiro dice que la teoría de Piaget "no es una pedagogía". ¿Qué quiere decir?',o:[
+  'Que no tiene ninguna relevancia para la educación.',
+  'Que sus descubrimientos redefinen el aprendizaje, pero corresponde al pedagogo investigar cómo usarlos; no son recetas.',
+  'Que solo sirve para la educación preescolar y primaria.',
+  'Que los estadios indican en qué grado enseñar cada contenido.'],a:1,f:[
+  'Al contrario: su relevancia es máxima porque redefine la noción de aprendizaje.',
+  'Correcto: "el rol del psicólogo es mostrar los hechos que el pedagogo puede utilizar"; un sistema educativo responde a racionalidades que exceden lo psicológico.',
+  'Ferreiro habla de esos niveles porque los conoce mejor, no porque la teoría se limite a ellos.',
+  'Esa es la tercera tentación: confundir estadios con edades y disociar el contenido de su modo de construcción.']},
+ {c:'psi',q:'Kiel propone pasar de la pregunta "¿cómo poner límites?" a…',o:[
+  'cómo restituir la obediencia y la disciplina de la escuela de antes.',
+  'qué límites necesitamos sostener para habilitar la enseñanza, enunciados desde el "para que sí".',
+  'qué problema tiene este chico que no acepta límites.',
+  'cómo eliminar las normas para que los chicos se expresen libremente.'],a:1,f:[
+  'La nostalgia de los viejos límites "que ya no limitan" es justamente el círculo vicioso a evitar.',
+  'Correcto: el límite tiene dos caras y su sentido está en lo que habilita; se transmite en la enseñanza misma.',
+  'Esa pregunta desvía de la tarea docente; la pregunta recae en lo que la sociedad ofrece a cambio de cada renuncia.',
+  'Kiel no propone ausencia de límites: los entiende como operación fundante de la convivencia y del aprendizaje.']},
+ {c:'psi',q:'Brignoni afirma que el psicoanálisis no considera la adolescencia un concepto clínico. ¿Cómo la define?',o:[
+  'Como una crisis de identidad biológicamente programada.',
+  'Como la variedad de respuestas posibles (invención) frente al surgimiento de lo real de la pubertad.',
+  'Como un síndrome con síntomas típicos a tratar.',
+  'Como un rito de pasaje universal en todas las culturas.'],a:1,f:[
+  'La crisis de identidad es la lectura de Erikson; para Brignoni lo que está en juego es una crisis del deseo y del lenguaje.',
+  'Correcto (Stevens): la pubertad impone un real (cuerpo, sexualidad, tres duelos) y la adolescencia es el bricolage de respuestas con materiales de época.',
+  'Pensarla como síndrome lleva a eliminar trastornos; el psicoanálisis lee síntomas como intentos de solución.',
+  'La adolescencia es un fenómeno moderno y occidental; la pubertad es lo que siempre existió.']},
+ {c:'tra',q:'En la secuencia de Sadovsky sobre las monedas, la discusión "201 vs. 41 soluciones" muestra que…',o:[
+  'los alumnos no sabían contar.',
+  'la cantidad de soluciones está ligada al problema y no al procedimiento, idea que solo emergió de confrontar procedimientos.',
+  'la docente debió dar la fórmula desde el inicio.',
+  'el trabajo en pequeños grupos es inútil.'],a:1,f:[
+  'Sabían producir y verificar soluciones; lo nuevo era el criterio de exhaustividad y la noción de par solución.',
+  'Correcto: la clase como productora de nuevos problemas; la interacción entre procedimientos hizo visible una pregunta "transparente" desde la aritmética.',
+  'La fórmula tratada "públicamente" cobró sentido porque respondía a preguntas que los alumnos pudieron formularse.',
+  'Las cuatro etapas (individual, grupo, análisis, debate) hicieron durar el problema e incluyeron a más alumnos.']},
+ // integradoras
+ {c:'cog',q:'Carretero y Castorina proponen un marco epistémico relacional. ¿Qué implica para explicar el cambio conceptual?',o:[
+  'Que la cultura actúa como input que dispara un proceso puramente interno.',
+  'Que el conocimiento solo existe en las prácticas discursivas, sin sujeto.',
+  'Que la novedad surge de las interacciones entre ideas previas e información, sujeto y objeto, recursos culturales y construcción individual, dentro de situaciones didácticas.',
+  'Que el debate se reduce a innatismo vs. empirismo.'],a:2,f:[
+  'Ese es el modelo de la escisión en su versión cognitiva (incluso en la redescripción de KS, según los autores).',
+  'Ese es el contextualismo radical ("evaporación del sujeto"), otra forma de escisión.',
+  'Correcto: explicación sistémica; objetividad como conquista progresiva; continuidad y discontinuidad entre ideas previas y saber disciplinar.',
+  'Esa es la formulación de Spelke que los autores critican como prisionera de la escisión.']},
+ {c:'psi',q:'Zelmanovich dice que la "crisis de autoridad" funciona como un mito. ¿Qué alternativa encuentra en las experiencias que "sí funcionan"?',o:[
+  'Restituir una autoridad fuerte, como la del padre o maestro de antes.',
+  'Abstenerse de toda autoridad para no coartar a los alumnos.',
+  'Un Sujeto al que se le supone y atribuye Saber, sostenido entre saber y deseo, con operaciones de alienación y separación.',
+  'Reemplazar la autoridad por protocolos de seguridad.'],a:2,f:[
+  'Esa es la "ficción socializada" nostálgica (Zafiropoulos) que hipnotiza.',
+  'Esa es la contracara: abstención generalizada y desprecio por el saber (Tizio).',
+  'Correcto: pivote del vínculo; cuatro vertientes del saber; Otro descompletado; nuevas ficciones "al estilo del teatro".',
+  'Sustituir autoridad por seguridad introduce la dialéctica víctima/victimario (El mito del bullying).']},
+ {c:'vig',q:'Shepardson concluye que en la clase de 1º grado el aprendizaje quedó limitado porque…',o:[
+  'la maestra no introdujo terminología científica.',
+  'el lenguaje científico se usó como etiqueta y no como herramienta funcional para resolver problemas o crear productos.',
+  'no se usaron herramientas técnicas como lupas.',
+  'los niños no tenían conceptos cotidianos previos.'],a:1,f:[
+  'Sí la introdujo (larva, pupa, adulto), y los niños se apropiaron de palabras como "pupa".',
+  'Correcto: patrón iniciación‑respuesta‑evaluación; acceso al registro pero no práctica; faltaron tareas auténticas.',
+  'Las lupas estuvieron y mostraron la interacción entre herramientas técnicas y psicológicas ("púas").',
+  'Tenían muchos (gusano, muerto, dormido, bicho); el encuentro con lo científico se dio en el objeto concreto.']},
+ {c:'psi',q:'"La misma joven, dos sujetos diferentes" (caso Victoria). ¿Qué tesis ilustra?',o:[
+  'Que la personalidad cambia con la edad.',
+  'Que el sujeto emerge entre significantes: según qué significantes lo representen ("manzana podrida" o "alguien que piensa") emerge otro sujeto.',
+  'Que la expulsión es una medida pedagógica eficaz.',
+  'Que el trastorno de conducta se cura con escritura.'],a:1,f:[
+  'No es un cambio madurativo sino de régimen de representaciones significantes.',
+  'Correcto: la estructura abierta a múltiples encadenamientos permite el pasaje de un discurso a otro; la escuela que la recibió facilitó la separación.',
+  'La escuela expulsora produjo el estigma; el enunciado "no es para esta escuela" retornó como "no sirvo para esto".',
+  'No se trata de curar un trastorno sino de ofrecer identificaciones y un saber para hacer frente a lo pulsional.']},
+ {c:'pia',q:'Relacioná: la "transferencia negativa" del saber previo sobre el disciplinar que el contextualismo no puede ver (Carretero y Castorina) se explica desde Piaget por…',o:[
+  'la maduración insuficiente de las estructuras.',
+  'la asimilación de la información nueva a los esquemas disponibles, que la resignifica.',
+  'la copia pasiva de la información externa.',
+  'la ausencia de conflicto cognitivo.'],a:1,f:[
+  'La maduración no explica la asimilación deformante; es la actividad del sujeto.',
+  'Correcto: el sujeto resignifica desde sus saberes previos (asimilación); sin actividad constructiva no se explican las dificultades de aprender.',
+  'Justamente lo contrario: no hay copia, hay asimilación activa que distorsiona (como el globo terráqueo en Vosniadou).',
+  'El conflicto puede estar o no; la resignificación ocurre siempre por asimilación.']},
+ {c:'cog',q:'Vosniadou y Säljö coinciden en que el globo terráqueo ayuda a razonar. ¿En qué discrepan?',o:[
+  'Säljö cree que los niños no tienen modelos mentales; Vosniadou, que la comprensión del artefacto es una interpretación constructiva que puede distorsionarlo.',
+  'Vosniadou niega que los artefactos culturales influyan.',
+  'Säljö sostiene que los niños tienen modelos sintéticos coherentes.',
+  'Ambos coinciden en todo; no hay discrepancia.'],a:0,f:[
+  'Correcto: para Säljö la unidad de análisis es "niños operando con instrumentos mediacionales" y no hay que postular modelos mentales; Vosniadou muestra que con el globo suben las respuestas legibles y cae la consistencia.',
+  'Vosniadou acepta la crítica metodológica sociocultural: lo que rechaza es la tesis ontológica de que no existen objetos mentales.',
+  'Al revés: los modelos sintéticos coherentes son la tesis de Vosniadou.',
+  'Discrepan en la unidad de análisis y en si la internalización del artefacto es transmisión directa o construcción.']},
+ {c:'psi',q:'Freud concluye que somos pacifistas "por razones orgánicas". ¿Qué quiere decir?',o:[
+  'Que la biología humana carece de agresividad.',
+  'Que el proceso de la cultura (fortalecimiento del intelecto, interiorización de la agresión) produce una intolerancia constitucional a la guerra.',
+  'Que la guerra es antinatural y por eso la rechazamos racionalmente.',
+  'Que las ideas pacifistas bastan para prevenir la guerra.'],a:1,f:[
+  'Freud afirma lo contrario: la pulsión de destrucción está en todo ser vivo y es imposible eliminarla.',
+  'Correcto: la guerra contradice las actitudes psíquicas que la cultura nos impone; la justificación intelectual viene después.',
+  'La guerra parece "acorde a la naturaleza"; nuestra sublevación no es mera aversión intelectual.',
+  'Freud muestra que el poder de las ideas (panhelenismo, cristianismo) no bastó: hace falta un poder central con fuerza.']},
+ {c:'tra',q:'Según Acevedo, Casamajor y Espinoza, ¿por qué pedir a los alumnos que produzcan representaciones de "lo que no se ve"?',o:[
+  'Para evaluar si memorizaron el dibujo del libro.',
+  'Porque producir (a diferencia de leer) representaciones externaliza ideas, moviliza centraciones conceptuales y ayuda a diferenciar el plano macro del submicroscópico.',
+  'Para reemplazar la experimentación y la lectura.',
+  'Porque los dibujos son una copia figurativa de la realidad.'],a:1,f:[
+  'No se trata de reproducir la imagen convencional sino de tomar decisiones sobre qué mostrar y con qué símbolos.',
+  'Correcto: función epistémica; el 75 % logró diferenciar planos aunque con animismo y comportamiento macro atribuido a las partículas.',
+  'La representación se integra en un ir y venir con experimentos, escritura colectiva y lectura.',
+  'Los modelos son construcciones, no figurativizaciones (García); de ahí su carga conceptual.']},
+ {c:'psi',q:'¿Qué propone la "secuencia anti‑segregativa" de Zelmanovich frente al bullying?',o:[
+  'Identificar rápido a víctima y victimario y derivar al agresor.',
+  'Pasar de la excepción segregada a la excepcionalidad: reconocer un rasgo singular con el que el sujeto se inserte en lo colectivo por su producción cultural.',
+  'Eliminar la figura de la excepción en los grupos.',
+  'Sustituir la autoridad por dispositivos de seguridad y vigilancia.'],a:1,f:[
+  'Eso es la segunda operación del mito y el "automatismo de las derivaciones": cuando se retira al segregado, otro ocupa el lugar.',
+  'Correcto: reintroduce la dignidad del sujeto; a menor segregación, mayor autoridad pedagógica.',
+  'Todo grupo se ordena en torno a una excepción; lo que se vacía es la excepción como lugar fijo y segregativo.',
+  'Trocar autoridad por seguridad es parte del problema: introduce la dialéctica víctima/victimario.']},
+ {c:'vig',q:'Rogoff critica la noción de internalización porque…',o:[
+  'niega que exista aprendizaje.',
+  'supone una frontera externo/interno, entidades estáticas que se adquieren y un tiempo segmentado en pasado/presente/futuro.',
+  'Vigotsky nunca usó ese término.',
+  'da demasiado peso a la cultura.'],a:1,f:[
+  'Rogoff estudia el desarrollo como transformación de la participación; no niega el aprendizaje.',
+  'Correcto: propone la apropiación participativa, donde el tiempo es inherente al acontecimiento (la pierna que crece no "almacena" el ejercicio).',
+  'Vigotsky sí habla de internalización, aunque Rogoff señala que su énfasis en la transformación la acerca a su propia noción.',
+  'Al contrario: su enfoque sociocultural pone la cultura en el centro; lo que critica es el modelo de almacenamiento individual.']},
+ {c:'psi',q:'Un adolescente insulta a un profesor, se va dando un portazo y sonríe cuando lo castigan (caso Xavier). ¿Qué indicación da Brignoni a los educadores?',o:[
+  'Sancionar la sonrisa como provocación.',
+  'Mantener la dimensión del enigma, no tocar el rasgo (la sonrisa del abuelo) hasta que construya otro, y recoger la demanda de respeto.',
+  'Derivarlo a psiquiatría por trastorno oposicionista.',
+  'Ignorar la conducta hasta que se extinga.'],a:1,f:[
+  'La sonrisa es un rasgo de identificación a una figura de sostén: una defensa, no una provocación.',
+  'Correcto: las explosiones son un desplazamiento (lo materno) y la demanda de respeto, aunque paradójica, hay que cederla: respetar es incluir.',
+  'Fijarlo en un diagnóstico es la "asignación permanente y exclusión segregativa" que Lacadée describe.',
+  'Ignorar niega el llamado que el síntoma dirige al otro.']},
+ {c:'cog',q:'Tolchinsky destaca que, según Karmiloff‑Smith, el cambio representacional puede desencadenarse por el éxito. ¿Qué implicación educativa extrae?',o:[
+  'Que hay que evitar los conflictos cognitivos.',
+  'Que las situaciones de enseñanza deben posibilitar también condiciones de éxito, no solo provocar conflictos: "hacer bien lo que hacemos posibilita hacerlo mejor".',
+  'Que el error no tiene valor diagnóstico.',
+  'Que la maestría conductual equivale a comprensión.'],a:1,f:[
+  'No se trata de evitar el conflicto sino de no reducir el cambio a él.',
+  'Correcto: hay razones endógenas para reorganizar lo que ya funciona (caso "un" artículo/numeral).',
+  'El error sigue siendo indicador, incluso de progreso representacional; y la transgresión intencional, una vía de acceso.',
+  'Justo lo contrario: la maestría conductual puede ser nivel I, no índice de adquisición.']},
+ {c:'tra',q:'Simons y Masschelein y Foucault ofrecen lecturas distintas de la escuela. ¿Cuál es la relación que plantea la ficha de cátedra?',o:[
+  'Son incompatibles; hay que elegir una.',
+  'La escuela es dispositivo de gobierno de la infancia y, sin desconocerlo, puede leerse también como invención democratizadora que suspende desigualdades y profana saberes.',
+  'Foucault la ve democratizadora y Simons y Masschelein, disciplinaria.',
+  'Ambas sostienen que la escuela es natural y eterna.'],a:1,f:[
+  'La ficha las presenta como lecturas que conviven: carácter productivo y político del dispositivo.',
+  'Correcto: desnaturalizar la escuela permite ver tanto su función de encauzamiento como su potencial igualitario ("tiempo libre").',
+  'Está invertido.',
+  'Ambas, justamente, desnaturalizan la escuela como contingencia histórica.']},
+];
+
+const ABIERTAS = [
+ {c:'vig',q:'Explicá la ley de doble formación y por qué la internalización no es una "copia" de lo externo. Usá el ejemplo del gesto de señalar.',
+  m:'Toda función superior aparece primero en el plano social (interpsicológico) y luego en el individual (intrapsicológico). El gesto de señalar nace como intento fallido de agarrar; la madre lo interpreta y el movimiento pasa a dirigirse a otra persona: su significado lo crean primero la situación y luego los demás. La internalización es reconstrucción: cambia la estructura y la función de la operación (como el habla social que se vuelve habla interior, abreviada y predicativa) y construye el propio plano interior; no hay un "adentro" previo que reciba copias.'},
+ {c:'vig',q:'Compará las tres posiciones sobre aprendizaje y desarrollo que critica Vigotsky y formulá su propia tesis con la noción de ZDP.',
+  m:'1) Independencia (Piaget, Binet): el desarrollo precede; el aprendizaje usa logros ya maduros y teme la instrucción prematura. 2) Identidad (James, Thorndike): aprendizaje = formación de hábitos = desarrollo; coinciden "como figuras superpuestas". 3) Combinación (Koffka): maduración y aprendizaje interactúan, el desarrollo es más amplio (círculos concéntricos), pero no ve lo específico de lo escolar. Vigotsky: unidad no identidad; el aprendizaje organizado despierta procesos evolutivos que solo operan en interacción con otros y luego se internalizan. La ZDP (real vs. potencial) permite diagnosticar prospectivamente y fundamenta que "el buen aprendizaje precede al desarrollo".'},
+ {c:'pia',q:'¿Por qué dice Castorina que para Piaget "conocer es actuar"? ¿Qué no es acción y qué sí lo es, incluso sin movimiento?',
+  m:'Contra la tradición representacional (Descartes), Piaget sostiene que el conocimiento es praxis: transformación del objeto y del sujeto. No son acciones los reflejos ni los movimientos sin orientación (gimnasia); sí lo son los actos dirigidos a objetos, que les dan significado y son modificables (succión que se diversifica y coordina). La acción no se reduce a lo práctico: pensar, inferir, comparar conceptos es acción mental sobre objetos mentales ("máxima actividad intelectual con mínimo movimiento"). Reducir acción a manipulación es un error frecuente con consecuencias educativas.'},
+ {c:'pia',q:'Describí la equilibración de la noción de sustancia (cuatro niveles) relacionando observables, coordinaciones, tipos de compensación y reacciones α, β, γ.',
+  m:'Nivel 1: centración en el alargamiento (Obs O), hipótesis de creación de materia; el adelgazamiento se "reprime" (α). Nivel 2: registra los dos observables sin coordinarlos; oscila; equilibrio inestable, aún α. Nivel 3: alargar y adelgazar se vuelven solidarios por feedback de los Obs O sobre los Obs S; simultaneidad cualitativa sin articulación cuantitativa (β). Nivel 4: compensación exacta y anticipada, necesaria ("se adelgaza tanto como se alarga"): reversibilidad por inversión y reciprocidad (γ). El pasaje se explica por abstracción reflexionante: las coordinaciones del nivel anterior pasan a ser observables del siguiente; y por la construcción de negaciones que compensan las afirmaciones.'},
+ {c:'cog',q:'Distinguí "cambio conceptual" y "cambio representacional" según Pozo y explicá por qué el segundo es "posible pero improbable".',
+  m:'El cambio conceptual clásico apunta a reemplazar contenidos (misconceptions) por otros; Pozo propone un cambio representacional: nuevos formatos y niveles de representación (redescripción, explicitación) que integran jerárquicamente las teorías implícitas en sistemas científicos sin abandonarlas. Es improbable porque las representaciones implícitas son encarnadas, asociativas, pragmáticamente eficaces y forman un "sistema cognitivo inmunológico"; es posible porque la cultura (la ciencia como prótesis cognitiva) permite reformatear la mente. La función de la educación científica es hacerlo más probable diseñando escenarios sociales adecuados.'},
+ {c:'cog',q:'Resumí el modelo de Posner et al. y las críticas que recibe desde Vosniadou, diSessa y el enfoque situado.',
+  m:'Posner: dos fases (asimilación/acomodación) y cuatro condiciones (insatisfacción; nueva concepción inteligible, plausible, fructífera), luego la ecología conceptual. Vosniadou: el cambio no es súbito; distingue enriquecimiento y revisión, teorías específicas y teoría marco; los niños construyen modelos sintéticos coherentes. diSessa: el conocimiento intuitivo son p‑prims fragmentarios, no teorías. Enfoque situado (Caravita y Halldén; Säljö): no hay que cambiar nada sino discriminar contextos; con artefactos (globo) los niños razonan sofisticadamente. Carretero y Castorina: las posiciones coherencia/piezas no son incompatibles (depende del concepto) y proponen un marco relacional.'},
+ {c:'tra',q:'¿Por qué la ficha de cátedra sostiene que el aprendizaje escolar es específico? Mencioná al menos cuatro rasgos y dos consecuencias para pensar el aprendizaje.',
+  m:'Porque la escuela es un dispositivo histórico con determinantes duros (Trilla): realidad colectiva, espacio y tiempos delimitados, roles de docente y alumno, contenidos predeterminados y sistematizados, aprendizaje descontextualizado (saberes fuera de su contexto de producción, Chevallard; uso abstracto de instrumentos semióticos). Consecuencias: genera demandas cognitivas propias (atención selectiva, memoria organizada, sistemas de representación; Rivière: "desvincularás tu pensamiento de las intenciones humanas") y produce formas específicas de desarrollo; por eso el contexto no es externo y la unidad de análisis debe ser situacional (sistema de actividad; interacción sujeto‑objeto tal como circula en la clase).'},
+ {c:'tra',q:'Johsua y Dupin: ¿de dónde provienen las concepciones de los alumnos y por qué hay que ser prudente al compararlas con la historia de la ciencia?',
+  m:'Fuentes: la experiencia pasada en sus dimensiones social (cultura compartida, divulgación, religión, estereotipos), afectiva (calor "malo"), cognitiva (obstáculos epistemológicos de Bachelard; acción sobre los objetos como base ontológica, Ogborn; analogía hacia otros dominios) y didáctica (productos de la enseñanza previa, como el generador de "suministro constante"). Con la historia: parentesco esclarecedor con los obstáculos epistemológicos, pero riesgo de anacronismo ("aristotélicos"); el marco epistemológico difiere y el científico crea un saber inexistente mientras el alumno se apropia de uno socialmente presente; la presentación histórica no resuelve por sí sola las dificultades.'},
+ {c:'psi',q:'Explicá la relación entre pulsión, cultura y malestar en Freud y cómo la relee Zelmanovich para pensar la escuela.',
+  m:'Para Freud la cultura (protección frente a la naturaleza y regulación de los vínculos) se edifica sobre la renuncia pulsional; de ahí un malestar inevitable y la hostilidad contra la que toda cultura lucha. Zelmanovich invierte la lectura corriente: no hay malestar porque hay cultura; porque hay un malestar irreductible (pulsión) hay cultura e instituciones. El psiquismo debe anudar significante y pulsión; hablar, estudiar, jugar son tratamientos significantes. Cuando ese anudamiento falla aparece lo que la doxa llama violencia escolar y el DSM traduce en trastornos, desresponsabilizando a los adultos. La escuela ofrece identificaciones y saberes que protegen al sujeto de sus propias pulsiones (Victoria).'},
+ {c:'psi',q:'Desarrollá el vínculo educativo como relación ternaria. Articulá Herbart/Moyano, Iturbide (dinámica) y Ruiz (suponer al sujeto).',
+  m:'Agente, sujeto y contenidos de la cultura en un triángulo abierto en la base: agente y sujeto se relacionan mediante el saber; "lo que separa, une" (sin terceridad, relación simétrica y sin mediación). El vínculo no viene dado: requiere transmisión y apropiación; función filiadora. Moyano denuncia el abandono de los contenidos y su reemplazo por efectos educativos; el agente como pasador de cultura con docta ignorancia. Iturbide: al inicio el triángulo está aplanado y el arte docente es elevar el vértice y volver a bajarlo; condiciones: suponer un saber hacer, deseo del docente por su materia (transferencia como transmisión del propio deseo). Ruiz: sin suponer un sujeto no hay transferencia; el educador debe ser "alumno del saber"; el rap como contenido que hace lazo.'},
+ {c:'psi',q:'¿Por qué Brignoni dice que no se trata de comprender al adolescente? ¿Qué indicaciones da a educadores (acompañar, enigma, semblante, lugar)?',
+  m:'Comprender (Jaspers) supone que hay cosas obvias; Lacan muestra que es inasible. El adolescente llega con el motivo de consulta de otro; hay que separarlo para ver su propia cuestión. Indicaciones: acompañar (ni delante como voz de la experiencia ni detrás ausentándose; "acompañamiento silencioso"); mantener el enigma ante gestos sin sentido y dar tiempo a que el sujeto indique la respuesta; respetar el semblante de impostura (defensa de una fragilidad) hasta saber qué función cumple; ofrecer cambios de lugar en vez de fijar al síntoma o al diagnóstico ("el cambio del sujeto es efecto del cambio de lugar"); ceder a la demanda de respeto (incluir); los educadores también tienen que inventar.'},
+ {c:'psi',q:'Deconstruí el "bullying" como mito según Zelmanovich: doble operación, lo fraterno, claves subjetivas y sociales, y propuesta.',
+  m:'Mito con doble operación: la primera explica un abismo (el miedo a perder el propio lugar, lo fraterno: Caín y Abel); la segunda cristaliza y transmite figuras fijas (víctima/victimario) e invisibiliza la primera. Hay que convertir la foto en película, caso por caso, des‑universalizando (crítica al discurso universitario que clasifica y excluye a los adultos). Claves subjetivas: agresividad constitutiva que emerge al perder el lugar de reconocimiento; estadio del espejo (espejos frágiles); lógica grupal de la excepción; lugar del adulto y mediaciones simbólicas. Sociales: sustitución de autoridad por seguridad; régimen de la mirada (el que filma); lógica inmunitaria. Propuesta: secuencia anti‑segregativa, de la excepción segregada a la excepcionalidad, que reintroduce la dignidad y recupera la autoridad pedagógica.'},
+];
+
+const ORAL = [
+ {p:'Un profesor dice: "estos chicos no tienen concepciones sobre el tema, vienen en blanco; hay que corregirles los errores". Discutí la afirmación desde Piaget, Johsua y Dupin y Pozo.',
+  k:['Asimilación: toda información se interpreta desde esquemas previos; no hay sujeto "en blanco".','Concepciones organizadas, con pertinencia parcial; "error" oculta la lógica subyacente.','Representaciones implícitas y encarnadas; integración jerárquica en vez de erradicación.','Consecuencia didáctica: explicitar, confrontar, redescribir; no sustituir.']},
+ {p:'Compará cómo Vigotsky y Piaget piensan la relación entre aprendizaje y desarrollo y qué lugar le dan a la escuela.',
+  k:['Piaget: continuidad de mecanismos; reconstrucción; la teoría no es pedagogía (Ferreiro).','Vigotsky: unidad no identidad; el buen aprendizaje precede al desarrollo; procesos avanzados requieren escolarización.','ZDP vs. equilibración como motores.','Lecturas actuales: Castorina (tesis 5, matriz relacional) y Moll (no toda enseñanza es ZDP).']},
+ {p:'"Promptear no es pensar": analizá los casos de Juan y Bianca con al menos tres marcos de la materia.',
+  k:['Piaget: ¿hubo acción/transformación mental? Bianca no diseñó la arquitectura ni argumentó.','Vigotsky/Shepardson: la IA como herramienta psicológica; uso funcional vs. etiqueta; qué se internaliza.','Karmiloff‑Smith/Pozo: sin trabajo sobre las propias representaciones no hay redescripción ni explicitación.','Especificidad escolar y "tiempo libre": qué se profana y qué se suspende; demandas cognitivas (Rivière).']},
+ {p:'Un equipo directivo pide "poner límites" a un curso difícil. Armá una respuesta con Kiel, Moyano y Zelmanovich (autoridad).',
+  k:['Dos caras del límite; límites "para que sí"; se transmiten en la enseñanza misma; chicos limitados, no sin límites.','Contenidos como terceridad: sin ellos el par agente‑sujeto estalla; adecuación y atrevimiento.','Autoridad: Sujeto supuesto Saber; saber + deseo; alienación/separación; nuevas ficciones.','Acuerdos institucionales sobre el mensaje; autoridad construida "entre varios".']},
+ {p:'Explicá la teoría de los discursos de Lacan y mostrá cómo sirve para leer una escena escolar (por ejemplo, una clase magistral que aburre).',
+  k:['Lugares y elementos; nombre por el agente; imposibles (educar).','DU: S2 agente, el otro como objeto; potencia (sublimación) y fijación (aburrimiento).','Giro a otro discurso: histerizar (hacer desear), analista (vacío que relanza).','No se trata de personas ni intenciones: márgenes de maniobra sobre la propia posición (Kiel/Danelinck).']},
+ {p:'Desarrollá la noción de cambio conceptual, sus tipos y el debate coherencia vs. piezas; tomá posición con Carretero y Castorina.',
+  k:['Origen: Carey, Posner; equilibración, Kuhn, didáctica.','Enriquecimiento/revisión; débil/fuerte; ontológico (Chi); teoría marco.','Vosniadou (modelos coherentes) vs. diSessa (p‑prims); compatibles según el concepto.','Marco epistémico relacional; objetividad como conquista; situaciones didácticas.']},
+ {p:'Un adolescente se fuga reiteradamente de un hogar y vuelve. ¿Qué lecturas e indicaciones aportan Brignoni, Zelmanovich y Aichhorn?',
+  k:['Fuga como pasaje al acto que evita la angustia de la expulsión y busca al otro.','Síntoma como llamado; no fijar al lugar; preguntar de qué se escapa.','Preparar la acogida sin reproches; "el exterior es más atractivo que el interior".','Personajes de un drama subjetivo; no nombrar como destino; asimetría como amparo.']},
+ {p:'¿Qué aporta la noción de intersubjetividad (Wertsch, Acevedo y Gomel) para pensar la enseñanza de las ciencias? Relacionalo con el pseudoconcepto y con Shepardson.',
+  k:['Definición de la situación; planos y grados; mediación semiótica; no es natural a todo intercambio.','Pseudoconcepto: acuerdo en el término, no en el significado; punto de partida que el docente regula.','Shepardson: herramientas psicológicas y técnicas; lenguaje como etiqueta vs. herramienta funcional.','Los ejemplos cotidianos no garantizan referente compartido (olla hirviendo; equilibrio).']},
+ {p:'Freud, Einstein y la guerra: reconstruí el argumento de Freud y vinculalo con "El malestar en la cultura" y con el lugar de la educación.',
+  k:['Derecho = violencia de la comunidad; unión permanente + identificaciones.','Eros y pulsión de muerte aleadas; desviar, no eliminar.','Vías: identificaciones; educar pensadores autónomos; "pacifistas por razones orgánicas".','Cultura sobre renuncia pulsional; educación racional de lo pulsional vs. represión.']},
+ {p:'Elegí un error típico de un alumno de tu disciplina y explicá cómo lo leería cada corriente y qué haría el docente.',
+  k:['Piaget: hipótesis del sujeto, nivel de equilibración, perturbación.','Vigotsky: pseudoconcepto, intersubjetividad, ZDP, uso funcional del lenguaje.','Cognitiva: teoría implícita/modelo sintético; explicitar, modelizar, integrar.','Transversales/psicoanálisis: concepción con pertinencia; producto didáctico; no fijar al alumno en un lugar.']},
+];
+
+/* ======================= UTIL ======================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ======================= TEMA ======================= */
+(function(){
+  const btn=$('#themeBtn');
+  const sync=()=>{const d=document.documentElement.getAttribute('data-theme')==='dark';btn.setAttribute('aria-pressed',String(d));btn.textContent=d?'Modo claro':'Modo oscuro'};
+  btn.addEventListener('click',()=>{const cur=document.documentElement.getAttribute('data-theme');const prefersDark=matchMedia('(prefers-color-scheme:dark)').matches;const isDark=cur?cur==='dark':prefersDark;document.documentElement.setAttribute('data-theme',isDark?'light':'dark');sync()});
+  if(matchMedia('(prefers-color-scheme:dark)').matches){btn.textContent='Modo claro';btn.setAttribute('aria-pressed','true')}
+})();
+
+/* ======================= NAV + PROGRESO ======================= */
+(function(){
+  const links=[...document.querySelectorAll('.riel a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const bar=$('#pbar');
+  function onScroll(){
+    const y=window.scrollY+120;let active=secs[0];
+    for(const s of secs){if(s.offsetTop<=y)active=s}
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+active.id));
+    const h=document.documentElement;const p=h.scrollTop/(h.scrollHeight-h.clientHeight);bar.style.width=(p*100).toFixed(1)+'%';
+  }
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+
+/* ======================= FLASHCARDS ======================= */
+(function(){
+  let deck=[],i=0,flipped=false,known=0,unknown=0;
+  const card=$('#fcCard'),term=$('#fcTerm'),def=$('#fcDef'),tag=$('#fcTag'),tag2=$('#fcTag2'),count=$('#fcCount'),stats=$('#fcStats');
+  function build(){const f=$('#fcFilter').value;deck=shuffle(CARDS.filter(c=>f==='all'||c[0]===f).map(c=>({c:c[0],t:c[1],d:c[2]})));i=0;known=0;unknown=0;render()}
+  function render(){
+    if(!deck.length){term.textContent='Sin tarjetas';def.textContent='';return}
+    const k=deck[i];flipped=false;card.classList.remove('flipped');
+    card.style.setProperty('--fc-color',CORR[k.c].c);
+    tag.textContent=CORR[k.c].n;tag2.textContent=CORR[k.c].n;term.textContent=k.t;def.textContent=k.d;
+    count.textContent=`${i+1} / ${deck.length}`;
+    stats.textContent=`sabidas ${known} · a repasar ${unknown}`;
+    card.setAttribute('aria-label',`Flashcard ${i+1} de ${deck.length}: ${k.t}. Pulsá para ${flipped?'volver al término':'ver la definición'}.`);
+  }
+  function flip(){flipped=!flipped;card.classList.toggle('flipped',flipped)}
+  function next(){i=(i+1)%deck.length;render()}
+  function prev(){i=(i-1+deck.length)%deck.length;render()}
+  card.addEventListener('click',flip);
+  $('#fcNext').addEventListener('click',next);$('#fcPrev').addEventListener('click',prev);
+  $('#fcYes').addEventListener('click',()=>{known++;deck.splice(i,1);if(!deck.length){term.textContent='¡Mazo completo!';def.textContent='';count.textContent='';stats.textContent=`sabidas ${known} · a repasar ${unknown}`;return}if(i>=deck.length)i=0;render()});
+  $('#fcNo').addEventListener('click',()=>{unknown++;const k=deck.splice(i,1)[0];deck.splice(Math.min(deck.length,i+3),0,k);render()});
+  $('#fcShuffle').addEventListener('click',build);$('#fcFilter').addEventListener('change',build);
+  document.addEventListener('keydown',e=>{if(!card.matches(':focus'))return;if(e.key==='ArrowRight'){e.preventDefault();next()}if(e.key==='ArrowLeft'){e.preventDefault();prev()}});
+  build();
+})();
+
+/* ======================= QUIZ ======================= */
+(function(){
+  const list=$('#quizList'),scoreEl=$('#qzScore'),totalEl=$('#qzTotal'),doneEl=$('#qzDone');
+  let score=0,done=0,items=[];
+  function build(){
+    const f=$('#qzFilter').value;items=QUIZ.filter(q=>f==='all'||q.c===f);score=0;done=0;
+    list.innerHTML='';
+    items.forEach((q,qi)=>{
+      const wrap=document.createElement('div');wrap.className='q card';
+      const letters='ABCD';
+      wrap.innerHTML=`<div class="stem"><span class="chip" style="--chip:${CORR[q.c].c}">${esc(CORR[q.c].n)}</span> ${qi+1}. ${esc(q.q)}</div>
+        <div class="opts" role="group" aria-label="Opciones">${q.o.map((o,oi)=>`<button type="button" class="opt" data-i="${oi}"><span class="letter">${letters[oi]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+        <div class="fb" role="status"></div>`;
+      const fb=wrap.querySelector('.fb');
+      wrap.querySelectorAll('.opt').forEach(btn=>btn.addEventListener('click',()=>{
+        const oi=+btn.dataset.i;const ok=oi===q.a;
+        wrap.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===q.a)b.classList.add('correct')});
+        if(!ok)btn.classList.add('wrong');
+        fb.className='fb show '+(ok?'good':'bad');
+        fb.innerHTML=`<strong>${ok?'✔ Correcto.':'✘ No es esa.'}</strong> ${esc(q.f[oi])}${ok?'':`<br><span class="muted">Respuesta correcta: ${letters[q.a]}. ${esc(q.f[q.a])}</span>`}`;
+        done++;if(ok)score++;update();
+      }));
+      list.appendChild(wrap);
+    });
+    update();
+  }
+  function update(){scoreEl.textContent=score;totalEl.textContent=items.length;doneEl.textContent=done}
+  $('#qzFilter').addEventListener('change',build);$('#qzReset').addEventListener('click',build);
+  build();
+})();
+
+/* ======================= ABIERTAS ======================= */
+(function(){
+  const list=$('#abiertasList');
+  ABIERTAS.forEach((a,i)=>{
+    const d=document.createElement('div');d.className='abierta card';
+    d.innerHTML=`<p class="stem"><span class="chip" style="--chip:${CORR[a.c].c}">${esc(CORR[a.c].n)}</span> <strong>${i+1}.</strong> ${esc(a.q)}</p>
+      <label class="sr-only" for="ta${i}">Tu respuesta</label>
+      <textarea id="ta${i}" placeholder="Escribí tu respuesta antes de mirar el modelo…"></textarea>
+      <div class="toolbar"><button type="button" class="btn small" data-t="${i}">Mostrar respuesta modelo</button></div>
+      <div class="modelo" id="mo${i}"><strong>Respuesta modelo.</strong> ${esc(a.m)}</div>`;
+    list.appendChild(d);
+    d.querySelector('button').addEventListener('click',e=>{const m=$('#mo'+i);const show=!m.classList.contains('show');m.classList.toggle('show',show);e.target.textContent=show?'Ocultar respuesta modelo':'Mostrar respuesta modelo'});
+  });
+})();
+
+/* ======================= ORAL ======================= */
+(function(){
+  const prompt=$('#oralPrompt'),points=$('#oralPoints'),timerEl=$('#oralTimer');
+  let order=shuffle([...ORAL.keys()]),pos=0,t=null,left=240;
+  function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+  function stop(){if(t){clearInterval(t);t=null}}
+  function reset(){stop();left=240;timerEl.textContent=fmt(left);timerEl.classList.remove('warn')}
+  $('#oralNew').addEventListener('click',()=>{
+    const it=ORAL[order[pos]];pos=(pos+1)%order.length;if(pos===0)order=shuffle([...ORAL.keys()]);
+    prompt.textContent=it.p;points.innerHTML=it.k.map(k=>`<li>${esc(k)}</li>`).join('');reset();
+  });
+  $('#oralStart').addEventListener('click',()=>{
+    stop();left=240;timerEl.textContent=fmt(left);timerEl.classList.remove('warn');
+    t=setInterval(()=>{left--;timerEl.textContent=fmt(left);if(left<=30)timerEl.classList.add('warn');if(left<=0){stop();timerEl.textContent='00:00 · tiempo'}},1000);
+  });
+  $('#oralStop').addEventListener('click',stop);
+})();
+</script>
+</body>
+</html>

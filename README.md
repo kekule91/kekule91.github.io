@@ -6,3 +6,6 @@ Editor de dibujos de química: https://kekule91.github.io/dibujo/
 
 App de Android (APK): https://kekule91.github.io/dibujo/DibujosQuimica.apk
 Para recompilarla: `ANDROID_HOME=/ruta/al/sdk android/build.sh` (requiere build-tools 35 y platform 34).
+
+Guía de estudio Psicología y Aprendizaje (final): https://kekule91.github.io/psicologia-aprendizaje/
+Resúmenes por corriente (.md): `psicologia-aprendizaje/resumenes/`
