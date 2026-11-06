@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puentes de hidrógeno en el agua – Simulador</title>
+<style>
+/* ============================================================
+   DISEÑO PARA PROYECTAR: todo el "escenario" mide 1600×900 px
+   lógicos y se escala para entrar en la ventana (16:9).
+   ============================================================ */
+:root{
+  --bg:#0b1220; --panel:#151e33; --panel2:#1c2742; --borde:#2d3a5c;
+  --texto:#f2f5fa; --suave:#b7c2d9; --acento:#ffd166; --acento2:#ffb703;
+  --celeste:#5ad1ff; --azul:#4f8dff; --naranja:#ff9f43; --rojo:#ff5a4e;
+  --ok:#8be28b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--texto);
+  font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:24px;overflow:hidden;
+  -webkit-user-select:none;user-select:none}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1600px;height:900px;transform-origin:0 0;background:var(--bg)}
+
+/* ---------- cabecera ---------- */
+#header{position:absolute;left:0;top:0;width:1600px;height:80px;display:flex;align-items:center;
+  gap:18px;padding:0 24px;background:var(--panel);border-bottom:2px solid var(--borde)}
+#titulo{font-weight:700;font-size:28px;white-space:nowrap}
+#escenaInfo{flex:1;font-size:24px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#escenaInfo b{color:var(--acento)}
+.puntos{display:flex;gap:8px;margin-right:10px}
+.puntos span{width:16px;height:16px;border-radius:50%;background:#3b4a70;display:inline-block}
+.puntos span.activo{background:var(--acento)}
+
+/* ---------- botones ---------- */
+button{font:inherit;color:var(--texto);background:var(--panel2);border:2px solid var(--borde);
+  border-radius:14px;padding:10px 20px;cursor:pointer;font-size:24px;line-height:1.1}
+button:hover{border-color:var(--acento)}
+button:active{transform:translateY(1px)}
+button.primario{background:var(--acento);color:#1a1200;border-color:var(--acento);font-weight:700}
+button.primario:hover{background:var(--acento2)}
+button.grande{font-size:34px;padding:12px 30px;border-radius:18px}
+button.nav{font-size:40px;padding:6px 34px;font-weight:700}
+button:disabled{opacity:.35;cursor:default}
+button.activo{outline:4px solid var(--acento)}
+
+/* ---------- zona principal ---------- */
+#main{position:absolute;left:0;top:80px;width:1600px;height:750px}
+#lienzo{position:absolute;left:0;top:0;width:1600px;height:750px;touch-action:none}
+#overlay{position:absolute;left:0;top:0;width:1600px;height:750px;pointer-events:none}
+#overlay > *{pointer-events:auto}
+.abs{position:absolute}
+
+/* ---------- pie ---------- */
+#footer{position:absolute;left:0;top:830px;width:1600px;height:70px;display:flex;align-items:center;
+  gap:20px;padding:0 20px;background:var(--panel);border-top:2px solid var(--borde)}
+#leyenda{flex:1;display:flex;align-items:center;justify-content:center;gap:34px;font-size:22px}
+.muestra{display:inline-block;width:70px;height:0;vertical-align:middle;margin-right:10px}
+.muestra.solida{border-top:7px solid #e8e8e8}
+.muestra.punteada{border-top:7px dashed var(--celeste)}
+#nota{font-size:22px;color:var(--suave)}
+
+/* ---------- tarjetas (predecir / conclusión / carteles) ---------- */
+.tarjeta{background:rgba(21,30,51,.97);border:3px solid var(--acento);border-radius:22px;
+  padding:26px 32px;font-size:28px;line-height:1.35;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.tarjeta h2{margin:0 0 14px;font-size:30px;color:var(--acento);letter-spacing:1px}
+.tarjeta .pregunta{font-size:32px;font-weight:700;margin-bottom:18px}
+.opciones{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.opciones button{text-align:left;font-size:27px;padding:14px 20px;display:flex;gap:16px;align-items:center}
+.opciones button .letra{display:inline-flex;width:44px;height:44px;border-radius:50%;background:var(--borde);
+  align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.opciones button.activo .letra{background:var(--acento);color:#1a1200}
+.cartel{background:rgba(21,30,51,.92);border:2px solid var(--borde);border-radius:16px;padding:14px 22px;
+  font-size:26px;line-height:1.3}
+.cartel.celeste{border-color:var(--celeste)}
+.cartel.destacado{border-color:var(--acento);font-size:28px}
+.linea-observar{font-size:26px;color:var(--texto)}
+.linea-observar b{color:var(--acento)}
+.estado{font-size:44px;font-weight:800;letter-spacing:2px}
+.contador{font-size:40px;font-weight:700}
+.contador b{color:var(--celeste);font-size:52px}
+.chico{font-size:22px;color:var(--suave)}
+.fila{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+
+/* ---------- deslizador de temperatura ---------- */
+.termo{display:flex;flex-direction:column;gap:6px}
+.termo .valor{font-size:34px;font-weight:700}
+.termo .valor b{color:var(--acento)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;border-radius:9px;
+  background:linear-gradient(90deg,#4f8dff 0%,#9ad8ff 35%,#ff9f43 100%);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:44px;height:44px;border-radius:50%;
+  background:#fff;border:5px solid var(--acento);box-shadow:0 2px 10px rgba(0,0,0,.6)}
+input[type=range]::-moz-range-thumb{width:44px;height:44px;border-radius:50%;background:#fff;border:5px solid var(--acento)}
+.marcas{position:relative;height:30px;font-size:22px;color:var(--suave)}
+.marcas span{position:absolute;transform:translateX(-50%)}
+.marcas span::before{content:"";position:absolute;left:50%;top:-10px;width:3px;height:10px;background:var(--suave)}
+
+/* ---------- interruptor ---------- */
+.switch{display:inline-flex;align-items:center;gap:14px;font-size:26px;cursor:pointer}
+.switch .pista{width:90px;height:46px;border-radius:23px;background:#555;position:relative;transition:.2s}
+.switch .pista::after{content:"";position:absolute;top:5px;left:5px;width:36px;height:36px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on .pista{background:var(--celeste)}
+.switch.on .pista::after{left:49px}
+
+/* ---------- glosario ---------- */
+#glosario{position:absolute;right:0;top:80px;width:620px;height:750px;background:var(--panel);
+  border-left:3px solid var(--acento);padding:26px 30px;overflow:auto;display:none;z-index:5}
+#glosario.abierto{display:block}
+#glosario h2{margin:0 0 18px;color:var(--acento);font-size:32px}
+#glosario dt{font-weight:700;font-size:27px;margin-top:18px}
+#glosario dd{margin:4px 0 0;font-size:24px;color:var(--suave);line-height:1.3}
+#glosario dd .muestra{width:50px}
+#pausaAviso{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:60px;font-weight:800;
+  background:rgba(0,0,0,.6);padding:20px 50px;border-radius:24px;display:none;letter-spacing:4px}
+#pausaAviso.visible{display:block}
+</style>
+</head>
+<body>
+<div id="viewport">
+ <div id="stage">
+  <div id="header">
+    <div id="titulo">💧 Puentes de hidrógeno</div>
+    <div id="escenaInfo"></div>
+    <div class="puntos" id="puntos"></div>
+    <button id="btnPausa" title="Pausar / seguir (barra espaciadora)">⏸ Pausa</button>
+    <button id="btnFull" title="Pantalla completa">⛶ Pantalla completa</button>
+    <button id="btnGlos" title="Glosario">📖 Glosario</button>
+  </div>
+  <div id="main">
+    <canvas id="lienzo"></canvas>
+    <div id="overlay"></div>
+    <div id="pausaAviso">⏸ PAUSA</div>
+    <aside id="glosario">
+      <h2>📖 Glosario</h2>
+      <dl>
+        <dt>Molécula</dt><dd>Grupo de átomos unidos que se mueve como una sola pieza. Aquí: H₂O.</dd>
+        <dt>Átomo</dt><dd>Cada una de las partes que forman la molécula. Aquí: oxígeno (O) e hidrógeno (H).</dd>
+        <dt>Enlace covalente <span class="muestra solida"></span></dt><dd>Unión muy fuerte entre átomos DENTRO de una molécula. Línea sólida.</dd>
+        <dt>Carga parcial (δ)</dt><dd>Un "poquito" de carga: δ− donde los electrones pasan más tiempo (O), δ+ donde menos (H).</dd>
+        <dt>Puente de hidrógeno <span class="muestra punteada"></span></dt><dd>Atracción débil ENTRE moléculas: un H (δ+) con un O (δ−) de otra. Línea punteada.</dd>
+      </dl>
+      <p class="chico" style="margin-top:26px">Modelo simplificado en 2D. En el hielo real la red es tridimensional.</p>
+      <button id="btnGlosCerrar" style="margin-top:14px">Cerrar</button>
+    </aside>
+  </div>
+  <div id="footer">
+    <button class="nav" id="btnPrev">◀</button>
+    <div id="leyenda">
+      <span><span class="muestra solida"></span>Enlace covalente (dentro de la molécula)</span>
+      <span><span class="muestra punteada"></span>Puente de hidrógeno (entre moléculas)</span>
+      <span id="nota">Modelo simplificado en 2D. En el hielo real la red es tridimensional.</span>
+    </div>
+    <button class="nav" id="btnNext">▶</button>
+  </div>
+ </div>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   CONSTANTES FÍSICAS Y VISUALES (ajustables)
+   Unidades: píxeles lógicos (escenario de 1600×900) y "cuadros"
+   (1 cuadro ≈ 1/60 s). Las distancias del modelo se expresan como
+   múltiplos de L = longitud del enlace O–H dibujado.
+   ============================================================ */
+const CFG = {
+  W: 1600, H_MAIN: 750,            // tamaño lógico del lienzo
+  N_MOL: 48,                       // moléculas en la caja (escenas 4 y 5)
+  L_SIM: 16,                       // longitud O–H en la simulación de muchas moléculas
+  L_PAR: 60,                       // longitud O–H en la escena de dos moléculas
+  L_MOL: 150,                      // longitud O–H en la escena de una molécula
+  ANG_HOH: 104.5 * Math.PI / 180,  // ángulo H–O–H (geometría FIJA: nunca cambia)
+  R_O: 0.62, R_H: 0.36,            // radios de los átomos (× L)
+  ANCHO_COV: 0.28,                 // grosor de la línea sólida (× L)
+  // --- puente de hidrógeno (todo × L) ---
+  REST_HB: 1.9,                    // distancia H···O de equilibrio
+  HIELO_ABIERTO: 1.15,             // la red del hielo es un poco más abierta que un puente en el líquido
+  FORM_DIST: 2.55,                 // se forma si H···O < esto ...
+  FORM_COS: 0.55,                  // ... y el H "apunta" al O (cos del ángulo O–H···O)
+  BREAK_DIST: 3.2,                 // se rompe si H···O > esto
+  BREAK_COS: 0.1,                  // o si se desalinea mucho
+  K_HB: 0.012,                     // rigidez del resorte del puente
+  K_ALIGN: 0.004,                  // torque que alinea O–H···O
+  // --- repulsión y movimiento ---
+  REP_OO: 2.3, K_REP: 0.08,        // repulsión blanda entre oxígenos
+  REP_HH: 1.0, K_REP_H: 0.03,      // repulsión blanda entre hidrógenos de moléculas distintas
+  MASA: 1, INERCIA_F: 0.8,         // inercia = MASA·(INERCIA_F·L)²
+  K_PIN: 0.02, K_PIN_ROT: 0.03, F_PIN_MAX: 0.6, // resorte hacia el sitio de la red (sólido)
+  GRAV: 0.07,                      // gravedad suave: el líquido se junta abajo
+  // --- temperatura → rapidez objetivo (px/cuadro) ---
+  T_LO: -150, T_HI: 120,           // rango total de temperaturas de la app
+  V_MIN: 0.15, V_MAX: 3.4, V_EXP: 2.0,
+  THERMO: 0.08,                    // qué tan rápido el termostato ajusta la rapidez
+  ROT_NOISE: 0.015,                // agitación angular
+  // --- temperaturas de cambio de estado (°C) ---
+  TM_CON: 0, TB_CON: 100,          // con puentes: funde a 0, hierve a 100
+  TM_SIN: -100, TB_SIN: -80,       // sin puentes: hierve mucho antes (≈ −80)
+  MELT_RANGE: 10, BOIL_RANGE: 10,  // ancho de la transición (°C)
+  P_BREAK_MAX: 0.03,               // prob./cuadro de rotura térmica cerca de la ebullición
+  // --- colores ---
+  COL_O: '#ff5a4e', COL_O_BORDE: '#8f1f16', COL_H: '#f5f5f5', COL_H_BORDE: '#8a8a8a',
+  COL_COV: '#e8e8e8', COL_HB: '#5ad1ff', COL_DNEG: '#4f8dff', COL_DPOS: '#ff9f43',
+  COL_HUECO: 'rgba(255,209,102,0.18)', COL_AREA: '#ffd166',
+  COL_SOLIDO: '#9ad8ff', COL_LIQUIDO: '#4f8dff', COL_GAS: '#ff9f43',
+  COL_TEXTO: '#f2f5fa', COL_SUAVE: '#b7c2d9', COL_CAJA: '#2d3a5c',
+};
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const wrapAng = a => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const hipot = (x, y) => Math.sqrt(x * x + y * y);
+
+/** Rapidez objetivo según la temperatura: "temperatura = qué tan rápido se mueven". */
+function rapidezObjetivo(T) {
+  const f = clamp((T - CFG.T_LO) / (CFG.T_HI - CFG.T_LO), 0, 1);
+  return CFG.V_MIN + (CFG.V_MAX - CFG.V_MIN) * Math.pow(f, CFG.V_EXP);
+}
+
+/* ============================================================
+   MOLÉCULA DE AGUA: cuerpo rígido 2D.
+   El O está en el centro; los dos H a distancia L con ángulo 104,5°.
+   La geometría es fija: NO existe ningún código que separe un H de su O.
+   ============================================================ */
+class Molecula {
+  constructor(x, y, a) { this.x = x; this.y = y; this.a = a; this.vx = 0; this.vy = 0; this.va = 0; this.nAcep = 0; this.hb = [false, false]; this.sitio = null; }
+  /** Posiciones de los átomos para una longitud L. */
+  atomos(L) {
+    const h = [];
+    for (let k = 0; k < 2; k++) {
+      const ang = this.a + (k ? CFG.ANG_HOH / 2 : -CFG.ANG_HOH / 2);
+      h.push({ x: this.x + L * Math.cos(ang), y: this.y + L * Math.sin(ang), ang });
+    }
+    return { ox: this.x, oy: this.y, h };
+  }
+}
+
+/** Dibuja una molécula. opts: {delta, letras, nube(0..1), resaltarCov, alpha} */
+function dibujarMolecula(ctx, m, L, opts = {}) {
+  const at = m.atomos(L);
+  const rO = CFG.R_O * L, rH = CFG.R_H * L;
+  ctx.save();
+  if (opts.alpha != null) ctx.globalAlpha = opts.alpha;
+  // Nube de electrones corrida hacia el O (escena 2)
+  if (opts.nube > 0) {
+    const t = opts.nube;
+    for (const h of at.h) {
+      // elipse que va del H al O, desplazada hacia el O según t
+      const cx = lerp((h.x + at.ox) / 2, lerp(at.ox, h.x, 0.32), t);
+      const cy = lerp((h.y + at.oy) / 2, lerp(at.oy, h.y, 0.32), t);
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, L * 0.9);
+      g.addColorStop(0, 'rgba(79,141,255,0.55)'); g.addColorStop(1, 'rgba(79,141,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, L * 0.9, 0, TAU); ctx.fill();
+    }
+  }
+  // Halos de carga parcial
+  if (opts.delta) {
+    const gO = ctx.createRadialGradient(at.ox, at.oy, rO * 0.8, at.ox, at.oy, rO * 1.9);
+    gO.addColorStop(0, 'rgba(79,141,255,0.55)'); gO.addColorStop(1, 'rgba(79,141,255,0)');
+    ctx.fillStyle = gO; ctx.beginPath(); ctx.arc(at.ox, at.oy, rO * 1.9, 0, TAU); ctx.fill();
+    for (const h of at.h) {
+      const gH = ctx.createRadialGradient(h.x, h.y, rH * 0.8, h.x, h.y, rH * 2.4);
+      gH.addColorStop(0, 'rgba(255,159,67,0.6)'); gH.addColorStop(1, 'rgba(255,159,67,0)');
+      ctx.fillStyle = gH; ctx.beginPath(); ctx.arc(h.x, h.y, rH * 2.4, 0, TAU); ctx.fill();
+    }
+  }
+  // Enlaces covalentes: LÍNEA SÓLIDA gruesa (siempre)
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = opts.resaltarCov ? CFG.COL_AREA : CFG.COL_COV;
+  ctx.lineWidth = CFG.ANCHO_COV * L * (opts.resaltarCov ? 1.5 : 1);
+  for (const h of at.h) { ctx.beginPath(); ctx.moveTo(at.ox, at.oy); ctx.lineTo(h.x, h.y); ctx.stroke(); }
+  // Oxígeno
+  ctx.fillStyle = CFG.COL_O; ctx.strokeStyle = CFG.COL_O_BORDE; ctx.lineWidth = Math.max(1.5, L * 0.06);
+  ctx.beginPath(); ctx.arc(at.ox, at.oy, rO, 0, TAU); ctx.fill(); ctx.stroke();
+  // Hidrógenos
+  ctx.fillStyle = CFG.COL_H; ctx.strokeStyle = CFG.COL_H_BORDE;
+  for (const h of at.h) { ctx.beginPath(); ctx.arc(h.x, h.y, rH, 0, TAU); ctx.fill(); ctx.stroke(); }
+  // Letras
+  if (opts.letras) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.round(L * 0.55)}px sans-serif`; ctx.fillText('O', at.ox, at.oy + L * 0.02);
+    ctx.fillStyle = '#222'; ctx.font = `bold ${Math.round(L * 0.34)}px sans-serif`;
+    for (const h of at.h) ctx.fillText('H', h.x, h.y + L * 0.01);
+  }
+  // Etiquetas δ
+  if (opts.delta && L >= 40) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const fs = Math.round(clamp(L * 0.3, 22, 48));
+    ctx.font = `bold ${fs}px sans-serif`;
+    ctx.fillStyle = CFG.COL_DNEG;
+    // δ− del lado opuesto a los H
+    const back = m.a + Math.PI;
+    ctx.fillText('δ−', at.ox + Math.cos(back) * rO * 1.7, at.oy + Math.sin(back) * rO * 1.7);
+    ctx.fillStyle = CFG.COL_DPOS;
+    for (const h of at.h) ctx.fillText('δ+', h.x + Math.cos(h.ang) * rH * 2.3, h.y + Math.sin(h.ang) * rH * 2.3);
+  }
+  ctx.restore();
+}
+
+/** Línea punteada celeste de un puente (de H a O). edad en segundos para el titileo. */
+function dibujarPuente(ctx, hx, hy, ox, oy, L, edad, tiempo) {
+  ctx.save();
+  const nuevo = edad < 1.2;
+  const pulso = nuevo ? 0.5 + 0.5 * Math.sin(edad * 18) : 1;
+  ctx.globalAlpha = nuevo ? 0.45 + 0.55 * pulso : 0.95;
+  ctx.strokeStyle = CFG.COL_HB; ctx.lineCap = 'round';
+  ctx.lineWidth = Math.max(3, L * 0.2) * (nuevo ? 1 + 0.6 * pulso : 1);
+  ctx.setLineDash([Math.max(5, L * 0.35), Math.max(5, L * 0.3)]);
+  ctx.lineDashOffset = -tiempo * 25;
+  ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(ox, oy); ctx.stroke();
+  if (nuevo) { ctx.globalAlpha = 0.25 * pulso; ctx.lineWidth *= 3; ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ============================================================
+   RED DEL HIELO: panal (hexágonos) con O–O = REST_HB·L + L.
+   Sitios = red triangular sin uno de cada tres puntos.
+   Devuelve {sitios:[{x,y,a}], huecos:[{x,y}]} centrados en (cx, abajo=by).
+   ============================================================ */
+function generarPanal(n, L, cx, by, compacto) {
+  const dOO = (CFG.REST_HB + 1) * L;           // distancia entre oxígenos vecinos
+  // Paso de la red triangular: los vecinos del panal son los vecinos de la red triangular.
+  const s = compacto ? CFG.REP_OO * L * 1.02 : dOO * CFG.HIELO_ABIERTO;
+  const a1 = { x: s, y: 0 }, a2 = { x: s / 2, y: s * Math.sqrt(3) / 2 };
+  const pts = [], quitados = [];
+  const R = 14;
+  for (let i = -R; i <= R; i++) for (let j = -R; j <= R; j++) {
+    const x = i * a1.x + j * a2.x, y = i * a1.y + j * a2.y;
+    const clase = ((i - j) % 3 + 3) % 3;
+    const p = { x, y, i, j, clase, d: hipot(x, y) };
+    if (compacto || clase !== 0) pts.push(p); else quitados.push(p);
+  }
+  pts.sort((p, q) => p.d - q.d);
+  const elegidos = pts.slice(0, n);
+  const clave = new Set(elegidos.map(p => p.i + ',' + p.j));
+  // Orientaciones coherentes (regla del hielo en 2D):
+  //  clase 1 dona por e1 (0°) y e2 (120°) → eje entre ambas; clase 2 dona por −e3 (60°).
+  const e1 = 0, e2 = 2 * Math.PI / 3, e3n = Math.PI / 3;
+  const sitios = elegidos.map(p => {
+    let a;
+    if (compacto) a = Math.random() * TAU;
+    else if (p.clase === 1) a = (e1 + e2) / 2;
+    else a = e3n + (Math.random() < 0.5 ? 1 : -1) * CFG.ANG_HOH / 2;
+    return { x: p.x, y: p.y, a };
+  });
+  // Huecos: puntos quitados cuyos 6 vecinos están todos presentes
+  const vec = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]];
+  const huecos = compacto ? [] : quitados.filter(p => vec.every(([di, dj]) => clave.has((p.i + di) + ',' + (p.j + dj)))).map(p => ({ x: p.x, y: p.y }));
+  // Centrar y apoyar abajo
+  let minX = 1e9, maxX = -1e9, maxY = -1e9;
+  for (const p of sitios) { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); }
+  const dx = cx - (minX + maxX) / 2, dy = by - maxY;
+  for (const p of sitios) { p.x += dx; p.y += dy; }
+  for (const p of huecos) { p.x += dx; p.y += dy; }
+  return { sitios, huecos, radioHueco: s };
+}
+
+/* ============================================================
+   SIMULACIÓN DE MUCHAS MOLÉCULAS (escenas 3, 4 y 5)
+   ============================================================ */
+class Sim {
+  /** opts: {caja:{x,y,w,h}, n, L, puentes(bool), libre(bool: escena 3, sin gravedad ni termostato)} */
+  constructor(opts) {
+    Object.assign(this, { n: CFG.N_MOL, L: CFG.L_SIM, puentes: true, libre: false, T: 20 }, opts);
+    this.mols = []; this.enlaces = []; this.tiempo = 0; this.red = null; this.estadoPrev = null;
+    this.huecosAlpha = 0;
+    if (!this.libre) this.poblar();
+  }
+  umbrales() { return this.puentes ? { Tm: CFG.TM_CON, Tb: CFG.TB_CON } : { Tm: CFG.TM_SIN, Tb: CFG.TB_SIN }; }
+  estado() { const { Tm, Tb } = this.umbrales(); return this.T < Tm ? 'solido' : this.T < Tb ? 'liquido' : 'gas'; }
+  factorSolido() { const { Tm } = this.umbrales(); return clamp((Tm - this.T) / CFG.MELT_RANGE, 0, 1); }
+  factorGas() { const { Tb } = this.umbrales(); return clamp((this.T - (Tb - CFG.BOIL_RANGE / 2)) / CFG.BOIL_RANGE, 0, 1); }
+
+  poblar() {
+    const c = this.caja;
+    this.mols = [];
+    for (let i = 0; i < this.n; i++) {
+      const m = new Molecula(c.x + 30 + Math.random() * (c.w - 60), c.y + 30 + Math.random() * (c.h - 60), Math.random() * TAU);
+      const v = rapidezObjetivo(this.T), ang = Math.random() * TAU;
+      m.vx = Math.cos(ang) * v; m.vy = Math.sin(ang) * v;
+      this.mols.push(m);
+    }
+    this.enlaces = [];
+    if (this.estado() === 'solido') this.asignarRed(true);
+  }
+  /** Genera la red y asigna a cada molécula el sitio más cercano (apareamiento voraz). */
+  asignarRed(colocar) {
+    const c = this.caja;
+    this.red = generarPanal(this.n, this.L, c.x + c.w / 2, c.y + c.h - 1.2 * this.L, !this.puentes);
+    const libres = this.red.sitios.slice();
+    const pendientes = this.mols.slice();
+    while (pendientes.length) {
+      let mejor = null, bd = 1e18;
+      for (const m of pendientes) for (const s of libres) { const d = (m.x - s.x) ** 2 + (m.y - s.y) ** 2; if (d < bd) { bd = d; mejor = [m, s]; } }
+      const [m, s] = mejor; m.sitio = s;
+      pendientes.splice(pendientes.indexOf(m), 1); libres.splice(libres.indexOf(s), 1);
+      if (colocar) { m.x = s.x; m.y = s.y; m.a = s.a; m.vx = m.vy = m.va = 0; }
+    }
+  }
+
+  /** Avanza dt cuadros (≈ dt/60 s). */
+  paso(dt) {
+    const sub = Math.max(1, Math.ceil(dt));
+    const h = dt / sub;
+    for (let k = 0; k < sub; k++) this.subpaso(h);
+    this.tiempo += dt / 60;
+    this.gestionarPuentes(dt);
+    // sombreado de huecos aparece/desaparece suavemente
+    const objetivo = this.factorSolido();
+    this.huecosAlpha += (objetivo - this.huecosAlpha) * Math.min(1, 0.05 * dt);
+  }
+
+  subpaso(h) {
+    const L = this.L, mols = this.mols, N = mols.length;
+    const I = CFG.MASA * (CFG.INERCIA_F * L) ** 2;
+    const ax = new Float64Array(N), ay = new Float64Array(N), aa = new Float64Array(N);
+    const fs = this.libre ? 0 : this.factorSolido(), fg = this.libre ? 0 : this.factorGas();
+    // transición de estado: (re)asignar red al entrar al sólido
+    if (!this.libre) {
+      const est = this.estado();
+      if (est === 'solido' && this.estadoPrev !== 'solido') this.asignarRed(false);
+      this.estadoPrev = est;
+    }
+    const atoms = mols.map(m => m.atomos(L));
+    // --- repulsiones blandas entre moléculas distintas ---
+    const repOO = CFG.REP_OO * L, repHH = CFG.REP_HH * L;
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+      const A = atoms[i], B = atoms[j];
+      let dx = B.ox - A.ox, dy = B.oy - A.oy, d = hipot(dx, dy);
+      if (d < repOO && d > 1e-6) {
+        const f = CFG.K_REP * (repOO - d) / d;
+        ax[i] -= f * dx; ay[i] -= f * dy; ax[j] += f * dx; ay[j] += f * dy;
+      }
+      if (d < 4 * L) {
+        for (const ha of A.h) for (const hb of B.h) {
+          dx = hb.x - ha.x; dy = hb.y - ha.y; d = hipot(dx, dy);
+          if (d < repHH && d > 1e-6) {
+            const f = CFG.K_REP_H * (repHH - d) / d;
+            // fuerza aplicada en el H → también gira la molécula
+            ax[i] -= f * dx; ay[i] -= f * dy; ax[j] += f * dx; ay[j] += f * dy;
+            aa[i] += -((ha.x - A.ox) * (f * dy) - (ha.y - A.oy) * (f * dx)) / I;
+            aa[j] += ((hb.x - B.ox) * (f * dy) - (hb.y - B.oy) * (f * dx)) / I;
+          }
+        }
+      }
+    }
+    // --- puentes de hidrógeno: resorte débil + alineación ---
+    const fuerzaHB = (1 - fg);
+    const rest = CFG.REST_HB * L;
+    for (const e of this.enlaces) {
+      const i = e.i, j = e.j, A = atoms[i], B = atoms[j], H = A.h[e.k];
+      const dx = B.ox - H.x, dy = B.oy - H.y, d = hipot(dx, dy); if (d < 1e-6) continue;
+      const ux = dx / d, uy = dy / d;
+      const F = CFG.K_HB * (d - rest) * fuerzaHB;
+      ax[i] += F * ux; ay[i] += F * uy; ax[j] -= F * ux; ay[j] -= F * uy;
+      const rx = H.x - A.ox, ry = H.y - A.oy;
+      aa[i] += (rx * F * uy - ry * F * ux) / I;
+      // alinear O–H con H···O
+      const ohx = Math.cos(H.ang), ohy = Math.sin(H.ang);
+      aa[i] += CFG.K_ALIGN * fuerzaHB * (ohx * uy - ohy * ux);
+    }
+    // --- escena 3 (libre): atracción suave H(δ+)···O(δ−) antes de formarse el puente ---
+    if (this.libre) {
+      const alcance = CFG.FORM_DIST * L * 1.8;
+      for (let i = 0; i < N; i++) for (let k = 0; k < 2; k++) {
+        if (mols[i].hb[k]) continue;
+        const H = atoms[i].h[k];
+        for (let j = 0; j < N; j++) {
+          if (j === i || mols[j].nAcep >= 2) continue;
+          const B = atoms[j], dx = B.ox - H.x, dy = B.oy - H.y, d = hipot(dx, dy);
+          if (d > alcance || d < 1e-6) continue;
+          const ux = dx / d, uy = dy / d, ohx = Math.cos(H.ang), ohy = Math.sin(H.ang);
+          const cos = ohx * ux + ohy * uy; if (cos < -0.3) continue;
+          const F = 0.35 * CFG.K_HB * Math.max(0, d - rest);
+          ax[i] += F * ux; ay[i] += F * uy; ax[j] -= F * ux; ay[j] -= F * uy;
+          aa[i] += 0.6 * CFG.K_ALIGN * (ohx * uy - ohy * ux);
+        }
+      }
+    }
+    // --- red del hielo (resorte al sitio) y gravedad ---
+    for (let i = 0; i < N; i++) {
+      const m = mols[i];
+      if (fs > 0 && m.sitio) {
+        let fx = CFG.K_PIN * (m.sitio.x - m.x), fy = CFG.K_PIN * (m.sitio.y - m.y);
+        const fm = hipot(fx, fy); if (fm > CFG.F_PIN_MAX) { fx *= CFG.F_PIN_MAX / fm; fy *= CFG.F_PIN_MAX / fm; }
+        ax[i] += fx * fs; ay[i] += fy * fs;
+        aa[i] += CFG.K_PIN_ROT * fs * wrapAng(m.sitio.a - m.a);
+      }
+      if (!this.libre) ay[i] += CFG.GRAV * (1 - fg) * (1 - fs);
+    }
+    // --- integrar ---
+    const c = this.caja, marg = CFG.R_O * L + 2;
+    for (let i = 0; i < N; i++) {
+      const m = mols[i];
+      if (m.arrastrada) { m.vx = m.vy = 0; m.va = (m.va + aa[i] * h) * 0.9; m.a += m.va * h; continue; } // arrastrada: no se traslada, pero puede girar
+      m.vx += ax[i] * h; m.vy += ay[i] * h; m.va += aa[i] * h;
+      if (this.libre) { m.vx *= 0.92; m.vy *= 0.92; m.va *= 0.9; }
+      else {
+        // amortiguación extra en el sólido para que la red se vea quieta
+        const amort = 1 - 0.08 * fs;
+        m.vx *= amort; m.vy *= amort; m.va *= 0.96 - 0.1 * fs;
+      }
+      m.x += m.vx * h; m.y += m.vy * h; m.a += m.va * h;
+      // paredes
+      if (m.x < c.x + marg) { m.x = c.x + marg; m.vx = Math.abs(m.vx); }
+      if (m.x > c.x + c.w - marg) { m.x = c.x + c.w - marg; m.vx = -Math.abs(m.vx); }
+      if (m.y < c.y + marg) { m.y = c.y + marg; m.vy = Math.abs(m.vy); }
+      if (m.y > c.y + c.h - marg) { m.y = c.y + c.h - marg; m.vy = -Math.abs(m.vy); }
+    }
+    // --- termostato: rapidez media → rapidez objetivo(T) ---
+    if (!this.libre) {
+      const vObj = rapidezObjetivo(this.T);
+      let suma = 0; for (const m of mols) suma += hipot(m.vx, m.vy);
+      const media = suma / N + 1e-6;
+      const f = clamp(1 + CFG.THERMO * h * (vObj / media - 1), 0.9, 1.1);
+      for (const m of mols) {
+        m.vx = m.vx * f + (Math.random() - 0.5) * 0.08 * vObj * h;
+        m.vy = m.vy * f + (Math.random() - 0.5) * 0.08 * vObj * h;
+        m.va += (Math.random() - 0.5) * CFG.ROT_NOISE * vObj * h;
+      }
+    }
+  }
+
+  /** Formación y rotura de puentes con las reglas: cada H ≤ 1 puente, cada O ≤ 2, una sola unión por par. */
+  gestionarPuentes(dt) {
+    const L = this.L, mols = this.mols, N = mols.length;
+    const atoms = mols.map(m => m.atomos(L));
+    const fg = this.libre ? 0 : this.factorGas();
+    const { Tm, Tb } = this.umbrales();
+    const pares = new Set(this.enlaces.map(e => e.i < e.j ? e.i + '-' + e.j : e.j + '-' + e.i));
+    // Rotura
+    const pTerm = this.libre ? 0 : (CFG.P_BREAK_MAX * Math.pow(clamp((this.T - Tm) / (Tb - Tm), 0, 1), 2) + 0.3 * fg) * dt;
+    for (let n = this.enlaces.length - 1; n >= 0; n--) {
+      const e = this.enlaces[n], A = atoms[e.i], B = atoms[e.j], H = A.h[e.k];
+      const dx = B.ox - H.x, dy = B.oy - H.y, d = hipot(dx, dy);
+      const cos = (Math.cos(H.ang) * dx + Math.sin(H.ang) * dy) / (d + 1e-9);
+      if (d > CFG.BREAK_DIST * L || cos < CFG.BREAK_COS || Math.random() < pTerm) {
+        this.enlaces.splice(n, 1);
+        mols[e.i].hb[e.k] = false; mols[e.j].nAcep--;
+        pares.delete(e.i < e.j ? e.i + '-' + e.j : e.j + '-' + e.i);
+      }
+    }
+    // Formación
+    if (this.puentes && fg < 0.5) {
+      const formD = CFG.FORM_DIST * L;
+      for (let i = 0; i < N; i++) {
+        const A = atoms[i];
+        for (let k = 0; k < 2; k++) {
+          if (mols[i].hb[k]) continue;              // este H ya tiene su puente
+          const H = A.h[k];
+          let mejor = -1, bd = formD;
+          for (let j = 0; j < N; j++) {
+            if (j === i || mols[j].nAcep >= 2) continue;   // ese O ya acepta 2
+            if (pares.has(i < j ? i + '-' + j : j + '-' + i)) continue;
+            const B = atoms[j], dx = B.ox - H.x, dy = B.oy - H.y, d = hipot(dx, dy);
+            if (d >= bd) continue;
+            const cos = (Math.cos(H.ang) * dx + Math.sin(H.ang) * dy) / d;
+            if (cos < CFG.FORM_COS) continue;
+            bd = d; mejor = j;
+          }
+          if (mejor >= 0) {
+            this.enlaces.push({ i, k, j: mejor, t0: this.tiempo });
+            mols[i].hb[k] = true; mols[mejor].nAcep++;
+            pares.add(i < mejor ? i + '-' + mejor : mejor + '-' + i);
+          }
+        }
+      }
+    }
+  }
+
+  /** Rectángulo que envuelve a todas las moléculas (con margen). */
+  envolvente() {
+    const L = this.L; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (const m of this.mols) { const at = m.atomos(L); for (const p of [{ x: at.ox, y: at.oy }, ...at.h]) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); } }
+    const mg = CFG.R_O * L;
+    return { x: x0 - mg, y: y0 - mg, w: x1 - x0 + 2 * mg, h: y1 - y0 + 2 * mg };
+  }
+
+  /** Dibuja caja, huecos, moléculas y puentes. */
+  dibujar(ctx, opts = {}) {
+    const L = this.L, c = this.caja;
+    if (c && !this.libre) {
+      ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.025)'; ctx.fillRect(c.x, c.y, c.w, c.h);
+      ctx.strokeStyle = CFG.COL_CAJA; ctx.lineWidth = 4; ctx.strokeRect(c.x, c.y, c.w, c.h); ctx.restore();
+    }
+    // huecos del hielo
+    if (this.red && this.huecosAlpha > 0.02) {
+      ctx.save(); ctx.globalAlpha = this.huecosAlpha;
+      ctx.fillStyle = CFG.COL_HUECO; ctx.strokeStyle = 'rgba(255,209,102,0.45)'; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+      const r = this.red.radioHueco * 0.78;
+      for (const hu of this.red.huecos) {
+        ctx.beginPath();
+        for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; const px = hu.x + r * Math.cos(an), py = hu.y + r * Math.sin(an); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    // puentes (debajo de las moléculas)
+    const atoms = this.mols.map(m => m.atomos(L));
+    for (const e of this.enlaces) { const H = atoms[e.i].h[e.k], B = atoms[e.j]; dibujarPuente(ctx, H.x, H.y, B.ox, B.oy, L, this.tiempo - e.t0, this.tiempo); }
+    for (const m of this.mols) dibujarMolecula(ctx, m, L, opts.mol || {});
+    // envolvente
+    if (opts.envolvente) {
+      const r = this.envolvente();
+      ctx.save(); ctx.strokeStyle = CFG.COL_AREA; ctx.lineWidth = 3; ctx.setLineDash([12, 8]); ctx.strokeRect(r.x, r.y, r.w, r.h);
+      ctx.setLineDash([]); ctx.fillStyle = CFG.COL_AREA; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      const ty = r.y - 6 > (c ? c.y + 24 : 0) ? r.y - 6 : r.y + r.h + 26;
+      ctx.fillText('Espacio que ocupan: ' + Sim.areaUnidades(r), Math.max(r.x, c ? c.x + 6 : 0), ty);
+      ctx.restore();
+    }
+  }
+  static areaUnidades(r) { return Math.round(r.w * r.h / 1000); }
+}
+
+/* ============================================================
+   APLICACIÓN: escenario, navegación, lienzo, escenas
+   ============================================================ */
+const stage = document.getElementById('stage');
+const lienzo = document.getElementById('lienzo');
+const ctx = lienzo.getContext('2d');
+const overlay = document.getElementById('overlay');
+let escalaTotal = 1, pausado = false;
+
+function ajustarEscala() {
+  const k = Math.min(innerWidth / CFG.W, innerHeight / 900);
+  stage.style.transform = `scale(${k})`;
+  stage.style.left = ((innerWidth - CFG.W * k) / 2) + 'px';
+  stage.style.top = ((innerHeight - 900 * k) / 2) + 'px';
+  stage.style.position = 'absolute';
+  escalaTotal = k * (devicePixelRatio || 1);
+  lienzo.width = Math.round(CFG.W * escalaTotal); lienzo.height = Math.round(CFG.H_MAIN * escalaTotal);
+}
+addEventListener('resize', ajustarEscala); ajustarEscala();
+
+function puntero(ev) { const r = lienzo.getBoundingClientRect(); return { x: (ev.clientX - r.left) / r.width * CFG.W, y: (ev.clientY - r.top) / r.height * CFG.H_MAIN }; }
+
+/** Texto con ajuste de línea (canvas). */
+function textoAjustado(c, texto, x, y, maxW, lh) {
+  const palabras = texto.split(' '); let linea = '';
+  for (const p of palabras) { const t = linea ? linea + ' ' + p : p; if (c.measureText(t).width > maxW && linea) { c.fillText(linea, x, y); linea = p; y += lh; } else linea = t; }
+  c.fillText(linea, x, y); return y + lh;
+}
+
+/* ---------- Tarjetas PREDECIR / CONCLUSIÓN reutilizables ---------- */
+function tarjetaPredecir(root, datos, alTerminar) {
+  const t = el('div', 'tarjeta abs');
+  t.style.cssText = 'left:380px;top:40px;width:840px;';
+  t.innerHTML = `<h2>🔮 PREDECIR</h2><div class="pregunta">${datos.pregunta}</div>`;
+  const ops = el('div', 'opciones');
+  datos.opciones.forEach((o, i) => { const b = el('button', '', `<span class="letra">${'ABC'[i]}</span><span>${o}</span>`); b.onclick = () => { ops.querySelectorAll('button').forEach(x => x.classList.remove('activo')); b.classList.add('activo'); }; ops.appendChild(b); });
+  t.appendChild(ops);
+  t.appendChild(el('div', 'chico', 'Votá a mano alzada. Después lo comprobamos en la simulación.'));
+  const b = el('button', 'primario grande', '¡A observar! ▶'); b.style.marginTop = '14px'; b.onclick = () => { t.remove(); alTerminar(); };
+  t.appendChild(b); root.appendChild(t); return t;
+}
+function tarjetaConclusion(root, texto) {
+  const t = el('div', 'tarjeta abs');
+  t.style.cssText = 'left:330px;top:160px;width:940px;';
+  t.innerHTML = `<h2>✅ CONCLUSIÓN</h2><div style="font-size:32px;line-height:1.4">${texto}</div>`;
+  const b = el('button', 'primario', 'Cerrar'); b.style.marginTop = '18px'; b.onclick = () => t.remove(); t.appendChild(b); root.appendChild(t);
+}
+function botonConclusion(root, texto, x, y) {
+  const b = el('button', 'primario abs', '✅ Mostrar conclusión'); b.style.cssText = `left:${x}px;top:${y}px;font-size:26px`;
+  b.onclick = () => tarjetaConclusion(root, texto); root.appendChild(b); return b;
+}
+/** Deslizador de temperatura. */
+function crearTermometro(root, x, y, w, min, max, marcas, valor, onInput) {
+  const d = el('div', 'termo abs'); d.style.cssText = `left:${x}px;top:${y}px;width:${w}px`;
+  d.innerHTML = `<div class="valor">🌡️ Temperatura: <b></b></div>`;
+  const r = el('input'); r.type = 'range'; r.min = min; r.max = max; r.step = 1; r.value = valor;
+  const m = el('div', 'marcas');
+  for (const v of marcas) { const s = el('span', '', v + ' °C'); s.style.left = ((v - min) / (max - min) * 100) + '%'; m.appendChild(s); }
+  const b = d.querySelector('b');
+  const upd = () => { b.textContent = r.value + ' °C'; onInput(+r.value); };
+  r.oninput = upd; d.appendChild(r); d.appendChild(m);
+  d.appendChild(el('div', 'chico', 'Más temperatura = moléculas más rápidas')); root.appendChild(d); upd();
+  return { set(v) { r.value = v; upd(); }, get() { return +r.value; } };
+}
+/** Gráfico en vivo T (X) vs promedio de puentes por molécula (Y). */
+class Grafico {
+  constructor(min, max, paso) { this.min = min; this.max = max; this.paso = paso; this.bins = new Map(); }
+  registrar(T, y) { const b = Math.round(T / this.paso) * this.paso; const e = this.bins.get(b) || { s: 0, n: 0 }; e.s += y; e.n++; this.bins.set(b, e); }
+  dibujar(c, x, y, w, h, Tact, yAct) {
+    c.save();
+    c.fillStyle = 'rgba(255,255,255,0.03)'; c.fillRect(x, y, w, h);
+    c.strokeStyle = CFG.COL_CAJA; c.lineWidth = 3; c.strokeRect(x, y, w, h);
+    const px = T => x + 60 + (T - this.min) / (this.max - this.min) * (w - 90);
+    const py = v => y + h - 50 - clamp(v, 0, 4) / 4 * (h - 110);
+    c.strokeStyle = '#4a5878'; c.lineWidth = 2; c.fillStyle = CFG.COL_SUAVE; c.font = '22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+    for (const T of [0, 100]) { if (T < this.min || T > this.max) continue; c.setLineDash([5, 6]); c.beginPath(); c.moveTo(px(T), y + 60); c.lineTo(px(T), y + h - 50); c.stroke(); c.fillText(T + ' °C', px(T), y + h - 44); }
+    c.setLineDash([]); c.textAlign = 'right'; c.textBaseline = 'middle';
+    for (const v of [0, 2, 4]) { c.fillText(v, x + 50, py(v)); c.beginPath(); c.moveTo(x + 56, py(v)); c.lineTo(x + 64, py(v)); c.stroke(); }
+    c.textAlign = 'left'; c.textBaseline = 'top'; c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 22px sans-serif';
+    c.fillText('Puentes por molécula  vs.  temperatura', x + 14, y + 10);
+    // línea
+    const ks = [...this.bins.keys()].sort((a, b) => a - b);
+    c.strokeStyle = CFG.COL_HB; c.lineWidth = 4; c.beginPath();
+    ks.forEach((k, i) => { const e = this.bins.get(k); const X = px(k), Y = py(e.s / e.n); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+    c.stroke();
+    c.fillStyle = CFG.COL_HB; for (const k of ks) { const e = this.bins.get(k); c.beginPath(); c.arc(px(k), py(e.s / e.n), 5, 0, TAU); c.fill(); }
+    // punto actual
+    c.fillStyle = CFG.COL_AREA; c.beginPath(); c.arc(px(Tact), py(yAct), 10, 0, TAU); c.fill();
+    c.restore();
+  }
+}
+/** Texto grande del estado y color. */
+const ESTADOS = { solido: ['SÓLIDO', CFG.COL_SOLIDO, '🧊'], liquido: ['LÍQUIDO', CFG.COL_LIQUIDO, '💧'], gas: ['GASEOSO', CFG.COL_GAS, '♨️'] };
+
+/* ============================================================
+   ESCENA 1 – EL FENÓMENO
+   ============================================================ */
+const escena1 = {
+  titulo: 'El fenómeno',
+  zoom: 0, zoomObjetivo: 0, t: 0,
+  enter(root) {
+    this.zoom = 0; this.zoomObjetivo = 0;
+    this.panal = generarPanal(60, 22, 0, 0, false);
+    const ys = this.panal.sitios.map(q => q.y); this.panalDy = -(Math.min(...ys) + Math.max(...ys)) / 2;
+    const p = el('div', 'tarjeta abs'); p.style.cssText = 'left:60px;top:40px;width:720px;text-align:center';
+    p.innerHTML = '<div style="font-size:44px;font-weight:800;line-height:1.25">¿Por qué el hielo flota<br>si es agua?</div><div class="chico" style="font-size:26px;margin-top:12px">Y… ¿por qué hay que calentar tanto el agua para que hierva?</div>';
+    root.appendChild(p);
+    const b = el('button', 'primario grande abs', '🔍 Hacer zoom'); b.style.cssText = 'left:300px;top:300px';
+    b.onclick = () => { this.zoomObjetivo = this.zoomObjetivo ? 0 : 1; b.textContent = this.zoomObjetivo ? '↩ Volver a ver el vaso' : '🔍 Hacer zoom'; };
+    root.appendChild(b);
+    this.cartel = el('div', 'cartel destacado abs'); this.cartel.style.cssText = 'left:60px;top:430px;width:720px;opacity:0;transition:opacity .6s';
+    this.cartel.innerHTML = 'Lo que no vemos a simple vista: imaginamos el agua hecha de <b>moléculas</b> muy pequeñas.<br><span class="chico">¿Qué las mantiene juntas? Vamos a conocerlas ▶</span>';
+    root.appendChild(this.cartel);
+  },
+  update(dt) { this.t += dt / 60; this.zoom += (this.zoomObjetivo - this.zoom) * Math.min(1, 0.04 * dt); this.cartel.style.opacity = this.zoom > 0.9 ? 1 : 0; },
+  draw(c) {
+    // --- vaso con agua y cubito ---
+    const vx = 980, vy = 150, vw = 300, vh = 420;
+    c.save();
+    c.fillStyle = 'rgba(79,141,255,0.35)'; c.fillRect(vx + 8, vy + 110, vw - 16, vh - 118);
+    c.strokeStyle = '#cfd8ea'; c.lineWidth = 8; c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(vx, vy); c.lineTo(vx + 20, vy + vh); c.lineTo(vx + vw - 20, vy + vh); c.lineTo(vx + vw, vy); c.stroke();
+    c.strokeStyle = 'rgba(154,216,255,0.9)'; c.lineWidth = 4; c.beginPath(); c.moveTo(vx + 10, vy + 110); c.lineTo(vx + vw - 10, vy + 110); c.stroke();
+    // cubito (flota: 1/10 afuera, exagerado para que se vea)
+    const bob = Math.sin(this.t * 1.5) * 4;
+    const cx = vx + 150, cy = vy + 125 + bob, cs = 110;
+    c.fillStyle = '#dff3ff'; c.strokeStyle = '#8fc6ea'; c.lineWidth = 5;
+    c.beginPath(); c.roundRect(cx - cs / 2, cy - cs / 2, cs, cs, 14); c.fill(); c.stroke();
+    c.fillStyle = 'rgba(255,255,255,0.6)'; c.beginPath(); c.roundRect(cx - cs / 2 + 14, cy - cs / 2 + 12, 30, 20, 6); c.fill();
+    c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 26px sans-serif'; c.textAlign = 'center'; c.fillText('hielo', cx, cy + 10); c.fillText('agua', vx + vw / 2, vy + 360);
+    // --- pava hirviendo ---
+    const px0 = 1300, py0 = 470;
+    c.fillStyle = '#9aa7c0'; c.beginPath(); c.roundRect(px0, py0, 200, 110, 22); c.fill();
+    c.fillRect(px0 + 60, py0 - 28, 80, 30);
+    c.beginPath(); c.moveTo(px0 + 190, py0 + 40); c.lineTo(px0 + 235, py0 - 10); c.lineTo(px0 + 250, py0 + 5); c.lineTo(px0 + 200, py0 + 60); c.fill();
+    c.strokeStyle = '#9aa7c0'; c.lineWidth = 12; c.beginPath(); c.arc(px0 + 100, py0 - 20, 60, Math.PI, 0); c.stroke();
+    // fuego
+    for (let i = 0; i < 5; i++) { const fx = px0 + 30 + i * 35, fh = 30 + 12 * Math.sin(this.t * 10 + i); c.fillStyle = i % 2 ? '#ff9f43' : '#ffd166'; c.beginPath(); c.moveTo(fx - 12, py0 + 125); c.quadraticCurveTo(fx, py0 + 125 - fh, fx + 12, py0 + 125); c.fill(); }
+    // vapor
+    c.strokeStyle = 'rgba(255,255,255,0.55)'; c.lineWidth = 6; c.lineCap = 'round';
+    for (let i = 0; i < 3; i++) { const ph = (this.t * 0.7 + i * 0.33) % 1; const sx = px0 + 240 + i * 14, sy = py0 - 20 - ph * 140; c.globalAlpha = 1 - ph; c.beginPath(); c.moveTo(sx, sy + 40); c.quadraticCurveTo(sx + 18, sy + 25, sx, sy + 10); c.quadraticCurveTo(sx - 18, sy - 5, sx, sy - 20); c.stroke(); }
+    c.globalAlpha = 1; c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 26px sans-serif'; c.fillText('hierve a 100 °C', px0 + 100, py0 + 170);
+    c.restore();
+    // --- lupa / zoom ---
+    if (this.zoom > 0.01) {
+      const z = this.zoom, ease = z * z * (3 - 2 * z);
+      const r = lerp(40, 330, ease), lx = lerp(cx + 40, 1180, ease), ly = lerp(cy + 30, 400, ease);
+      c.save();
+      c.beginPath(); c.arc(lx, ly, r, 0, TAU); c.clip();
+      c.fillStyle = '#0d1a33'; c.fillRect(lx - r, ly - r, 2 * r, 2 * r);
+      // moléculas del hielo (panal), agrandadas con el zoom
+      const esc = lerp(0.15, 1, ease);
+      c.translate(lx, ly); c.scale(esc, esc);
+      c.globalAlpha = clamp((ease - 0.3) / 0.4, 0, 1);
+      const L = 22;
+      const tmp = this.panal.sitios.map(s => new Molecula(s.x, s.y + this.panalDy, s.a));
+      // puentes dibujados por geometría (para la ilustración)
+      for (const m of tmp) { const at = m.atomos(L); for (const h of at.h) { let mejor = null, bd = 2.6 * L; for (const o of tmp) { if (o === m) continue; const d = hipot(o.x - h.x, o.y - h.y); if (d < bd) { bd = d; mejor = o; } } if (mejor) dibujarPuente(c, h.x, h.y, mejor.x, mejor.y, L, 9, this.t); } }
+      for (const m of tmp) dibujarMolecula(c, m, L, {});
+      c.restore();
+      c.save(); c.strokeStyle = '#ffd166'; c.lineWidth = 14; c.beginPath(); c.arc(lx, ly, r, 0, TAU); c.stroke();
+      c.lineCap = 'round'; c.lineWidth = 26; c.beginPath(); c.moveTo(lx + r * 0.72, ly + r * 0.72); c.lineTo(lx + r * 0.72 + 90, ly + r * 0.72 + 90); c.stroke();
+      if (z > 0.9) { c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 26px sans-serif'; c.textAlign = 'center'; c.fillText('modelo: moléculas de agua en el hielo', lx, ly + r + 50); }
+      c.restore();
+    }
+  }
+};
+
+/* ============================================================
+   ESCENA 2 – CONOCÉ LA MOLÉCULA
+   ============================================================ */
+const escena2 = {
+  titulo: 'Conocé la molécula',
+  pasos: [
+    'Esta es una molécula de <b>agua, H₂O</b>: un oxígeno (O) y dos hidrógenos (H).',
+    '<b>Enlace covalente</b>: une los átomos DENTRO de la molécula. Es muy fuerte.',
+    'El oxígeno "tira" de los electrones: queda <b style="color:#4f8dff">δ− (azul)</b>. Los hidrógenos quedan <b style="color:#ff9f43">δ+ (naranja)</b>.<br><span class="chico">A esa fuerza para atraer electrones se la llama <i>electronegatividad</i>.</span>',
+    'La molécula funciona como un <b>imán chiquito</b>: tiene una punta negativa y otra positiva.'
+  ],
+  enter(root) {
+    this.paso = 0; this.nube = 0; this.t = 0;
+    this.mol = new Molecula(560, 400, -Math.PI / 2);
+    this.cartel = el('div', 'cartel destacado abs'); this.cartel.style.cssText = 'left:1000px;top:60px;width:540px;min-height:170px;font-size:30px';
+    root.appendChild(this.cartel);
+    const fila = el('div', 'fila abs'); fila.style.cssText = 'left:1000px;top:560px';
+    this.bAnt = el('button', '', '◀ Idea anterior'); this.bSig = el('button', 'primario grande', 'Siguiente idea ▶');
+    this.bAnt.onclick = () => this.ir(this.paso - 1); this.bSig.onclick = () => this.ir(this.paso + 1);
+    fila.append(this.bAnt, this.bSig); root.appendChild(fila);
+    this.indic = el('div', 'chico abs', ''); this.indic.style.cssText = 'left:1000px;top:640px'; root.appendChild(this.indic);
+    this.ir(0);
+  },
+  ir(p) {
+    this.paso = clamp(p, 0, this.pasos.length - 1);
+    this.cartel.innerHTML = this.pasos[this.paso];
+    this.bAnt.disabled = this.paso === 0; this.bSig.disabled = this.paso === this.pasos.length - 1;
+    this.indic.textContent = `Idea ${this.paso + 1} de ${this.pasos.length}`;
+  },
+  update(dt) { this.t += dt / 60; this.nube += ((this.paso >= 2 ? 1 : 0) - this.nube) * Math.min(1, 0.04 * dt); },
+  draw(c) {
+    const m = this.mol, L = CFG.L_MOL;
+    // imán de fondo (paso 3)
+    if (this.paso === 3) {
+      c.save(); c.translate(m.x, m.y); c.rotate(m.a); c.globalAlpha = 0.9;
+      c.fillStyle = CFG.COL_DNEG; c.beginPath(); c.roundRect(-L * 2.15, -L * 0.42, L * 0.95, L * 0.84, 18); c.fill();
+      c.fillStyle = CFG.COL_DPOS; c.beginPath(); c.roundRect(L * 1.2, -L * 0.42, L * 0.95, L * 0.84, 18); c.fill();
+      c.fillStyle = '#fff'; c.font = 'bold 60px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.save(); c.translate(-L * 1.68, 0); c.rotate(-m.a); c.fillText('−', 0, 0); c.restore();
+      c.save(); c.translate(L * 1.68, 0); c.rotate(-m.a); c.fillText('+', 0, 0); c.restore();
+      c.restore();
+    }
+    dibujarMolecula(c, m, L, { letras: true, nube: this.nube, delta: this.nube > 0.6, resaltarCov: this.paso === 1 && Math.sin(this.t * 6) > 0 });
+    // flechas de "tirón" en el paso 2
+    if (this.paso === 2) {
+      const at = m.atomos(L); c.save(); c.strokeStyle = CFG.COL_DNEG; c.fillStyle = CFG.COL_DNEG; c.lineWidth = 8; c.lineCap = 'round';
+      for (const h of at.h) {
+        const ux = at.ox - h.x, uy = at.oy - h.y, d = hipot(ux, uy); const nx = ux / d, ny = uy / d;
+        const x0 = h.x + nx * L * 0.42 + ny * L * 0.5, y0 = h.y + ny * L * 0.42 - nx * L * 0.5;
+        const x1 = x0 + nx * L * 0.35, y1 = y0 + ny * L * 0.35;
+        c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+        c.beginPath(); c.moveTo(x1 + nx * 16, y1 + ny * 16); c.lineTo(x1 - ny * 12, y1 + nx * 12); c.lineTo(x1 + ny * 12, y1 - nx * 12); c.fill();
+      }
+      c.fillStyle = CFG.COL_SUAVE; c.font = '24px sans-serif'; c.textAlign = 'center'; c.fillText('los electrones pasan más tiempo cerca del O', m.x, m.y + L * 1.55);
+      c.restore();
+    }
+    if (this.paso === 1) {
+      c.save(); c.fillStyle = CFG.COL_AREA; c.font = 'bold 26px sans-serif'; c.textAlign = 'center';
+      c.fillText('línea sólida = enlace covalente', m.x, m.y + L * 1.55); c.restore();
+    }
+  }
+};
+
+/* ============================================================
+   ESCENA 3 – DOS MOLÉCULAS SE ENCUENTRAN
+   ============================================================ */
+const escena3 = {
+  titulo: 'Dos moléculas se encuentran',
+  enter(root) {
+    this.root = root;
+    this.sim = new Sim({ libre: true, L: CFG.L_PAR, n: 2, caja: { x: 0, y: 0, w: 1000, h: 750 } });
+    this.sim.mols = [new Molecula(250, 400, 0), new Molecula(760, 380, Math.PI * 0.9)];
+    this.tCartel = 0; this.arr = null;
+    this.hint = el('div', 'cartel abs linea-observar'); this.hint.style.cssText = 'left:40px;top:20px;width:940px;display:none';
+    this.hint.innerHTML = '<b>OBSERVAR:</b> arrastrá una molécula hacia la otra. ¿Qué línea aparece? ¿Cuál nunca cambia?';
+    root.appendChild(this.hint);
+    this.cartelHB = el('div', 'cartel celeste abs'); this.cartelHB.style.cssText = 'left:40px;top:640px;width:940px;font-size:27px;opacity:0;transition:opacity .4s';
+    this.cartelHB.innerHTML = '✨ <b>¡Puente de hidrógeno!</b> Es una atracción ENTRE moléculas. Mucho más débil que el enlace covalente.';
+    root.appendChild(this.cartelHB);
+    // controles de giro
+    const fila = el('div', 'fila abs'); fila.style.cssText = 'left:40px;top:560px';
+    const g1 = el('button', '', '↻ Girar molécula A'), g2 = el('button', '', '↻ Girar molécula B');
+    g1.onclick = () => this.sim.mols[0].a += Math.PI / 6; g2.onclick = () => this.sim.mols[1].a += Math.PI / 6;
+    fila.append(g1, g2); root.appendChild(fila);
+    this.bConc = botonConclusion(root, 'El puente de hidrógeno es una atracción ENTRE moléculas, no un enlace dentro de ellas. Es mucho más débil que el enlace covalente, que nunca se rompe acá.', 1060, 640);
+    this.bConc.style.display = 'none';
+    tarjetaPredecir(root, {
+      pregunta: 'Si acercamos dos moléculas de agua, ¿qué pasa?',
+      opciones: ['Se forma otro enlace DENTRO de cada molécula (otro enlace covalente).', 'Se atraen y quedan unidas por una atracción débil entre ellas.', 'No pasa nada: las moléculas no se tocan.']
+    }, () => { this.hint.style.display = 'block'; this.bConc.style.display = 'block'; });
+  },
+  pointerdown(p) {
+    const L = CFG.L_PAR;
+    for (const m of this.sim.mols) { const at = m.atomos(L); if (hipot(p.x - at.ox, p.y - at.oy) < L * 1.3 || at.h.some(h => hipot(p.x - h.x, p.y - h.y) < L * 0.6)) { this.arr = { m, dx: m.x - p.x, dy: m.y - p.y }; m.arrastrada = true; return; } }
+  },
+  pointermove(p) { if (this.arr) { this.arr.m.x = clamp(p.x + this.arr.dx, 60, 940); this.arr.m.y = clamp(p.y + this.arr.dy, 60, 690); } },
+  pointerup() { if (this.arr) { this.arr.m.arrastrada = false; this.arr = null; } },
+  update(dt) {
+    this.sim.paso(dt);
+    const hay = this.sim.enlaces.length > 0;
+    this.cartelHB.style.opacity = hay ? 1 : 0;
+  },
+  draw(c) {
+    this.sim.dibujar(c, { mol: { delta: true, letras: true } });
+    // etiquetas A / B
+    c.save(); c.fillStyle = CFG.COL_SUAVE; c.font = 'bold 26px sans-serif'; c.textAlign = 'center';
+    this.sim.mols.forEach((m, i) => c.fillText('molécula ' + 'AB'[i], m.x, m.y - CFG.L_PAR * 1.5));
+    c.restore();
+    // --- comparación de fuerza ---
+    const x = 1040, y = 120, w = 500;
+    c.save(); c.fillStyle = 'rgba(255,255,255,0.03)'; c.fillRect(x - 20, y - 60, w + 40, 390);
+    c.strokeStyle = CFG.COL_CAJA; c.lineWidth = 3; c.strokeRect(x - 20, y - 60, w + 40, 390);
+    c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 26px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'top';
+    c.fillText('¿Cuánta fuerza hace falta para separarlos?', x, y - 44);
+    c.font = '24px sans-serif'; c.fillText('Enlace covalente O–H (dentro de la molécula)', x, y + 10);
+    c.fillStyle = CFG.COL_COV; c.fillRect(x, y + 48, w, 44);
+    c.fillStyle = CFG.COL_TEXTO; c.font = '24px sans-serif'; c.fillText('Puente de hidrógeno (entre moléculas)', x, y + 130);
+    const hay = this.sim.enlaces.length > 0;
+    c.fillStyle = CFG.COL_HB; c.globalAlpha = hay ? 1 : 0.45; c.fillRect(x, y + 168, w * 0.05, 44); c.globalAlpha = 1;
+    c.fillStyle = CFG.COL_HB; c.font = 'bold 24px sans-serif'; c.fillText('≈ 20 veces más débil', x + w * 0.05 + 16, y + 176);
+    c.fillStyle = CFG.COL_SUAVE; c.font = '22px sans-serif';
+    textoAjustado(c, 'Por eso el puente se arma y se desarma fácil; el enlace covalente no.', x, y + 250, w, 28);
+    c.restore();
+  }
+};
+
+/* ============================================================
+   ESCENA 4 – MUCHAS MOLÉCULAS Y LA TEMPERATURA
+   ============================================================ */
+const escena4 = {
+  titulo: 'Muchas moléculas y la temperatura',
+  enter(root) {
+    this.root = root;
+    this.sim = new Sim({ caja: { x: 40, y: 20, w: 560, h: 560 }, T: 20 });
+    this.graf = new Grafico(-20, 120, 5);
+    this.areas = { solido: null, liquido: null, gas: null };
+    this.termo = crearTermometro(root, 40, 600, 560, -20, 120, [-20, 0, 100, 120], 20, T => { this.sim.T = T; });
+    this.hint = el('div', 'cartel abs linea-observar'); this.hint.style.cssText = 'left:640px;top:20px;width:920px;display:none';
+    this.hint.innerHTML = '<b>OBSERVAR:</b> bajá la temperatura de 120 °C a −20 °C. Mirá el espacio que ocupan y los huecos.';
+    root.appendChild(this.hint);
+    this.bConc = botonConclusion(root, 'En el hielo, los puentes arman una red con huecos: la misma cantidad de agua ocupa MÁS lugar. Por eso el hielo es menos denso que el agua líquida y flota.', 1240, 660);
+    this.bConc.style.display = 'none';
+    tarjetaPredecir(root, {
+      pregunta: '¿Por qué el hielo flota en el agua?',
+      opciones: ['El hielo pesa más porque está más frío.', 'En el hielo las moléculas quedan más separadas: ocupa más lugar.', 'El hielo flota porque tiene aire adentro.']
+    }, () => { this.hint.style.display = 'block'; this.bConc.style.display = 'block'; });
+  },
+  update(dt) {
+    this.sim.paso(dt);
+    const est = this.sim.estado();
+    if (this.sim.tiempo % 1 < dt / 60 * 1.01) this.graf.registrar(this.sim.T, this.sim.enlaces.length / this.sim.n);
+    // registrar el área del estado actual (cuando está lejos de la transición)
+    const lejos = est === 'liquido' ? (this.sim.T > 5 && this.sim.T < 60) : est === 'solido' ? this.sim.T < -8 : this.sim.T > 108;
+    if (lejos) { const a = Sim.areaUnidades(this.sim.envolvente()); this.areas[est] = this.areas[est] == null ? a : lerp(this.areas[est], a, 0.05); }
+  },
+  draw(c) {
+    const s = this.sim;
+    s.dibujar(c, { envolvente: true });
+    const est = s.estado(), [nombre, color, icono] = ESTADOS[est];
+    c.save(); c.textBaseline = 'top'; c.textAlign = 'left';
+    // estado y contador
+    const x = 640, y = this.hint.style.display === 'none' ? 30 : 140;
+    c.fillStyle = color; c.font = '800 48px sans-serif'; c.fillText(icono + ' ' + nombre, x, y);
+    c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 38px sans-serif'; c.fillText('Puentes de hidrógeno: ', x, y + 70);
+    c.fillStyle = CFG.COL_HB; c.font = 'bold 52px sans-serif'; c.fillText(String(s.enlaces.length), x + 440, y + 58);
+    c.fillStyle = CFG.COL_SUAVE; c.font = '24px sans-serif';
+    c.fillText(est === 'solido' ? 'Red ordenada con huecos. Las moléculas vibran en su lugar.' : est === 'liquido' ? 'Los puentes se arman y se rompen todo el tiempo. Moléculas más juntas.' : 'Moléculas sueltas y rápidas, casi sin puentes. Siguen siendo H₂O.', x, y + 130);
+    // espacio que ocupan: barras
+    const bx = 640, by = 330, bw = 440;
+    c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 26px sans-serif'; c.fillText('📐 Espacio que ocupan', bx, by); c.fillStyle = CFG.COL_SUAVE; c.font = '22px sans-serif'; c.fillText('(la misma cantidad de agua en cada estado)', bx, by + 34);
+    const maxA = Sim.areaUnidades({ w: s.caja.w, h: s.caja.h });
+    [['solido', 'Hielo'], ['liquido', 'Líquido'], ['gas', 'Gas']].forEach(([k, lab], i) => {
+      const yy = by + 74 + i * 54, v = this.areas[k];
+      c.fillStyle = est === k ? CFG.COL_TEXTO : CFG.COL_SUAVE; c.font = (est === k ? 'bold ' : '') + '24px sans-serif'; c.fillText(lab, bx, yy + 8);
+      c.fillStyle = 'rgba(255,255,255,0.06)'; c.fillRect(bx + 110, yy, bw - 110, 38);
+      if (v != null) { c.fillStyle = ESTADOS[k][1]; c.fillRect(bx + 110, yy, (bw - 110) * clamp(v / maxA, 0.02, 1), 38); c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 24px sans-serif'; c.fillText(Math.round(v), bx + 120 + (bw - 110) * clamp(v / maxA, 0.02, 1), yy + 6); }
+      else { c.fillStyle = CFG.COL_SUAVE; c.font = '22px sans-serif'; c.fillText('todavía no medido', bx + 120, yy + 8); }
+    });
+    if (this.areas.solido != null && this.areas.liquido != null) {
+      c.fillStyle = CFG.COL_AREA; c.font = 'bold 24px sans-serif';
+      textoAjustado(c, this.areas.solido > this.areas.liquido ? '→ El hielo ocupa MÁS lugar que el líquido: es menos denso y flota.' : '→ Seguí enfriando/calentando para comparar.', bx, by + 246, bw, 30);
+    }
+    // gráfico
+    this.graf.dibujar(c, 1120, 330, 440, 290, s.T, s.enlaces.length / s.n);
+    c.restore();
+  }
+};
+
+/* ============================================================
+   ESCENA 5 – ¿Y SI NO HUBIERA PUENTES?
+   ============================================================ */
+const escena5 = {
+  titulo: '¿Y si no hubiera puentes?',
+  enter(root) {
+    this.root = root;
+    const T0 = -120;
+    this.simA = new Sim({ caja: { x: 40, y: 140, w: 480, h: 420 }, T: T0, puentes: true });
+    this.simB = new Sim({ caja: { x: 560, y: 140, w: 480, h: 420 }, T: T0, puentes: false });
+    this.termo = crearTermometro(root, 40, 585, 1000, -150, 120, [-150, -80, 0, 100, 120], T0, T => { this.simA.T = T; this.simB.T = T; });
+    // interruptor de puentes (caja derecha)
+    const sw = el('div', 'switch abs'); sw.style.cssText = 'left:1080px;top:230px';
+    sw.innerHTML = '<span class="pista"></span><span>Puentes en la caja derecha: <b>APAGADOS</b></span>';
+    sw.onclick = () => { this.simB.puentes = !this.simB.puentes; sw.classList.toggle('on', this.simB.puentes); sw.querySelector('b').textContent = this.simB.puentes ? 'ENCENDIDOS' : 'APAGADOS'; if (!this.simB.puentes) { this.simB.enlaces = []; this.simB.mols.forEach(m => { m.hb = [false, false]; m.nAcep = 0; }); } };
+    root.appendChild(sw);
+    this.hint = el('div', 'cartel abs linea-observar'); this.hint.style.cssText = 'left:40px;top:4px;width:1000px;display:none;padding:8px 20px';
+    this.hint.innerHTML = '<b>OBSERVAR:</b> calentá las dos cajas a la vez. ¿Cuál se hace gas primero? ¿Alguna molécula se rompe?';
+    root.appendChild(this.hint);
+    this.bConc = botonConclusion(root, 'Al hervir se rompen los <u>puentes</u>, no las moléculas: siguen siendo H₂O enteras. Los puentes mantienen juntas a las moléculas y hay que darles mucha energía para separarlas: por eso el agua hierve a 100 °C.', 1080, 560);
+    this.bConc.style.display = 'none';
+    const bCierre = el('button', 'abs', '🧠 Para pensar'); bCierre.style.cssText = 'left:1080px;top:640px;font-size:26px';
+    bCierre.onclick = () => tarjetaConclusion(root, '<b>¿En qué nivel pensamos en cada escena?</b><br>• Lo que vimos: el hielo flota, la pava hierve.<br>• Lo que imaginamos: moléculas, puentes que se arman y se rompen.<br>• Cómo lo escribimos: H₂O, δ+, δ−, línea sólida y línea punteada.');
+    root.appendChild(bCierre);
+    tarjetaPredecir(root, {
+      pregunta: '¿Qué pasa con las moléculas cuando el agua hierve?',
+      opciones: ['Cada molécula se rompe en H y O.', 'Las moléculas se separan unas de otras, pero siguen enteras.', 'Las moléculas dejan de moverse.']
+    }, () => { this.hint.style.display = 'block'; this.bConc.style.display = 'block'; });
+  },
+  update(dt) { this.simA.paso(dt); this.simB.paso(dt); },
+  draw(c) {
+    c.save(); c.textBaseline = 'top'; c.textAlign = 'center'; c.font = 'bold 28px sans-serif';
+    for (const [s, lab] of [[this.simA, 'CON puentes de hidrógeno'], [this.simB, this.simB.puentes ? 'CON puentes de hidrógeno' : 'SIN puentes de hidrógeno']]) {
+      s.dibujar(c, { envolvente: false });
+      c.fillStyle = s.puentes ? CFG.COL_HB : CFG.COL_GAS; c.fillText(lab, s.caja.x + s.caja.w / 2, s.caja.y - 34);
+    }
+    // panel derecho: estado de cada caja
+    c.textAlign = 'left';
+    [[this.simA, 'Izquierda', 70], [this.simB, 'Derecha', 150]].forEach(([s, lab, y]) => {
+      const [nombre, color, icono] = ESTADOS[s.estado()];
+      c.fillStyle = CFG.COL_SUAVE; c.font = '24px sans-serif'; c.fillText(lab + ':', 1080, y + 12);
+      c.fillStyle = color; c.font = '800 40px sans-serif'; c.fillText(icono + ' ' + nombre, 1200, y);
+      c.fillStyle = CFG.COL_HB; c.font = 'bold 24px sans-serif'; c.fillText('Puentes: ' + s.enlaces.length, 1200, y + 46);
+    });
+    c.fillStyle = CFG.COL_SUAVE; c.font = '24px sans-serif';
+    textoAjustado(c, 'Las dos cajas tienen la misma temperatura: sus moléculas se mueven igual de rápido. La diferencia es qué las mantiene juntas.', 1080, 300, 480, 32);
+    c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 24px sans-serif';
+    textoAjustado(c, 'Sin puentes, el agua sería gas a ≈ −80 °C. Con puentes, hierve a 100 °C.', 1080, 420, 480, 32);
+    c.restore();
+  }
+};
+
+/* ============================================================
+   NAVEGACIÓN Y BUCLE PRINCIPAL
+   ============================================================ */
+const ESCENAS = [escena1, escena2, escena3, escena4, escena5];
+let actual = -1, escena = null;
+const info = document.getElementById('escenaInfo'), puntos = document.getElementById('puntos');
+ESCENAS.forEach(() => puntos.appendChild(el('span')));
+
+function irEscena(i) {
+  i = clamp(i, 0, ESCENAS.length - 1); if (i === actual) return;
+  if (escena && escena.exit) escena.exit();
+  overlay.innerHTML = '';
+  actual = i; escena = ESCENAS[i];
+  escena.enter(overlay);
+  info.innerHTML = `Escena <b>${i + 1}</b> de ${ESCENAS.length}: <b>${escena.titulo}</b>`;
+  puntos.querySelectorAll('span').forEach((s, k) => s.classList.toggle('activo', k === i));
+  document.getElementById('btnPrev').disabled = i === 0; document.getElementById('btnNext').disabled = i === ESCENAS.length - 1;
+}
+document.getElementById('btnPrev').onclick = () => irEscena(actual - 1);
+document.getElementById('btnNext').onclick = () => irEscena(actual + 1);
+const btnPausa = document.getElementById('btnPausa');
+function togglePausa() { pausado = !pausado; btnPausa.textContent = pausado ? '▶ Seguir' : '⏸ Pausa'; btnPausa.classList.toggle('activo', pausado); document.getElementById('pausaAviso').classList.toggle('visible', pausado); }
+btnPausa.onclick = togglePausa;
+document.getElementById('btnFull').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
+const glos = document.getElementById('glosario');
+document.getElementById('btnGlos').onclick = () => glos.classList.toggle('abierto');
+document.getElementById('btnGlosCerrar').onclick = () => glos.classList.remove('abierto');
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') irEscena(actual + 1); else if (e.key === 'ArrowLeft') irEscena(actual - 1);
+  else if (e.key === ' ') { e.preventDefault(); togglePausa(); } else if (e.key.toLowerCase() === 'g') glos.classList.toggle('abierto');
+});
+// puntero sobre el lienzo (mouse / dedo)
+lienzo.addEventListener('pointerdown', e => { lienzo.setPointerCapture(e.pointerId); escena.pointerdown && escena.pointerdown(puntero(e)); });
+lienzo.addEventListener('pointermove', e => escena.pointermove && escena.pointermove(puntero(e)));
+lienzo.addEventListener('pointerup', e => escena.pointerup && escena.pointerup(puntero(e)));
+lienzo.addEventListener('pointercancel', e => escena.pointerup && escena.pointerup(puntero(e)));
+
+let tPrev = performance.now();
+function cuadro(t) {
+  const dt = clamp((t - tPrev) / (1000 / 60), 0, 3); tPrev = t;   // en "cuadros" de 60 fps
+  if (!pausado && escena.update) escena.update(dt);
+  ctx.setTransform(escalaTotal, 0, 0, escalaTotal, 0, 0);
+  ctx.clearRect(0, 0, CFG.W, CFG.H_MAIN);
+  escena.draw(ctx);
+  requestAnimationFrame(cuadro);
+}
+irEscena(0);
+requestAnimationFrame(cuadro);
+// Para las pruebas automáticas
+window.__app = { CFG, Sim, ESCENAS, irEscena, get escena() { return escena; }, Molecula };
+</script>
+</body>
+</html>
