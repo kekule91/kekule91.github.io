@@ -168,10 +168,11 @@ const CFG = {
   W: 1600, H_MAIN: 750,            // tamaño lógico del lienzo
   N_MOL: 48,                       // moléculas en la caja (escenas 4 y 5)
   L_SIM: 16,                       // longitud O–H en la simulación de muchas moléculas
-  L_PAR: 60,                       // longitud O–H en la escena de dos moléculas
-  L_MOL: 150,                      // longitud O–H en la escena de una molécula
+  L_PAR: 72,                       // longitud O–H en la escena de dos moléculas
+  L_MOL: 190,                      // longitud O–H en la escena de una molécula
   ANG_HOH: 104.5 * Math.PI / 180,  // ángulo H–O–H (geometría FIJA: nunca cambia)
   R_O: 0.62, R_H: 0.36,            // radios de los átomos (× L)
+  ESC_VARILLAS: 0.58,              // escenas 2 y 3: átomos más chicos para que se vea el enlace entre ellos
   ANCHO_COV: 0.28,                 // grosor de la línea sólida (× L)
   // --- puente de hidrógeno (todo × L) ---
   REST_HB: 1.9,                    // distancia H···O de equilibrio
@@ -242,10 +243,10 @@ class Molecula {
   }
 }
 
-/** Dibuja una molécula. opts: {delta, letras, nube(0..1), resaltarCov, alpha} */
+/** Dibuja una molécula. opts: {delta, letras, nube(0..1), resaltarCov, alpha, escala (tamaño de los átomos)} */
 function dibujarMolecula(ctx, m, L, opts = {}) {
-  const at = m.atomos(L, opts.ang);
-  const rO = CFG.R_O * L, rH = CFG.R_H * L;
+  const at = m.atomos(L, opts.ang), esc = opts.escala || 1;
+  const rO = CFG.R_O * L * esc, rH = CFG.R_H * L * esc;
   ctx.save();
   if (opts.alpha != null) ctx.globalAlpha = opts.alpha;
   // Nube de electrones corrida hacia el O (escena 2)
@@ -255,9 +256,10 @@ function dibujarMolecula(ctx, m, L, opts = {}) {
       // elipse que va del H al O, desplazada hacia el O según t
       const cx = lerp((h.x + at.ox) / 2, lerp(at.ox, h.x, 0.32), t);
       const cy = lerp((h.y + at.oy) / 2, lerp(at.oy, h.y, 0.32), t);
-      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, L * 0.9);
+      const rn = L * 0.9 * esc;   // la nube no envuelve a toda la molécula
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rn);
       g.addColorStop(0, 'rgba(79,141,255,0.55)'); g.addColorStop(1, 'rgba(79,141,255,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, L * 0.9, 0, TAU); ctx.fill();
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, rn, 0, TAU); ctx.fill();
     }
   }
   // Halos de carga parcial
@@ -274,7 +276,7 @@ function dibujarMolecula(ctx, m, L, opts = {}) {
   // Enlaces covalentes: LÍNEA SÓLIDA gruesa (siempre)
   ctx.lineCap = 'round';
   ctx.strokeStyle = opts.resaltarCov ? CFG.COL_AREA : CFG.COL_COV;
-  ctx.lineWidth = CFG.ANCHO_COV * L * (opts.resaltarCov ? 1.5 : 1);
+  ctx.lineWidth = CFG.ANCHO_COV * L * Math.sqrt(esc) * (opts.resaltarCov ? 1.5 : 1);
   for (const h of at.h) { ctx.beginPath(); ctx.moveTo(at.ox, at.oy); ctx.lineTo(h.x, h.y); ctx.stroke(); }
   // Oxígeno
   ctx.fillStyle = CFG.COL_O; ctx.strokeStyle = CFG.COL_O_BORDE; ctx.lineWidth = Math.max(1.5, L * 0.06);
@@ -285,8 +287,8 @@ function dibujarMolecula(ctx, m, L, opts = {}) {
   // Letras
   if (opts.letras) {
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.round(L * 0.55)}px sans-serif`; ctx.fillText('O', at.ox, at.oy + L * 0.02);
-    ctx.fillStyle = '#222'; ctx.font = `bold ${Math.round(L * 0.34)}px sans-serif`;
+    ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.round(rO * 0.9)}px sans-serif`; ctx.fillText('O', at.ox, at.oy + L * 0.02);
+    ctx.fillStyle = '#222'; ctx.font = `bold ${Math.round(rH * 0.95)}px sans-serif`;
     for (const h of at.h) ctx.fillText('H', h.x, h.y + L * 0.01);
   }
   // Etiquetas δ
@@ -323,24 +325,41 @@ function dibujarPuente(ctx, hx, hy, ox, oy, L, edad, tiempo, grosor = 1) {
 }
 
 /** Puente desde el borde del H hasta el borde del O (así no queda tapado por los átomos). */
-function dibujarPuenteAtomos(ctx, H, ox, oy, L, edad, tiempo, grosor = 1) {
+function dibujarPuenteAtomos(ctx, H, ox, oy, L, edad, tiempo, grosor = 1, esc = 1) {
   const dx = ox - H.x, dy = oy - H.y, d = hipot(dx, dy) || 1, ux = dx / d, uy = dy / d;
-  const rH = CFG.R_H * L, rO = CFG.R_O * L;
+  const rH = CFG.R_H * L * esc, rO = CFG.R_O * L * esc;
   if (d <= rH + rO + 2) return;
   dibujarPuente(ctx, H.x + ux * rH, H.y + uy * rH, ox - ux * rO, oy - uy * rO, L, edad, tiempo, grosor);
 }
 
 /** Flecha de dipolo (convención de química): apunta al lado δ− y lleva una cruz "+" en la cola. */
-function flechaDipolo(c, x0, y0, x1, y1, color, ancho) {
+function flechaDipolo(c, x0, y0, x1, y1, color, ancho, cruz = true) {
   const d = hipot(x1 - x0, y1 - y0); if (d < ancho * 5) return;
   const ux = (x1 - x0) / d, uy = (y1 - y0) / d, nx = -uy, ny = ux, cab = ancho * 3.2;
   c.save(); c.strokeStyle = color; c.fillStyle = color; c.lineWidth = ancho; c.lineCap = 'round';
   c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - ux * cab, y1 - uy * cab); c.stroke();
   c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - ux * cab + nx * cab * 0.7, y1 - uy * cab + ny * cab * 0.7);
   c.lineTo(x1 - ux * cab - nx * cab * 0.7, y1 - uy * cab - ny * cab * 0.7); c.closePath(); c.fill();
-  const cx = x0 + ux * ancho * 3, cy = y0 + uy * ancho * 3, sz = ancho * 2.2;   // cruz del extremo +
-  c.beginPath(); c.moveTo(cx + nx * sz, cy + ny * sz); c.lineTo(cx - nx * sz, cy - ny * sz); c.stroke();
+  if (cruz) {   // cruz del extremo +
+    const cx = x0 + ux * ancho * 3, cy = y0 + uy * ancho * 3, sz = ancho * 2.2;
+    c.beginPath(); c.moveTo(cx + nx * sz, cy + ny * sz); c.lineTo(cx - nx * sz, cy - ny * sz); c.stroke();
+  }
   c.restore();
+}
+
+/** Una flecha al costado de cada enlace O–H, por fuera de la V, que va del H hacia el O sin tocar los átomos.
+ *  Devuelve el punto medio de cada flecha (para poner un rótulo). */
+function flechasEnlaces(c, m, at, L, color, ancho, cruz) {
+  const bx = Math.cos(m.a), by = Math.sin(m.a), medios = [];
+  for (const h of at.h) {
+    const ux = Math.cos(h.ang), uy = Math.sin(h.ang);
+    let nx = -uy, ny = ux; if (nx * bx + ny * by > 0) { nx = -nx; ny = -ny; }   // hacia afuera de la V
+    const off = L * 0.42;
+    flechaDipolo(c, at.ox + ux * L * 0.8 + nx * off, at.oy + uy * L * 0.8 + ny * off,
+                    at.ox + ux * L * 0.25 + nx * off, at.oy + uy * L * 0.25 + ny * off, color, ancho, cruz);
+    medios.push({ x: at.ox + ux * L * 0.52 + nx * (off + 34), y: at.oy + uy * L * 0.52 + ny * (off + 34) });
+  }
+  return medios;
 }
 
 /* ============================================================
@@ -647,7 +666,7 @@ class Sim {
     for (const e of this.enlaces) {
       const H = atoms[e.i].h[e.k], B = atoms[e.j];
       const g = opts.marcada != null && (e.i === opts.marcada || e.j === opts.marcada) ? 1.9 : 1;
-      dibujarPuenteAtomos(ctx, H, B.ox, B.oy, L, this.tiempo - e.t0, this.tiempo, g);
+      dibujarPuenteAtomos(ctx, H, B.ox, B.oy, L, this.tiempo - e.t0, this.tiempo, g, molOpts.escala || 1);
     }
     // envolvente
     if (opts.envolvente) {
@@ -850,7 +869,7 @@ const escena2 = {
   ],
   enter(root) {
     this.paso = 0; this.nube = 0; this.t = 0; this.recta = false; this.ang = CFG.ANG_HOH;
-    this.mol = new Molecula(480, 400, -Math.PI / 2);
+    this.mol = new Molecula(480, 380, -Math.PI / 2);
     this.cartel = el('div', 'cartel destacado abs'); this.cartel.style.cssText = 'left:1000px;top:40px;width:560px;min-height:170px;font-size:30px';
     root.appendChild(this.cartel);
     // Botón para comparar con una molécula imaginaria recta (solo en la idea del dipolo)
@@ -881,18 +900,12 @@ const escena2 = {
   /** Momento dipolar: flechas de cada enlace y flecha resultante (convención de química: apunta al δ−). */
   dibujarDipolo(c, at, L) {
     const m = this.mol, b = { x: Math.cos(m.a), y: Math.sin(m.a) };   // b: del O hacia el lado de los H
-    // 1) una flecha por enlace, al costado de cada enlace, del H hacia el O
-    for (const h of at.h) {
-      const ux = Math.cos(h.ang), uy = Math.sin(h.ang);
-      let nx = -uy, ny = ux; if (nx * b.x + ny * b.y > 0) { nx = -nx; ny = -ny; }   // hacia afuera de la V
-      const off = L * 0.5;
-      flechaDipolo(c, at.ox + ux * L * 0.95 + nx * off, at.oy + uy * L * 0.95 + ny * off,
-                      at.ox + ux * L * 0.15 + nx * off, at.oy + uy * L * 0.15 + ny * off, CFG.COL_AREA, 5);
-    }
+    // 1) una flecha por enlace, paralela al enlace y por fuera de la V: del H (δ+) hacia el O (δ−)
+    flechasEnlaces(c, m, at, L, CFG.COL_AREA, 6, true);
     // 2) flecha resultante: suma de las dos (se achica a cero si la molécula fuera recta)
     const k = Math.cos(this.ang / 2) / Math.cos(CFG.ANG_HOH / 2);
     const px = -b.y, py = b.x;                         // perpendicular, para dibujarla al costado
-    const cx = m.x + px * L * 2.3, cy = m.y + py * L * 2.3, mitad = L * 0.85 * k;
+    const cx = m.x + px * L * 2.0, cy = m.y + py * L * 2.0, mitad = L * 0.85 * k;
     c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
     if (k > 0.08) {
       flechaDipolo(c, cx + b.x * mitad, cy + b.y * mitad, cx - b.x * mitad, cy - b.y * mitad, CFG.COL_AREA, 11);
@@ -920,23 +933,18 @@ const escena2 = {
       c.fillStyle = color; c.font = 'bold 28px sans-serif'; c.textAlign = 'left'; c.fillText(texto, x + 50, y); c.textAlign = 'center';
     };
     c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
-    polo(L * 1.55, CFG.COL_DPOS, '+', 'polo positivo');
-    polo(-L * 1.75, CFG.COL_DNEG, '−', 'polo negativo');
+    polo(L * 1.4, CFG.COL_DPOS, '+', 'polo positivo');
+    polo(-L * 1.6, CFG.COL_DNEG, '−', 'polo negativo');
     c.restore();
   },
   draw(c) {
     const m = this.mol, L = CFG.L_MOL;
-    dibujarMolecula(c, m, L, { letras: true, nube: this.nube, delta: this.nube > 0.6, ang: this.ang, resaltarCov: this.paso === 1 && Math.sin(this.t * 6) > 0 });
+    dibujarMolecula(c, m, L, { escala: CFG.ESC_VARILLAS, letras: true, nube: this.nube, delta: this.nube > 0.6, ang: this.ang, resaltarCov: this.paso === 1 && Math.sin(this.t * 6) > 0 });
     const at = m.atomos(L, this.ang);
     if (this.paso === 2) {   // flechas de "tirón": los electrones se acercan al O
-      c.save(); c.strokeStyle = CFG.COL_DNEG; c.fillStyle = CFG.COL_DNEG; c.lineWidth = 8; c.lineCap = 'round';
-      for (const h of at.h) {
-        const ux = at.ox - h.x, uy = at.oy - h.y, d = hipot(ux, uy); const nx = ux / d, ny = uy / d;
-        const x0 = h.x + nx * L * 0.42 + ny * L * 0.5, y0 = h.y + ny * L * 0.42 - nx * L * 0.5;
-        const x1 = x0 + nx * L * 0.35, y1 = y0 + ny * L * 0.35;
-        c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
-        c.beginPath(); c.moveTo(x1 + nx * 16, y1 + ny * 16); c.lineTo(x1 - ny * 12, y1 + nx * 12); c.lineTo(x1 + ny * 12, y1 - nx * 12); c.fill();
-      }
+      const medios = flechasEnlaces(c, m, at, L, CFG.COL_DNEG, 7, false);
+      c.save(); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = CFG.COL_DNEG; c.font = 'bold 30px sans-serif';
+      for (const p of medios) c.fillText('e⁻', p.x, p.y);
       c.fillStyle = CFG.COL_SUAVE; c.font = '24px sans-serif'; c.textAlign = 'center'; c.fillText('los electrones pasan más tiempo cerca del O', m.x, m.y + L * 1.55);
       c.restore();
     }
@@ -989,11 +997,11 @@ const escena3 = {
     this.cartelHB.style.opacity = hay ? 1 : 0;
   },
   draw(c) {
-    this.sim.dibujar(c, { mol: { delta: true, letras: true } });
+    this.sim.dibujar(c, { mol: { delta: true, letras: true, escala: CFG.ESC_VARILLAS } });
     // etiquetas A / B
     c.save(); c.fillStyle = CFG.COL_SUAVE; c.font = 'bold 26px sans-serif'; c.textAlign = 'center';
     c.textBaseline = 'middle';
-    this.sim.mols.forEach((m, i) => { const b = m.a + Math.PI, d = CFG.L_PAR * 1.9 + Math.abs(Math.cos(b)) * 70; c.fillText('molécula ' + 'AB'[i], m.x + Math.cos(b) * d, m.y + Math.sin(b) * d); });
+    this.sim.mols.forEach((m, i) => { const b = m.a + Math.PI, d = CFG.L_PAR * 1.9 + Math.abs(Math.cos(b)) * 70; c.fillText('molécula ' + 'AB'[i], clamp(m.x + Math.cos(b) * d, 90, 900), clamp(m.y + Math.sin(b) * d, 230, 600)); });
     c.restore();
     // --- comparación de fuerza ---
     const x = 1040, y = 120, w = 500;
