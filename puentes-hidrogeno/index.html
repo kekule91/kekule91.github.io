@@ -137,6 +137,7 @@ input[type=range]::-moz-range-thumb{width:44px;height:44px;border-radius:50%;bac
         <dt>Átomo</dt><dd>Cada una de las partes que forman la molécula. Aquí: oxígeno (O) e hidrógeno (H).</dd>
         <dt>Enlace covalente <span class="muestra solida"></span></dt><dd>Unión muy fuerte entre átomos DENTRO de una molécula. Línea sólida.</dd>
         <dt>Carga parcial (δ)</dt><dd>Un "poquito" de carga: δ− donde los electrones pasan más tiempo (O), δ+ donde menos (H).</dd>
+        <dt>Dipolo (momento dipolar)</dt><dd>Molécula con un lado δ− y otro δ+. Se dibuja con una flecha que apunta al lado δ−.</dd>
         <dt>Puente de hidrógeno <span class="muestra punteada"></span></dt><dd>Atracción débil ENTRE moléculas: un H (δ+) con un O (δ−) de otra. Línea punteada.</dd>
       </dl>
       <p class="chico" style="margin-top:26px">Modelo simplificado en 2D. En el hielo real la red es tridimensional.</p>
@@ -186,7 +187,7 @@ const CFG = {
   REP_HH: 1.0, K_REP_H: 0.03,      // repulsión blanda entre hidrógenos de moléculas distintas
   MASA: 1, INERCIA_F: 0.8,         // inercia = MASA·(INERCIA_F·L)²
   K_PIN: 0.02, K_PIN_ROT: 0.03, F_PIN_MAX: 0.6, // resorte hacia el sitio de la red (sólido)
-  GRAV: 0.07,                      // gravedad suave: el líquido se junta abajo
+  GRAV: 0.11,                      // gravedad suave: el líquido se junta abajo
   // --- temperatura → rapidez objetivo (px/cuadro) ---
   T_LO: -150, T_HI: 120,           // rango total de temperaturas de la app
   V_MIN: 0.15, V_MAX: 3.4, V_EXP: 2.0,
@@ -196,7 +197,9 @@ const CFG = {
   TM_CON: 0, TB_CON: 100,          // con puentes: funde a 0, hierve a 100
   TM_SIN: -100, TB_SIN: -80,       // sin puentes: hierve mucho antes (≈ −80)
   MELT_RANGE: 10, BOIL_RANGE: 10,  // ancho de la transición (°C)
-  P_BREAK_MAX: 0.03,               // prob./cuadro de rotura térmica cerca de la ebullición
+  P_BREAK_MAX: 0.03,               // prob./cuadro de rotura térmica extra cerca de la ebullición
+  P_BREAK_LIQ: 0.012,              // prob./cuadro base de que un puente se rompa en el LÍQUIDO (en el hielo: 0)
+  P_FORM_LIQ: 0.15,                // prob./cuadro de que se forme un puente posible en el líquido (en el hielo: 1)
   // --- colores ---
   COL_O: '#ff5a4e', COL_O_BORDE: '#8f1f16', COL_H: '#f5f5f5', COL_H_BORDE: '#8a8a8a',
   COL_COV: '#e8e8e8', COL_HB: '#5ad1ff', COL_DNEG: '#4f8dff', COL_DPOS: '#ff9f43',
@@ -229,10 +232,10 @@ function rapidezObjetivo(T) {
 class Molecula {
   constructor(x, y, a) { this.x = x; this.y = y; this.a = a; this.vx = 0; this.vy = 0; this.va = 0; this.nAcep = 0; this.hb = [false, false]; this.sitio = null; }
   /** Posiciones de los átomos para una longitud L. */
-  atomos(L) {
+  atomos(L, angHOH = CFG.ANG_HOH) {
     const h = [];
     for (let k = 0; k < 2; k++) {
-      const ang = this.a + (k ? CFG.ANG_HOH / 2 : -CFG.ANG_HOH / 2);
+      const ang = this.a + (k ? angHOH / 2 : -angHOH / 2);
       h.push({ x: this.x + L * Math.cos(ang), y: this.y + L * Math.sin(ang), ang });
     }
     return { ox: this.x, oy: this.y, h };
@@ -241,7 +244,7 @@ class Molecula {
 
 /** Dibuja una molécula. opts: {delta, letras, nube(0..1), resaltarCov, alpha} */
 function dibujarMolecula(ctx, m, L, opts = {}) {
-  const at = m.atomos(L);
+  const at = m.atomos(L, opts.ang);
   const rO = CFG.R_O * L, rH = CFG.R_H * L;
   ctx.save();
   if (opts.alpha != null) ctx.globalAlpha = opts.alpha;
@@ -293,27 +296,51 @@ function dibujarMolecula(ctx, m, L, opts = {}) {
     ctx.font = `bold ${fs}px sans-serif`;
     ctx.fillStyle = CFG.COL_DNEG;
     // δ− del lado opuesto a los H
+    // (si dos moléculas están pegadas, no se escribe una etiqueta encima de otra)
+    const usadas = opts.etiquetasUsadas;
+    const poner = (txt, x, y) => { if (usadas) { if (usadas.some(p => hipot(p.x - x, p.y - y) < fs * 1.4)) return; usadas.push({ x, y }); } ctx.fillText(txt, x, y); };
     const back = m.a + Math.PI;
-    ctx.fillText('δ−', at.ox + Math.cos(back) * rO * 1.7, at.oy + Math.sin(back) * rO * 1.7);
+    poner('δ−', at.ox + Math.cos(back) * rO * 1.7, at.oy + Math.sin(back) * rO * 1.7);
     ctx.fillStyle = CFG.COL_DPOS;
-    for (const h of at.h) ctx.fillText('δ+', h.x + Math.cos(h.ang) * rH * 2.3, h.y + Math.sin(h.ang) * rH * 2.3);
+    for (const h of at.h) poner('δ+', h.x + Math.cos(h.ang) * rH * 2.3, h.y + Math.sin(h.ang) * rH * 2.3);
   }
   ctx.restore();
 }
 
 /** Línea punteada celeste de un puente (de H a O). edad en segundos para el titileo. */
-function dibujarPuente(ctx, hx, hy, ox, oy, L, edad, tiempo) {
+function dibujarPuente(ctx, hx, hy, ox, oy, L, edad, tiempo, grosor = 1) {
   ctx.save();
   const nuevo = edad < 1.2;
   const pulso = nuevo ? 0.5 + 0.5 * Math.sin(edad * 18) : 1;
   ctx.globalAlpha = nuevo ? 0.45 + 0.55 * pulso : 0.95;
-  ctx.strokeStyle = CFG.COL_HB; ctx.lineCap = 'round';
-  ctx.lineWidth = Math.max(3, L * 0.2) * (nuevo ? 1 + 0.6 * pulso : 1);
-  ctx.setLineDash([Math.max(5, L * 0.35), Math.max(5, L * 0.3)]);
+  ctx.strokeStyle = CFG.COL_HB; ctx.lineCap = 'butt';
+  ctx.lineWidth = Math.max(3, L * 0.13) * grosor * (nuevo ? 1 + 0.6 * pulso : 1);
+  ctx.setLineDash([Math.max(5, L * 0.14), Math.max(4, L * 0.11)]);   // guiones cortos: siempre se ve punteada
   ctx.lineDashOffset = -tiempo * 25;
   ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(ox, oy); ctx.stroke();
   if (nuevo) { ctx.globalAlpha = 0.25 * pulso; ctx.lineWidth *= 3; ctx.stroke(); }
   ctx.restore();
+}
+
+/** Puente desde el borde del H hasta el borde del O (así no queda tapado por los átomos). */
+function dibujarPuenteAtomos(ctx, H, ox, oy, L, edad, tiempo, grosor = 1) {
+  const dx = ox - H.x, dy = oy - H.y, d = hipot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+  const rH = CFG.R_H * L, rO = CFG.R_O * L;
+  if (d <= rH + rO + 2) return;
+  dibujarPuente(ctx, H.x + ux * rH, H.y + uy * rH, ox - ux * rO, oy - uy * rO, L, edad, tiempo, grosor);
+}
+
+/** Flecha de dipolo (convención de química): apunta al lado δ− y lleva una cruz "+" en la cola. */
+function flechaDipolo(c, x0, y0, x1, y1, color, ancho) {
+  const d = hipot(x1 - x0, y1 - y0); if (d < ancho * 5) return;
+  const ux = (x1 - x0) / d, uy = (y1 - y0) / d, nx = -uy, ny = ux, cab = ancho * 3.2;
+  c.save(); c.strokeStyle = color; c.fillStyle = color; c.lineWidth = ancho; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - ux * cab, y1 - uy * cab); c.stroke();
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - ux * cab + nx * cab * 0.7, y1 - uy * cab + ny * cab * 0.7);
+  c.lineTo(x1 - ux * cab - nx * cab * 0.7, y1 - uy * cab - ny * cab * 0.7); c.closePath(); c.fill();
+  const cx = x0 + ux * ancho * 3, cy = y0 + uy * ancho * 3, sz = ancho * 2.2;   // cruz del extremo +
+  c.beginPath(); c.moveTo(cx + nx * sz, cy + ny * sz); c.lineTo(cx - nx * sz, cy - ny * sz); c.stroke();
+  c.restore();
 }
 
 /* ============================================================
@@ -367,7 +394,7 @@ class Sim {
   constructor(opts) {
     Object.assign(this, { n: CFG.N_MOL, L: CFG.L_SIM, puentes: true, libre: false, T: 20 }, opts);
     this.mols = []; this.enlaces = []; this.tiempo = 0; this.red = null; this.estadoPrev = null;
-    this.huecosAlpha = 0;
+    this.huecosAlpha = 0; this.roturas = [];
     if (!this.libre) this.poblar();
   }
   umbrales() { return this.puentes ? { Tm: CFG.TM_CON, Tb: CFG.TB_CON } : { Tm: CFG.TM_SIN, Tb: CFG.TB_SIN }; }
@@ -533,13 +560,17 @@ class Sim {
     const { Tm, Tb } = this.umbrales();
     const pares = new Set(this.enlaces.map(e => e.i < e.j ? e.i + '-' + e.j : e.j + '-' + e.i));
     // Rotura
-    const pTerm = this.libre ? 0 : (CFG.P_BREAK_MAX * Math.pow(clamp((this.T - Tm) / (Tb - Tm), 0, 1), 2) + 0.3 * fg) * dt;
+    // En el hielo (fs = 1) los puentes no se rompen por agitación; en el líquido sí, y más cuanto más caliente.
+    const fs = this.libre ? 0 : this.factorSolido(), x = clamp((this.T - Tm) / (Tb - Tm), 0, 1);
+    const pTerm = this.libre ? 0 : ((CFG.P_BREAK_LIQ * (1 + x) + CFG.P_BREAK_MAX * x * x) * (1 - fs) + 0.3 * fg) * dt;
+    const pForm = this.libre ? 1 : clamp(lerp(CFG.P_FORM_LIQ, 1, fs) * dt, 0, 1);
+    while (this.roturas.length && this.roturas[0] < this.tiempo - 10) this.roturas.shift();
     for (let n = this.enlaces.length - 1; n >= 0; n--) {
       const e = this.enlaces[n], A = atoms[e.i], B = atoms[e.j], H = A.h[e.k];
       const dx = B.ox - H.x, dy = B.oy - H.y, d = hipot(dx, dy);
       const cos = (Math.cos(H.ang) * dx + Math.sin(H.ang) * dy) / (d + 1e-9);
       if (d > CFG.BREAK_DIST * L || cos < CFG.BREAK_COS || Math.random() < pTerm) {
-        this.enlaces.splice(n, 1);
+        this.enlaces.splice(n, 1); this.roturas.push(this.tiempo);
         mols[e.i].hb[e.k] = false; mols[e.j].nAcep--;
         pares.delete(e.i < e.j ? e.i + '-' + e.j : e.j + '-' + e.i);
       }
@@ -551,6 +582,7 @@ class Sim {
         const A = atoms[i];
         for (let k = 0; k < 2; k++) {
           if (mols[i].hb[k]) continue;              // este H ya tiene su puente
+          if (Math.random() > pForm) continue;      // en el líquido, no todo encuentro forma un puente al instante
           const H = A.h[k];
           let mejor = -1, bd = formD;
           for (let j = 0; j < N; j++) {
@@ -572,12 +604,15 @@ class Sim {
     }
   }
 
-  /** Rectángulo que envuelve a todas las moléculas (con margen). */
+  /** Rectángulo que envuelve a las moléculas (con margen). Ignora las 2 más alejadas de cada lado:
+   *  son moléculas sueltas que saltan del líquido (se están evaporando), no "el agua" en sí. */
   envolvente() {
-    const L = this.L; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-    for (const m of this.mols) { const at = m.atomos(L); for (const p of [{ x: at.ox, y: at.oy }, ...at.h]) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); } }
-    const mg = CFG.R_O * L;
-    return { x: x0 - mg, y: y0 - mg, w: x1 - x0 + 2 * mg, h: y1 - y0 + 2 * mg };
+    const L = this.L, xs = [], ys = [];
+    for (const m of this.mols) { xs.push(m.x); ys.push(m.y); }
+    xs.sort((a, b) => a - b); ys.sort((a, b) => a - b);
+    const k = this.mols.length > 20 ? 2 : 0, n = xs.length - 1 - k;
+    const mg = (1 + CFG.R_H) * L;          // margen: lo que asoman los H alrededor del O
+    return { x: xs[k] - mg, y: ys[k] - mg, w: xs[n] - xs[k] + 2 * mg, h: ys[n] - ys[k] + 2 * mg };
   }
 
   /** Dibuja caja, huecos, moléculas y puentes. */
@@ -599,10 +634,21 @@ class Sim {
       }
       ctx.restore();
     }
-    // puentes (debajo de las moléculas)
     const atoms = this.mols.map(m => m.atomos(L));
-    for (const e of this.enlaces) { const H = atoms[e.i].h[e.k], B = atoms[e.j]; dibujarPuente(ctx, H.x, H.y, B.ox, B.oy, L, this.tiempo - e.t0, this.tiempo); }
-    for (const m of this.mols) dibujarMolecula(ctx, m, L, opts.mol || {});
+    // molécula marcada (escena hielo vs. líquido): círculo amarillo
+    if (opts.marcada != null) {
+      const m = this.mols[opts.marcada];
+      ctx.save(); ctx.fillStyle = 'rgba(255,209,102,0.18)'; ctx.strokeStyle = CFG.COL_AREA; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(m.x, m.y, L * 1.7, 0, TAU); ctx.fill(); ctx.stroke(); ctx.restore();
+    }
+    const molOpts = Object.assign({ etiquetasUsadas: [] }, opts.mol || {});
+    for (const m of this.mols) dibujarMolecula(ctx, m, L, molOpts);
+    // puentes ENCIMA de las moléculas, de borde a borde (así siempre se ven)
+    for (const e of this.enlaces) {
+      const H = atoms[e.i].h[e.k], B = atoms[e.j];
+      const g = opts.marcada != null && (e.i === opts.marcada || e.j === opts.marcada) ? 1.9 : 1;
+      dibujarPuenteAtomos(ctx, H, B.ox, B.oy, L, this.tiempo - e.t0, this.tiempo, g);
+    }
     // envolvente
     if (opts.envolvente) {
       const r = this.envolvente();
@@ -613,6 +659,12 @@ class Sim {
       ctx.restore();
     }
   }
+  /** Promedio de puentes en los que participa cada molécula (cada puente toca a 2 moléculas). */
+  puentesPorMolecula() { return 2 * this.enlaces.length / this.mols.length; }
+  /** Puentes en los que participa la molécula i (los que dona + los que recibe). */
+  puentesDe(i) { let n = 0; for (const e of this.enlaces) if (e.i === i || e.j === i) n++; return n; }
+  /** Cuántos puentes se rompieron en los últimos `seg` segundos. */
+  rotosRecientes(seg) { const t0 = this.tiempo - seg; let n = 0; for (const t of this.roturas) if (t >= t0) n++; return n; }
   static areaUnidades(r) { return Math.round(r.w * r.h / 1000); }
 }
 
@@ -773,8 +825,8 @@ const escena1 = {
       const L = 22;
       const tmp = this.panal.sitios.map(s => new Molecula(s.x, s.y + this.panalDy, s.a));
       // puentes dibujados por geometría (para la ilustración)
-      for (const m of tmp) { const at = m.atomos(L); for (const h of at.h) { let mejor = null, bd = 2.6 * L; for (const o of tmp) { if (o === m) continue; const d = hipot(o.x - h.x, o.y - h.y); if (d < bd) { bd = d; mejor = o; } } if (mejor) dibujarPuente(c, h.x, h.y, mejor.x, mejor.y, L, 9, this.t); } }
       for (const m of tmp) dibujarMolecula(c, m, L, {});
+      for (const m of tmp) { const at = m.atomos(L); for (const h of at.h) { let mejor = null, bd = 2.6 * L; for (const o of tmp) { if (o === m) continue; const d = hipot(o.x - h.x, o.y - h.y); if (d < bd) { bd = d; mejor = o; } } if (mejor) dibujarPuenteAtomos(c, h, mejor.x, mejor.y, L, 9, this.t); } }
       c.restore();
       c.save(); c.strokeStyle = '#ffd166'; c.lineWidth = 14; c.beginPath(); c.arc(lx, ly, r, 0, TAU); c.stroke();
       c.lineCap = 'round'; c.lineWidth = 26; c.beginPath(); c.moveTo(lx + r * 0.72, ly + r * 0.72); c.lineTo(lx + r * 0.72 + 90, ly + r * 0.72 + 90); c.stroke();
@@ -792,14 +844,19 @@ const escena2 = {
   pasos: [
     'Esta es una molécula de <b>agua, H₂O</b>: un oxígeno (O) y dos hidrógenos (H).',
     '<b>Enlace covalente</b>: une los átomos DENTRO de la molécula. Es muy fuerte.',
-    'El oxígeno "tira" de los electrones: queda <b style="color:#4f8dff">δ− (azul)</b>. Los hidrógenos quedan <b style="color:#ff9f43">δ+ (naranja)</b>.<br><span class="chico">A esa fuerza para atraer electrones se la llama <i>electronegatividad</i>.</span>',
-    'La molécula funciona como un <b>imán chiquito</b>: tiene una punta negativa y otra positiva.'
+    'El oxígeno atrae más a los electrones: queda <b style="color:#4f8dff">δ−</b>. Los hidrógenos quedan <b style="color:#ff9f43">δ+</b>.<br><span class="chico">Esa capacidad de atraer electrones se llama <i>electronegatividad</i>. En total, la molécula sigue siendo <b>neutra</b>.</span>',
+    'Por la forma de <b>V</b>, los dos "tirones" se suman: la molécula es un <b>dipolo</b>.<br><span class="chico">La flecha grande es el <b>momento dipolar</b>: apunta al lado δ−. La cruz marca el lado δ+.</span>',
+    'Se parece a un <b>imán chiquito</b>: tiene un polo negativo y otro positivo.<br><span class="chico">Pero no es magnetismo: son cargas eléctricas. Lo + de una molécula atrae lo − de otra.</span>'
   ],
   enter(root) {
-    this.paso = 0; this.nube = 0; this.t = 0;
-    this.mol = new Molecula(560, 400, -Math.PI / 2);
-    this.cartel = el('div', 'cartel destacado abs'); this.cartel.style.cssText = 'left:1000px;top:60px;width:540px;min-height:170px;font-size:30px';
+    this.paso = 0; this.nube = 0; this.t = 0; this.recta = false; this.ang = CFG.ANG_HOH;
+    this.mol = new Molecula(480, 400, -Math.PI / 2);
+    this.cartel = el('div', 'cartel destacado abs'); this.cartel.style.cssText = 'left:1000px;top:40px;width:560px;min-height:170px;font-size:30px';
     root.appendChild(this.cartel);
+    // Botón para comparar con una molécula imaginaria recta (solo en la idea del dipolo)
+    this.bRecta = el('button', 'abs', '📏 ¿Y si fuera recta?'); this.bRecta.style.cssText = 'left:1000px;top:440px;font-size:26px';
+    this.bRecta.onclick = () => { this.recta = !this.recta; this.bRecta.textContent = this.recta ? '↩ Volver a la forma real (V)' : '📏 ¿Y si fuera recta?'; };
+    root.appendChild(this.bRecta);
     const fila = el('div', 'fila abs'); fila.style.cssText = 'left:1000px;top:560px';
     this.bAnt = el('button', '', '◀ Idea anterior'); this.bSig = el('button', 'primario grande', 'Siguiente idea ▶');
     this.bAnt.onclick = () => this.ir(this.paso - 1); this.bSig.onclick = () => this.ir(this.paso + 1);
@@ -812,24 +869,67 @@ const escena2 = {
     this.cartel.innerHTML = this.pasos[this.paso];
     this.bAnt.disabled = this.paso === 0; this.bSig.disabled = this.paso === this.pasos.length - 1;
     this.indic.textContent = `Idea ${this.paso + 1} de ${this.pasos.length}`;
+    if (this.paso !== 3 && this.recta) this.bRecta.onclick();      // al salir de la idea del dipolo, vuelve a la forma real
+    this.bRecta.style.display = this.paso === 3 ? 'block' : 'none';
   },
-  update(dt) { this.t += dt / 60; this.nube += ((this.paso >= 2 ? 1 : 0) - this.nube) * Math.min(1, 0.04 * dt); },
+  update(dt) {
+    this.t += dt / 60;
+    this.nube += ((this.paso >= 2 ? 1 : 0) - this.nube) * Math.min(1, 0.04 * dt);
+    const objetivo = this.recta ? Math.PI : CFG.ANG_HOH;
+    this.ang += (objetivo - this.ang) * Math.min(1, 0.05 * dt);
+  },
+  /** Momento dipolar: flechas de cada enlace y flecha resultante (convención de química: apunta al δ−). */
+  dibujarDipolo(c, at, L) {
+    const m = this.mol, b = { x: Math.cos(m.a), y: Math.sin(m.a) };   // b: del O hacia el lado de los H
+    // 1) una flecha por enlace, al costado de cada enlace, del H hacia el O
+    for (const h of at.h) {
+      const ux = Math.cos(h.ang), uy = Math.sin(h.ang);
+      let nx = -uy, ny = ux; if (nx * b.x + ny * b.y > 0) { nx = -nx; ny = -ny; }   // hacia afuera de la V
+      const off = L * 0.5;
+      flechaDipolo(c, at.ox + ux * L * 0.95 + nx * off, at.oy + uy * L * 0.95 + ny * off,
+                      at.ox + ux * L * 0.15 + nx * off, at.oy + uy * L * 0.15 + ny * off, CFG.COL_AREA, 5);
+    }
+    // 2) flecha resultante: suma de las dos (se achica a cero si la molécula fuera recta)
+    const k = Math.cos(this.ang / 2) / Math.cos(CFG.ANG_HOH / 2);
+    const px = -b.y, py = b.x;                         // perpendicular, para dibujarla al costado
+    const cx = m.x + px * L * 2.3, cy = m.y + py * L * 2.3, mitad = L * 0.85 * k;
+    c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+    if (k > 0.08) {
+      flechaDipolo(c, cx + b.x * mitad, cy + b.y * mitad, cx - b.x * mitad, cy - b.y * mitad, CFG.COL_AREA, 11);
+      c.fillStyle = CFG.COL_DPOS; c.font = 'bold 30px sans-serif'; c.fillText('lado δ+', cx, cy + b.y * (mitad + 34));
+      c.fillStyle = CFG.COL_DNEG; c.fillText('lado δ−', cx, cy - b.y * (mitad + 34));
+    }
+    c.fillStyle = CFG.COL_AREA; c.font = 'bold 24px sans-serif';
+    if (k > 0.08) c.fillText('momento dipolar', cx, cy - b.y * (L * 0.85 + 80));
+    else c.fillText('momento dipolar = 0', cx - 20, cy - L * 0.9);
+    if (this.ang > CFG.ANG_HOH + 0.15) {
+      c.font = 'bold 26px sans-serif'; c.fillStyle = CFG.COL_AREA;
+      c.fillText('Molécula IMAGINARIA: el agua real siempre tiene forma de V.', 500, m.y + L * 1.55);
+      c.fillStyle = CFG.COL_TEXTO; c.font = '24px sans-serif';
+      c.fillText('Si fuera recta, los tirones se cancelarían: no habría dipolo.', 500, m.y + L * 1.55 + 38);
+    }
+    c.restore();
+  },
+  /** Polos del dipolo: positivo (lado de los H) y negativo (lado del O). */
+  dibujarPolos(c, L) {
+    const m = this.mol, b = { x: Math.cos(m.a), y: Math.sin(m.a) };
+    const polo = (d, color, signo, texto) => {
+      const x = m.x + b.x * d, y = m.y + b.y * d;
+      c.fillStyle = color; c.beginPath(); c.arc(x, y, 34, 0, TAU); c.fill();
+      c.fillStyle = '#fff'; c.font = 'bold 48px sans-serif'; c.fillText(signo, x, y + 2);
+      c.fillStyle = color; c.font = 'bold 28px sans-serif'; c.textAlign = 'left'; c.fillText(texto, x + 50, y); c.textAlign = 'center';
+    };
+    c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+    polo(L * 1.55, CFG.COL_DPOS, '+', 'polo positivo');
+    polo(-L * 1.75, CFG.COL_DNEG, '−', 'polo negativo');
+    c.restore();
+  },
   draw(c) {
     const m = this.mol, L = CFG.L_MOL;
-    // imán de fondo (paso 3)
-    if (this.paso === 3) {
-      c.save(); c.translate(m.x, m.y); c.rotate(m.a); c.globalAlpha = 0.9;
-      c.fillStyle = CFG.COL_DNEG; c.beginPath(); c.roundRect(-L * 2.15, -L * 0.42, L * 0.95, L * 0.84, 18); c.fill();
-      c.fillStyle = CFG.COL_DPOS; c.beginPath(); c.roundRect(L * 1.2, -L * 0.42, L * 0.95, L * 0.84, 18); c.fill();
-      c.fillStyle = '#fff'; c.font = 'bold 60px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.save(); c.translate(-L * 1.68, 0); c.rotate(-m.a); c.fillText('−', 0, 0); c.restore();
-      c.save(); c.translate(L * 1.68, 0); c.rotate(-m.a); c.fillText('+', 0, 0); c.restore();
-      c.restore();
-    }
-    dibujarMolecula(c, m, L, { letras: true, nube: this.nube, delta: this.nube > 0.6, resaltarCov: this.paso === 1 && Math.sin(this.t * 6) > 0 });
-    // flechas de "tirón" en el paso 2
-    if (this.paso === 2) {
-      const at = m.atomos(L); c.save(); c.strokeStyle = CFG.COL_DNEG; c.fillStyle = CFG.COL_DNEG; c.lineWidth = 8; c.lineCap = 'round';
+    dibujarMolecula(c, m, L, { letras: true, nube: this.nube, delta: this.nube > 0.6, ang: this.ang, resaltarCov: this.paso === 1 && Math.sin(this.t * 6) > 0 });
+    const at = m.atomos(L, this.ang);
+    if (this.paso === 2) {   // flechas de "tirón": los electrones se acercan al O
+      c.save(); c.strokeStyle = CFG.COL_DNEG; c.fillStyle = CFG.COL_DNEG; c.lineWidth = 8; c.lineCap = 'round';
       for (const h of at.h) {
         const ux = at.ox - h.x, uy = at.oy - h.y, d = hipot(ux, uy); const nx = ux / d, ny = uy / d;
         const x0 = h.x + nx * L * 0.42 + ny * L * 0.5, y0 = h.y + ny * L * 0.42 - nx * L * 0.5;
@@ -840,6 +940,8 @@ const escena2 = {
       c.fillStyle = CFG.COL_SUAVE; c.font = '24px sans-serif'; c.textAlign = 'center'; c.fillText('los electrones pasan más tiempo cerca del O', m.x, m.y + L * 1.55);
       c.restore();
     }
+    if (this.paso === 3) this.dibujarDipolo(c, at, L);
+    if (this.paso === 4) this.dibujarPolos(c, L);
     if (this.paso === 1) {
       c.save(); c.fillStyle = CFG.COL_AREA; c.font = 'bold 26px sans-serif'; c.textAlign = 'center';
       c.fillText('línea sólida = enlace covalente', m.x, m.y + L * 1.55); c.restore();
@@ -890,7 +992,8 @@ const escena3 = {
     this.sim.dibujar(c, { mol: { delta: true, letras: true } });
     // etiquetas A / B
     c.save(); c.fillStyle = CFG.COL_SUAVE; c.font = 'bold 26px sans-serif'; c.textAlign = 'center';
-    this.sim.mols.forEach((m, i) => c.fillText('molécula ' + 'AB'[i], m.x, m.y - CFG.L_PAR * 1.5));
+    c.textBaseline = 'middle';
+    this.sim.mols.forEach((m, i) => { const b = m.a + Math.PI, d = CFG.L_PAR * 1.9 + Math.abs(Math.cos(b)) * 70; c.fillText('molécula ' + 'AB'[i], m.x + Math.cos(b) * d, m.y + Math.sin(b) * d); });
     c.restore();
     // --- comparación de fuerza ---
     const x = 1040, y = 120, w = 500;
@@ -934,7 +1037,7 @@ const escena4 = {
   update(dt) {
     this.sim.paso(dt);
     const est = this.sim.estado();
-    if (this.sim.tiempo % 1 < dt / 60 * 1.01) this.graf.registrar(this.sim.T, this.sim.enlaces.length / this.sim.n);
+    if (this.sim.tiempo % 1 < dt / 60 * 1.01) this.graf.registrar(this.sim.T, this.sim.puentesPorMolecula());
     // registrar el área del estado actual (cuando está lejos de la transición)
     const lejos = est === 'liquido' ? (this.sim.T > 5 && this.sim.T < 60) : est === 'solido' ? this.sim.T < -8 : this.sim.T > 108;
     if (lejos) { const a = Sim.areaUnidades(this.sim.envolvente()); this.areas[est] = this.areas[est] == null ? a : lerp(this.areas[est], a, 0.05); }
@@ -967,13 +1070,110 @@ const escena4 = {
       textoAjustado(c, this.areas.solido > this.areas.liquido ? '→ El hielo ocupa MÁS lugar que el líquido: es menos denso y flota.' : '→ Seguí enfriando/calentando para comparar.', bx, by + 246, bw, 30);
     }
     // gráfico
-    this.graf.dibujar(c, 1120, 330, 440, 290, s.T, s.enlaces.length / s.n);
+    this.graf.dibujar(c, 1120, 330, 440, 290, s.T, s.puentesPorMolecula());
     c.restore();
   }
 };
 
 /* ============================================================
-   ESCENA 5 – ¿Y SI NO HUBIERA PUENTES?
+   ESCENA 5 – PUENTES EN EL HIELO Y EN EL LÍQUIDO (lado a lado)
+   ============================================================ */
+const escenaHL = {
+  titulo: 'Puentes en el hielo y en el líquido',
+  enter(root) {
+    this.simS = new Sim({ caja: { x: 40, y: 140, w: 480, h: 420 }, T: -10 });
+    this.simL = new Sim({ caja: { x: 560, y: 140, w: 480, h: 420 }, T: 20 });
+    for (let k = 0; k < 300; k++) { this.simS.paso(1); this.simL.paso(1); }   // que el líquido se asiente
+    this.mS = this.masCentral(this.simS); this.mL = this.masCentral(this.simL);
+    this.histS = []; this.histL = []; this.tMuestra = 0; this.lenta = false; this.tabla = false;
+    this.hint = el('div', 'cartel abs linea-observar'); this.hint.style.cssText = 'left:40px;top:4px;width:1000px;display:none;padding:8px 20px';
+    this.hint.innerHTML = '<b>OBSERVAR:</b> seguí la molécula marcada en amarillo. ¿Sus puentes cambian o siempre son los mismos?';
+    root.appendChild(this.hint);
+    const bL = el('button', 'abs', '🐢 Cámara lenta'); bL.style.cssText = 'left:1080px;top:560px;font-size:26px';
+    bL.onclick = () => { this.lenta = !this.lenta; bL.classList.toggle('activo', this.lenta); bL.textContent = this.lenta ? '🐇 Velocidad normal' : '🐢 Cámara lenta'; };
+    root.appendChild(bL);
+    this.bConc = botonConclusion(root, 'En el hielo, cada molécula tiene sus puentes fijos: forman una red ordenada, con huecos. En el líquido, los puentes se rompen y se vuelven a formar todo el tiempo.', 1080, 640);
+    this.bConc.addEventListener('click', () => { this.tabla = true; });
+    this.bConc.style.display = 'none';
+    tarjetaPredecir(root, {
+      pregunta: '¿Cómo son los puentes de hidrógeno en el hielo y en el agua líquida?',
+      opciones: ['Iguales: el agua es agua, sólida o líquida.', 'En el hielo son fijos y ordenados; en el líquido se rompen y se forman.', 'En el hielo no hay puentes: las moléculas están quietas y congeladas.']
+    }, () => { this.hint.style.display = 'block'; this.bConc.style.display = 'block'; });
+  },
+  /** La molécula más cercana al centro del grupo (en el hielo, una del interior de la red). */
+  masCentral(s) {
+    let cx = 0, cy = 0; for (const m of s.mols) { cx += m.x; cy += m.y; } cx /= s.mols.length; cy /= s.mols.length;
+    let mejor = 0, bd = 1e18; s.mols.forEach((m, i) => { const d = (m.x - cx) ** 2 + (m.y - cy) ** 2; if (d < bd) { bd = d; mejor = i; } });
+    return mejor;
+  },
+  update(dt) {
+    const d = this.lenta ? dt * 0.3 : dt;
+    this.simS.paso(d); this.simL.paso(d);
+    this.tMuestra += d / 60;
+    if (this.tMuestra >= 0.25) {   // historial de la molécula marcada (últimos 10 s)
+      this.tMuestra = 0;
+      this.histS.push(this.simS.puentesDe(this.mS)); this.histL.push(this.simL.puentesDe(this.mL));
+      if (this.histS.length > 40) { this.histS.shift(); this.histL.shift(); }
+    }
+  },
+  /** Datos debajo de cada caja + mini gráfico de los puentes de la molécula marcada. */
+  dibujarDatos(c, s, idx, hist, x) {
+    const fmt = v => v.toFixed(1).replace('.', ',');
+    c.textAlign = 'left'; c.textBaseline = 'top';
+    c.fillStyle = CFG.COL_TEXTO; c.font = '24px sans-serif'; c.fillText('Promedio: ' + fmt(s.puentesPorMolecula()) + ' puentes por molécula', x, 576);
+    c.fillText('Puentes que se rompieron (últimos 3 s): ', x, 608);
+    c.fillStyle = CFG.COL_HB; c.font = 'bold 26px sans-serif'; c.fillText(String(s.rotosRecientes(3)), x + 432, 606);
+    c.fillStyle = CFG.COL_AREA; c.font = 'bold 26px sans-serif'; const np = s.puentesDe(idx); c.fillText('Molécula marcada: ' + np + (np === 1 ? ' puente' : ' puentes'), x, 642);
+    // mini gráfico: un punto cada 0,25 s
+    const gx = x, gy = 680, gw = 480, gh = 56;
+    c.fillStyle = 'rgba(255,255,255,0.05)'; c.fillRect(gx, gy, gw, gh);
+    c.strokeStyle = '#4a5878'; c.lineWidth = 1;
+    for (let v = 0; v <= 4; v++) { const yy = gy + gh - v / 4 * gh; c.beginPath(); c.moveTo(gx, yy); c.lineTo(gx + gw, yy); c.stroke(); }
+    c.strokeStyle = CFG.COL_AREA; c.lineWidth = 4; c.beginPath();
+    let yPrev = 0; hist.forEach((v, i) => { const xx = gx + i / 39 * gw, yy = gy + gh - v / 4 * gh; if (i) { c.lineTo(xx, yPrev); c.lineTo(xx, yy); } else c.moveTo(xx, yy); yPrev = yy; });
+    c.stroke();
+  },
+  draw(c) {
+    c.save(); c.textBaseline = 'top'; c.textAlign = 'center'; c.font = 'bold 30px sans-serif';
+    c.fillStyle = CFG.COL_SOLIDO; c.fillText('🧊 HIELO (−10 °C)', 280, 100);
+    c.fillStyle = CFG.COL_LIQUIDO; c.fillText('💧 LÍQUIDO (20 °C)', 800, 100);
+    c.restore();
+    this.simS.dibujar(c, { marcada: this.mS });
+    this.simL.dibujar(c, { marcada: this.mL });
+    c.save();
+    this.dibujarDatos(c, this.simS, this.mS, this.histS, 40);
+    this.dibujarDatos(c, this.simL, this.mL, this.histL, 560);
+    // panel derecho
+    const X = 1080; c.textAlign = 'left'; c.textBaseline = 'top';
+    if (!this.tabla) {
+      c.fillStyle = CFG.COL_AREA; c.font = 'bold 30px sans-serif'; c.fillText('Para mirar:', X, 30);
+      c.fillStyle = CFG.COL_TEXTO; c.font = '26px sans-serif';
+      let y = 80;
+      for (const q of ['1. ¿Dónde están más ordenadas las moléculas?', '2. ¿Dónde se rompen más puentes?', '3. ¿Los puentes de la molécula marcada cambian?', '4. ¿Dónde están más juntas las moléculas?'])
+        y = textoAjustado(c, q, X, y, 480, 34) + 14;
+    } else {
+      c.fillStyle = CFG.COL_AREA; c.font = 'bold 30px sans-serif'; c.fillText('¿En qué se diferencian?', X, 20);
+      const c1 = X + 150, c2 = X + 330, filas = [
+        ['Orden', 'red fija, con huecos', 'desordenado'],
+        ['Puentes', 'casi no se rompen', 'se rompen y se forman'],
+        ['Moléculas', 'vibran en su lugar', 'se mueven, más juntas']];
+      c.font = 'bold 26px sans-serif'; c.fillStyle = CFG.COL_SOLIDO; c.fillText('🧊 Hielo', c1, 70); c.fillStyle = CFG.COL_LIQUIDO; c.fillText('💧 Líquido', c2, 70);
+      let y = 120;
+      for (const [a, b, d] of filas) {
+        c.strokeStyle = CFG.COL_CAJA; c.lineWidth = 2; c.beginPath(); c.moveTo(X, y - 8); c.lineTo(X + 480, y - 8); c.stroke();
+        c.fillStyle = CFG.COL_TEXTO; c.font = 'bold 24px sans-serif'; c.fillText(a, X, y);
+        c.font = '24px sans-serif'; const y1 = textoAjustado(c, b, c1, y, 165, 30), y2 = textoAjustado(c, d, c2, y, 165, 30);
+        y = Math.max(y1, y2) + 18;
+      }
+      c.fillStyle = CFG.COL_SUAVE; c.font = '22px sans-serif';
+      textoAjustado(c, 'En este modelo 2D, cada molécula del hielo tiene 3 puentes. En el hielo real (3D) tiene 4.', X, y + 6, 480, 28);
+    }
+    c.restore();
+  }
+};
+
+/* ============================================================
+   ESCENA 6 – ¿Y SI NO HUBIERA PUENTES?
    ============================================================ */
 const escena5 = {
   titulo: '¿Y si no hubiera puentes?',
@@ -1027,7 +1227,7 @@ const escena5 = {
 /* ============================================================
    NAVEGACIÓN Y BUCLE PRINCIPAL
    ============================================================ */
-const ESCENAS = [escena1, escena2, escena3, escena4, escena5];
+const ESCENAS = [escena1, escena2, escena3, escena4, escenaHL, escena5];
 let actual = -1, escena = null;
 const info = document.getElementById('escenaInfo'), puntos = document.getElementById('puntos');
 ESCENAS.forEach(() => puntos.appendChild(el('span')));
