@@ -22,7 +22,10 @@ Prioridad: claridad visual > cantidad de controles.
    lupa que se agranda hasta mostrar el modelo de moléculas en el hielo.
 2. **Conocé la molécula.** Una H₂O grande en "V". Botón "Siguiente idea"
    muestra de a una: enlace covalente (línea sólida), nube de electrones
-   corrida hacia el O con δ−/δ+, analogía del imán chiquito.
+   corrida hacia el O con δ−/δ+ (la molécula sigue siendo neutra), momento
+   dipolar (flechas de cada enlace + flecha resultante, convención de química:
+   apunta al δ−, cruz en el δ+; botón "¿Y si fuera recta?" muestra que los
+   tirones se cancelarían), y polos + / − (parecido a un imán, pero eléctrico).
 3. **Dos moléculas se encuentran.** Arrastrar una molécula. Si un H(δ+)
    queda cerca y alineado con el O(δ−) de la otra → línea punteada celeste
    que titila + cartel. Barras de fuerza: covalente larga vs. puente corta.
@@ -31,7 +34,11 @@ Prioridad: claridad visual > cantidad de controles.
    −20…120 °C (marcas 0 y 100). Estado SÓLIDO/LÍQUIDO/GASEOSO, contador de
    puentes, rectángulo "espacio que ocupan" con área, huecos del hielo
    sombreados, gráfico T vs. puentes/molécula. PREDECIR/OBSERVAR/CONCLUIR.
-5. **¿Y si no hubiera puentes?** Pantalla dividida: izquierda con puentes,
+5. **Puentes en el hielo y en el líquido.** Dos cajas lado a lado (−10 °C y
+   20 °C). Una molécula marcada en amarillo en cada caja, con su número de
+   puentes y un mini gráfico de los últimos 10 s. Contador de puentes rotos en
+   los últimos 3 s. Cámara lenta. Tabla comparativa tras la conclusión.
+6. **¿Y si no hubiera puentes?** Pantalla dividida: izquierda con puentes,
    derecha sin puentes, mismo slider. Sin puentes, el gas aparece a ≈ −80 °C
    (escala cualitativa). Conclusión final. PREDECIR/OBSERVAR/CONCLUIR.
 
@@ -56,6 +63,15 @@ Prioridad: claridad visual > cantidad de controles.
   que el área del hielo > área del líquido (se verifica al final).
 - Gráfico T vs. puentes/molécula: se acumula el promedio por bin de temperatura
   mientras el docente mueve el slider.
+
+## Cinética de los puentes (corrección v2)
+- Hielo: los puentes no se rompen por agitación (red fija). En el modelo 2D
+  cada molécula interior tiene 3 puentes (en el hielo real, 4).
+- Líquido: cada puente posible se forma con prob. P_FORM_LIQ por cuadro y se
+  rompe con prob. P_BREAK_LIQ·(1+x) (+ extra cerca de 100 °C). Resultado:
+  el líquido a 20 °C tiene ≈ 85 % de los puentes del hielo, y menos al calentar.
+- El rectángulo de "espacio que ocupan" ignora las 2 moléculas más alejadas
+  de cada lado (moléculas que saltan del líquido).
 
 ## Secuencia didáctica (Predecir → Observar → Concluir) y errores típicos
 - E3: "¿Qué pasa cuando dos moléculas se acercan?" Opciones incluyen "Se forma
